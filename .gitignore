@@ -1,5 +1,7 @@
+#tom
 .vscode
 test.cpp
 test.exe
-CMakeLists.txt #alde
+#alde
+CMakeLists.txt
 build
