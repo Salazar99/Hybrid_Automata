@@ -1,7 +1,10 @@
 #tom
 .vscode
+build
 test.cpp
 test.exe
+Hybrid_Automata.code-workspace
+exceptionSolver.exe
 #alde
 CMakeLists.txt
 build
