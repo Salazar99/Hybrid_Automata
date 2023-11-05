@@ -13,6 +13,9 @@ public:
     Transition(string condition);
     string getCondition();
     void setCondition(string condition);
+    bool evaluateSingleEquation(string &expression);
+    char evaluateLogicalEquation(string str);
+    bool solve(string str);
     bool checkCondition(unordered_map<string, double> variables);
     friend ostream &operator<<(ostream &os, Transition &obj);
 };
