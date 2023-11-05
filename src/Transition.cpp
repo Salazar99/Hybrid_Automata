@@ -1,6 +1,6 @@
 #include "../include/Objects.h"
 #include <iostream>
-#include <bits/stdc++.h>
+#include <stack>
 
 Transition::Transition(string condition)
 {
