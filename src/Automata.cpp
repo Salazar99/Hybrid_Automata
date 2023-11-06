@@ -94,6 +94,6 @@ ostream &operator<<(ostream &os, Automata &obj)
     {
         os << "- " << n.getName() << "\n";
     }
-    os << "Status: " << obj.getCurrentStatus() << "\n";
+    os << "Status: " << (obj.getCurrentStatus() == 0 ? "OFF" : (obj.getCurrentStatus() == 1 ? "RUNNING" : "PAUSE")) << "\n";
     return os;
 }
