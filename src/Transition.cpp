@@ -166,6 +166,6 @@ bool Transition::checkCondition(unordered_map<string, double> variables)
 
 ostream &operator<<(ostream &os, Transition &obj)
 {
-    os << "Transition: " << obj.getCondition();
+    os << obj.getCondition();
     return os;
 }

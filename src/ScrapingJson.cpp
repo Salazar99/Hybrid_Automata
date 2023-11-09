@@ -1,34 +1,4 @@
-/*#include "../include/Objects.h"
-#include <iostream>
-
-using namespace std;
-
-int main(int argc, char const *argv[])
-{
-
-    Node q1("q1", "first node");
-    Node q2("q2", "second node");
-    Node q3("q3", "third node");
-
-    q1.addTransition("x>=5", q2);  // q1 -> q2
-    q2.addTransition("x>=10", q3); // q2 -> q3
-
-    vector<Node> nodes = {q1, q2, q3};
-    Node initialNode = q1;
-    vector<Node> finalNodes = {q3};
-    unordered_map<string, double> variables;
-    variables["x"] = 1;
-    Status status = RUNNING;
-
-    Automata automata(nodes, initialNode, finalNodes, variables, status);
-    automata.setCurrentNode(initialNode);
-    cout << automata;
-
-    return 0;
-}
-*/
-
-#include "../include/json.hpp"
+/*#include "../include/json.hpp"
 #include "../include/Objects.h"
 #include <iostream>
 #include <fstream>
@@ -63,31 +33,23 @@ int main(int argc, char const *argv[])
         unordered_map<string, double> variables;
         for (json variable : automata["variables"])
         {
-            string var = variable["value"];
-            variables[variable["name"]] = stod(var);
+            variables[variable["name"]] = variable["value"];
         }
 
-        int i = -1;
         for (Node n : arrNodes) // adding transictions to nodes
         {
-            i++;
             for (json node : automata["node"])
             {
                 if (node["name"] == n.getName())
                 {
-
                     for (json transition : node["transitions"])
                     {
                         Node to;
                         for (Node n1 : arrNodes)
                         {
                             to = (n1.getName() != transition["to"]) ? to : n1;
-                            /*if (n1.getName() == transition["to"])
-                            {
-                                to = n1;
-                            }*/
                         }
-                        arrNodes[i].addTransition(transition["condition"], to);
+                        n.addTransition(transition["condition"], to);
                     }
                 }
             }
@@ -105,3 +67,4 @@ int main(int argc, char const *argv[])
 
     return 0;
 }
+*/
