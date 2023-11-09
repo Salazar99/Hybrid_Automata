@@ -4,10 +4,11 @@
 #include <iostream>
 using namespace std;
 
+/// @brief class that represents a Transition between two nodes
 class Transition
 {
 private:
-    string condition;
+    string condition; /*represents the condition to check*/
 
 public:
     Transition(string condition);
@@ -20,6 +21,7 @@ public:
     friend ostream &operator<<(ostream &os, Transition &obj);
 };
 
+/// @brief hash function for Transitions
 struct TransitionHash
 {
     std::size_t operator()(const Transition &t) const
@@ -30,6 +32,7 @@ struct TransitionHash
     }
 };
 
+/// @brief equal function for Transitions
 struct TransitionEqual
 {
     bool operator()(const Transition &t1, const Transition &t2) const
@@ -40,15 +43,14 @@ struct TransitionEqual
     }
 };
 
+/// @brief class that represents a single Node
 class Node
 {
 private:
-    string name;
-    string description;
-    vector<Transition> transitionKeys;
-    unordered_map<Transition, Node, TransitionHash, TransitionEqual> transitions;
-
-    // vector<Transition> transitions;
+    string name;                                                                  /*the name of the node*/
+    string description;                                                           /*a description of the node*/
+    vector<Transition> transitionKeys;                                            /*an arraylist for all the transition of its edges, very useful*/
+    unordered_map<Transition, Node, TransitionHash, TransitionEqual> transitions; /*an hashmap that contains couples that represent each edge (condition, destination) */
 
 public:
     Node();
@@ -73,15 +75,16 @@ enum Status
     PAUSE
 };
 
+/// @brief class that represents one Automata
 class Automata
 {
 private:
-    vector<Node> nodes;
-    Node initialNode;
-    Node currentNode;
-    vector<Node> finalNodes;
-    unordered_map<string, double> automataVariables;
-    Status currentStatus;
+    vector<Node> nodes;                              /*all the nodes*/
+    Node initialNode;                                /*the initial node*/
+    Node currentNode;                                /*the current node*/
+    vector<Node> finalNodes;                         /*the final nodes*/
+    unordered_map<string, double> automataVariables; /*hashmap that contains all the automata variables (variableName, 1.0)*/
+    Status currentStatus;                            /*current status (OFF, RUNNING, PAUSE)*/
 
 public:
     Automata(vector<Node> nodes, Node initialNode, vector<Node> finalNodes, unordered_map<string, double> automataVariables, Status status);
