@@ -37,7 +37,9 @@ Node Automata::getCurrentNode()
 
 void Automata::setCurrentNode(Node currentNode)
 {
+    cout << "Size a: " << currentNode.getTransitionKeys().size() << "\n";
     this->currentNode = currentNode;
+    cout << "Size a: " << this->currentNode.getTransitionKeys().size() << "\n";
 }
 vector<Node> Automata::getFinalNodes()
 {
@@ -71,6 +73,7 @@ void Automata::setCurrentStatus(Status status)
 
 bool Automata::checkForChanges()
 {
+    cout << "CheckForChanges, current node: " << getCurrentNode().getName() << "\n";
     Node newNode = currentNode.checkTransitions(automataVariables);
     if (!(newNode == currentNode))
     {

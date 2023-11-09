@@ -154,14 +154,30 @@ bool Transition::solve(string str)
                 expressionFinal += c;
         }
     }
-    cout << "\n"
-         << expressionFinal << "\n\n";
+    // cout << "\n"
+    //      << expressionFinal << "\n\n";
     return evaluateLogicalEquation(expressionFinal) == '1' ? 1 : 0;
 }
 
 bool Transition::checkCondition(unordered_map<string, double> variables)
 {
-    return solve(getCondition());
+    string condition = getCondition();
+    int pos;
+
+    cout << condition << "\n";
+
+    for (pair<string, double> pair : variables)
+    {
+        pos = condition.find(pair.first);
+        if (pos != string::npos)
+        {
+            condition.replace(pos, pair.first.length(), to_string(pair.second));
+        }
+    }
+
+    cout << condition << "\n";
+
+    return solve(condition);
 }
 
 ostream &operator<<(ostream &os, Transition &obj)

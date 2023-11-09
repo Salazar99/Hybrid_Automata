@@ -47,10 +47,10 @@ struct TransitionEqual
 class Node
 {
 private:
-    string name;                                                                  /*the name of the node*/
-    string description;                                                           /*a description of the node*/
-    vector<Transition> transitionKeys;                                            /*an arraylist for all the transition of its edges, very useful*/
-    unordered_map<Transition, Node, TransitionHash, TransitionEqual> transitions; /*an hashmap that contains couples that represent each edge (condition, destination) */
+    string name;                                                                    /*the name of the node*/
+    string description;                                                             /*a description of the node*/
+    vector<Transition> transitionKeys;                                              /*an arraylist for all the transition of its edges, very useful*/
+    unordered_map<Transition, Node *, TransitionHash, TransitionEqual> transitions; /*an hashmap that contains couples that represent each edge (condition, destination) */
 
 public:
     Node();
@@ -59,12 +59,12 @@ public:
     void setName(string name);
     string getDescription();
     void setDescription(string description);
-    unordered_map<Transition, Node, TransitionHash, TransitionEqual> getTransitions();
+    unordered_map<Transition, Node *, TransitionHash, TransitionEqual> getTransitions();
     vector<Transition> getTransitionKeys();
-    void setTransitions(unordered_map<Transition, Node, TransitionHash, TransitionEqual> transitions);
-    void addTransition(string condition, Node destination);
+    void setTransitions(unordered_map<Transition, Node *, TransitionHash, TransitionEqual> transitions);
+    void addTransition(string condition, Node &destination);
     Node checkTransitions(unordered_map<string, double> sharedVariables);
-    bool operator==(Node &other);
+    bool operator==(const Node &other);
     friend ostream &operator<<(ostream &os, Node &obj);
 };
 
