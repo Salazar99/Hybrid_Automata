@@ -154,30 +154,32 @@ bool Transition::solve(string str)
                 expressionFinal += c;
         }
     }
-    // cout << "\n"
-    //      << expressionFinal << "\n\n";
     return evaluateLogicalEquation(expressionFinal) == '1' ? 1 : 0;
 }
 
-bool Transition::checkCondition(unordered_map<string, double> variables)
+bool Transition::checkCondition(unordered_map<string, double *> &variables)
 {
     string condition = getCondition();
     int pos;
 
-    cout << condition << "\n";
+    cout << "\nCondizione pre-replace: " << condition << "\n";
 
-    for (pair<string, double> pair : variables)
+    for (pair<string, double *> pair : variables)
     {
         pos = condition.find(pair.first);
-        if (pos != string::npos)
+        while (pos != string::npos)
         {
-            condition.replace(pos, pair.first.length(), to_string(pair.second));
+            condition.replace(pos, pair.first.length(), to_string(*(pair.second)));
+            pos = condition.find(pair.first);
         }
     }
 
-    cout << condition << "\n";
+    cout << "Condizione post-replace: " << condition << "\n";
+    bool output = solve(condition);
 
-    return solve(condition);
+    cout << "Valutato: " << output << "\n";
+
+    return output;
 }
 
 ostream &operator<<(ostream &os, Transition &obj)

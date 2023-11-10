@@ -17,7 +17,7 @@ public:
     bool evaluateSingleEquation(string &expression);
     char evaluateLogicalEquation(string str);
     bool solve(string str);
-    bool checkCondition(unordered_map<string, double> variables);
+    bool checkCondition(unordered_map<string, double *> &variables);
     friend ostream &operator<<(ostream &os, Transition &obj);
 };
 
@@ -61,9 +61,9 @@ public:
     void setDescription(string description);
     unordered_map<Transition, Node *, TransitionHash, TransitionEqual> getTransitions();
     vector<Transition> getTransitionKeys();
-    void setTransitions(unordered_map<Transition, Node *, TransitionHash, TransitionEqual> transitions);
+    void setTransitions(unordered_map<Transition, Node *, TransitionHash, TransitionEqual> &transitions);
     void addTransition(string condition, Node &destination);
-    Node checkTransitions(unordered_map<string, double> sharedVariables);
+    Node checkTransitions(unordered_map<string, double *> &sharedVariables);
     bool operator==(const Node &other);
     friend ostream &operator<<(ostream &os, Node &obj);
 };
@@ -79,25 +79,25 @@ enum Status
 class Automata
 {
 private:
-    vector<Node> nodes;                              /*all the nodes*/
-    Node initialNode;                                /*the initial node*/
-    Node currentNode;                                /*the current node*/
-    vector<Node> finalNodes;                         /*the final nodes*/
-    unordered_map<string, double> automataVariables; /*hashmap that contains all the automata variables (variableName, 1.0)*/
-    Status currentStatus;                            /*current status (OFF, RUNNING, PAUSE)*/
+    vector<Node> nodes;                                /*all the nodes*/
+    Node initialNode;                                  /*the initial node*/
+    Node currentNode;                                  /*the current node*/
+    vector<Node> finalNodes;                           /*the final nodes*/
+    unordered_map<string, double *> automataVariables; /*hashmap that contains all the automata variables (variableName, 1.0)*/
+    Status currentStatus;                              /*current status (OFF, RUNNING, PAUSE)*/
 
 public:
-    Automata(vector<Node> nodes, Node initialNode, vector<Node> finalNodes, unordered_map<string, double> automataVariables, Status status);
+    Automata(vector<Node> nodes, Node initialNode, vector<Node> finalNodes, unordered_map<string, double *> &automataVariables, Status status);
     vector<Node> getNodes();
-    void setNodes(vector<Node> nodes);
+    void setNodes(vector<Node> &nodes);
     Node getInitialNode();
-    void setInitialNode(Node initialNode);
+    void setInitialNode(Node &initialNode);
     Node getCurrentNode();
-    void setCurrentNode(Node currentNode);
+    void setCurrentNode(Node &currentNode);
     vector<Node> getFinalNodes();
-    void setFinalNodes(vector<Node> finalNodes);
-    unordered_map<string, double> getAutomataVariables();
-    void setAutomataVariables(unordered_map<string, double> automataVaribles);
+    void setFinalNodes(vector<Node> &finalNodes);
+    unordered_map<string, double *> getAutomataVariables();
+    void setAutomataVariables(unordered_map<string, double *> &automataVaribles);
     Status getCurrentStatus();
     void setCurrentStatus(Status status);
     bool checkForChanges();

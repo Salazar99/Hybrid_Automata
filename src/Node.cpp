@@ -52,7 +52,7 @@ unordered_map<Transition, Node *, TransitionHash, TransitionEqual> Node::getTran
 
 /// @brief change the transitions of the node
 /// @param transitions the new transitions
-void Node::setTransitions(unordered_map<Transition, Node *, TransitionHash, TransitionEqual> transitions)
+void Node::setTransitions(unordered_map<Transition, Node *, TransitionHash, TransitionEqual> &transitions)
 {
     this->transitions = transitions;
 }
@@ -70,15 +70,9 @@ bool Node::operator==(const Node &other)
 /// @param destination
 void Node::addTransition(string condition, Node &destination)
 {
-
-    cout << "Destination: " << destination.getName() << ", Size: " << destination.getTransitionKeys().size() << "\n";
-
     Transition *aux = new Transition(condition);
     this->transitionKeys.push_back(*aux);
     this->transitions[*aux] = &destination;
-
-    cout << "Nodo: " << getName() << ", Size: " << transitionKeys.size() << "\n";
-    cout << "Nodo: " << transitions[*aux]->getName() << ", Size: " << transitions[*aux]->getTransitionKeys().size() << "\n";
 }
 
 /// @brief returns all the transitions' condition
@@ -91,17 +85,13 @@ vector<Transition> Node::getTransitionKeys()
 /// @brief checks if any transition is satisfied
 /// @param sharedVariables the variables of the automata
 /// @return Node (the new current node)
-Node Node::checkTransitions(unordered_map<string, double> sharedVariables)
+Node Node::checkTransitions(unordered_map<string, double *> &sharedVariables)
 {
-    cout << "CheckTransition, " << getName() << ", " << getTransitionKeys().size() << "\n";
     for (Transition t : getTransitionKeys())
     {
-        cout << "Controllo transition\n";
-        cout << "Pre-Controllo, Name: " << transitions[t]->getName() << ", Size: " << transitions[t]->getTransitionKeys().size() << "\n";
 
         if (t.checkCondition(sharedVariables))
         {
-            cout << "Name: " << transitions[t]->getName() << ", Size: " << transitions[t]->getTransitionKeys().size() << "\n";
             return *(transitions[t]);
         }
     }

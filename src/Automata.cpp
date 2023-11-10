@@ -1,7 +1,7 @@
 #include "../include/Objects.h"
 #include <iostream>
 
-Automata::Automata(vector<Node> nodes, Node initialNode, vector<Node> finalNodes, unordered_map<string, double> automataVariables, Status status)
+Automata::Automata(vector<Node> nodes, Node initialNode, vector<Node> finalNodes, unordered_map<string, double *> &automataVariables, Status status)
 {
     this->nodes = nodes;
     this->initialNode = initialNode;
@@ -15,7 +15,7 @@ vector<Node> Automata::getNodes()
     return this->nodes;
 }
 
-void Automata::setNodes(vector<Node> nodes)
+void Automata::setNodes(vector<Node> &nodes)
 {
     this->nodes = nodes;
 }
@@ -25,7 +25,7 @@ Node Automata::getInitialNode()
     return this->initialNode;
 }
 
-void Automata::setInitialNode(Node initialNode)
+void Automata::setInitialNode(Node &initialNode)
 {
     this->initialNode = initialNode;
 }
@@ -35,28 +35,26 @@ Node Automata::getCurrentNode()
     return this->currentNode;
 }
 
-void Automata::setCurrentNode(Node currentNode)
+void Automata::setCurrentNode(Node &currentNode)
 {
-    cout << "Size a: " << currentNode.getTransitionKeys().size() << "\n";
     this->currentNode = currentNode;
-    cout << "Size a: " << this->currentNode.getTransitionKeys().size() << "\n";
 }
 vector<Node> Automata::getFinalNodes()
 {
     return this->finalNodes;
 }
 
-void Automata::setFinalNodes(vector<Node> finalNodes)
+void Automata::setFinalNodes(vector<Node> &finalNodes)
 {
     this->finalNodes = finalNodes;
 }
 
-unordered_map<string, double> Automata::getAutomataVariables()
+unordered_map<string, double *> Automata::getAutomataVariables()
 {
     return this->automataVariables;
 }
 
-void Automata::setAutomataVariables(unordered_map<string, double> autoamtaVariables)
+void Automata::setAutomataVariables(unordered_map<string, double *> &autoamtaVariables)
 {
     this->automataVariables = autoamtaVariables;
 }
@@ -73,7 +71,6 @@ void Automata::setCurrentStatus(Status status)
 
 bool Automata::checkForChanges()
 {
-    cout << "CheckForChanges, current node: " << getCurrentNode().getName() << "\n";
     Node newNode = currentNode.checkTransitions(automataVariables);
     if (!(newNode == currentNode))
     {
