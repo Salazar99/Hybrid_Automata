@@ -1,14 +1,13 @@
-/*#include "../include/json.hpp"
-#include "../include/Objects.h"
+#include "../include/UtilsJson.h"
+#include "../include/json.hpp"
 #include <iostream>
-#include <fstream>
+
 using namespace std;
 using json = nlohmann::json;
 
-int main(int argc, char const *argv[])
+vector<Automata> UtilsJson::ScrapingJson(string c)
 {
-
-    std::ifstream f("../settings.json");
+    std::ifstream f(c);
     json data = json::parse(f);
     vector<Automata> arrAutomata;
     vector<Node> arrNodes;
@@ -33,23 +32,31 @@ int main(int argc, char const *argv[])
         unordered_map<string, double> variables;
         for (json variable : automata["variables"])
         {
-            variables[variable["name"]] = variable["value"];
+            string var = variable["value"];
+            variables[variable["name"]] = stod(var);
         }
 
+        int i = -1;
         for (Node n : arrNodes) // adding transictions to nodes
         {
+            i++;
             for (json node : automata["node"])
             {
                 if (node["name"] == n.getName())
                 {
+
                     for (json transition : node["transitions"])
                     {
                         Node to;
                         for (Node n1 : arrNodes)
                         {
                             to = (n1.getName() != transition["to"]) ? to : n1;
+                            /*if (n1.getName() == transition["to"])
+                            {
+                                to = n1;
+                            }*/
                         }
-                        n.addTransition(transition["condition"], to);
+                        arrNodes[i].addTransition(transition["condition"], to);
                     }
                 }
             }
@@ -59,12 +66,5 @@ int main(int argc, char const *argv[])
         arrAutomata.push_back(Automata(arrNodes, startNode, finalNodes, variables, status));
         arrNodes.clear(); // empty for next automata creation
     }
-
-    for (Automata a : arrAutomata)
-    {
-        cout << a;
-    }
-
-    return 0;
+    return arrAutomata;
 }
-*/
