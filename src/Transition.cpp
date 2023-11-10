@@ -159,9 +159,25 @@ bool Transition::solve(string str)
     return evaluateLogicalEquation(expressionFinal) == '1' ? 1 : 0;
 }
 
+string preProcessing(string str)
+{
+    string newStr = "";
+    for (char c : str)
+    {
+        newStr += c;
+        if (c == '&' || c == '|')
+        {
+            newStr[newStr.size() - 1] = ',';
+            newStr += c;
+            newStr += ',';
+        }
+    }
+    return newStr;
+}
+
 bool Transition::checkCondition(unordered_map<string, double> variables)
 {
-    return solve(getCondition());
+    return solve(preProcessing(getCondition()));
 }
 
 ostream &operator<<(ostream &os, Transition &obj)
