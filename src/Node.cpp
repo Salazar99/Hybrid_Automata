@@ -87,6 +87,7 @@ vector<Transition> Node::getTransitionKeys()
 /// @return Node (the new current node)
 string Node::checkTransitions(unordered_map<string, double *> &sharedVariables)
 {
+    cout << "CheckTransitions, name: " << getName() << ", size transitions: " << transitionKeys.size() << "\n";
     for (Transition t : getTransitionKeys())
     {
 

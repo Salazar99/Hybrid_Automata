@@ -5,6 +5,7 @@ Automata::Automata(vector<Node> nodes, Node initialNode, vector<Node> finalNodes
 {
     this->nodes = nodes;
     this->initialNode = initialNode;
+    this->currentNode = initialNode;
     this->finalNodes = finalNodes;
     this->automataVariables = automataVariables;
     this->currentStatus = status;
@@ -71,6 +72,9 @@ void Automata::setCurrentStatus(Status status)
 
 bool Automata::checkForChanges()
 {
+
+    cout << "CheckForChanges\n";
+
     string newNode = currentNode.checkTransitions(automataVariables);
 
     if (newNode == currentNode.getName())

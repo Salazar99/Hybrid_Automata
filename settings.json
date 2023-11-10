@@ -6,90 +6,47 @@
             [
                 {
                     "name":"Q0",
-                    "description":"Thermostat off",
+                    "description":"First Node",
                     "flag":"start",
                     "transitions":
                     [
                         {
                             "to":"Q1",
-                            "condition":"[(temp>15),&,(temp<30)]"
-                        },
-                        {
-                            "to":"Q2",
-                            "condition":"[(temp>=30)]"
-                        },
-                        {
-                            "to":"Q3",
-                            "condition":"[(temp<=15)]"
+                            "condition":"(x>=5)"
                         }
                     ]
                 },
                 {
                     "name":"Q1",
-                    "description":"Thermostat goal (15-30)",
-                    "flag":"final",
+                    "description":"Second Node",
+                    "flag":"none",
                     "transitions":
                     [
                         {
-                            "to":"Q1",
-                            "condition":"[(temp>15),&,(temp<30)]"
+                            "to":"Q0",
+                            "condition":"(x<5)"
                         },
                         {
                             "to":"Q2",
-                            "condition":"[(temp>=30)]"
-                        },
-                        {
-                            "to":"Q3",
-                            "condition":"[(temp<=15)]"
+                            "condition":"(x>=10)"
                         }
                     ]
                 },
                 {
                     "name":"Q2",
-                    "description":"Thermostat cooling",
-                    "flag":"none",
+                    "description":"Third Node",
+                    "flag":"final",
                     "transitions":
                     [
-                        {
-                            "to":"Q1",
-                            "condition":"[(temp>15),&,(temp<30)]"
-                        },
-                        {
-                            "to":"Q2",
-                            "condition":"[(temp>=30)]"
-                        },
-                        {
-                            "to":"Q3",
-                            "condition":"[(temp<=15)]"
-                        }
-                    ]
-                },
-                {
-                    "name":"Q3",
-                    "description":"Thermostat warming up",
-                    "flag":"none",
-                    "transitions":
-                    [
-                        {
-                            "to":"Q1",
-                            "condition":"[(temp>15),&,(temp<30)]"
-                        },
-                        {
-                            "to":"Q2",
-                            "condition":"[(temp>=30)]"
-                        },
-                        {
-                            "to":"Q3",
-                            "condition":"[(temp<=15)]"
-                        }
+
                     ]
                 }
             ],
             "variables":
             [
                 {
-                    "name":"temp",
-                    "value":"0"
+                    "name":"x",
+                    "value":"1"
                 }
             ]
         }

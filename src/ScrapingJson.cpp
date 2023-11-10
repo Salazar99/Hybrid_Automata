@@ -15,8 +15,12 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
     vector<Node> arrNodes;
     Node startNode;
     vector<Node> finalNodes;
+    int j = 0;
+    int store = 0;
     for (json automata : data["automata"])
     {
+        j = 0;
+        store = 0;
         for (json node : automata["node"])
         {
             Node n(node["name"], node["description"]);
@@ -24,11 +28,13 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
             if (node["flag"] == "start")
             {
                 startNode = n;
+                store = j;
             }
             else if (node["flag"] == "final")
             {
                 finalNodes.push_back(n);
             }
+            j++;
         }
 
         unordered_map<string, double *> variables;
@@ -67,7 +73,8 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
         }
 
         Status status = RUNNING;
-        arrAutomata.push_back(Automata(arrNodes, startNode, finalNodes, variables, status));
+        Automata c(arrNodes, arrNodes[store], finalNodes, variables, status);
+        arrAutomata.push_back(c);
         arrNodes.clear(); // empty for next automata creation
     }
     return arrAutomata;
