@@ -17,7 +17,7 @@ int main(int argc, char const *argv[])
     {
         cout << a;
     }
-    Node q1("q1", "first node");
+    /*Node q1("q1", "first node");
     Node q2("q2", "second node");
     Node q3("q3", "third node");
 
@@ -75,6 +75,6 @@ int main(int argc, char const *argv[])
         cout << "Nodo corrente: " << automata.getCurrentNode().getName() << "\n";
         //  this_thread::sleep_for(chrono::seconds(10));
     }
-
+*/
     return 0;
 }

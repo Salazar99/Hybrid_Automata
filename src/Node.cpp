@@ -107,6 +107,6 @@ ostream &operator<<(ostream &os, Node &obj)
 {
     os << "Name: " << obj.name << ", description: " << obj.description << ", transitions: \n";
     for (Transition t : obj.getTransitionKeys())
-        os << "  " << t << " ----> " << obj.getTransitions()[t].getName() << "\n";
+        os << "  " << t << " ----> " << obj.getTransitions()[t]->getName() << "\n";
     return os;
 }

@@ -175,9 +175,34 @@ string preProcessing(string str)
 
 bool Transition::checkCondition(unordered_map<string, double *> &variables)
 {
-    return solve(preProcessing(getCondition()));
+    string condition = getCondition();
+    int pos;
+
+    cout << "\nCondizione pre-replace: " << condition << "\n";
+
+    for (pair<string, double *> pair : variables)
+    {
+        pos = condition.find(pair.first);
+        while (pos != string::npos)
+        {
+            condition.replace(pos, pair.first.length(), to_string(*(pair.second)));
+            pos = condition.find(pair.first);
+        }
+    }
+
+    cout << "Condizione post-replace: " << condition << "\n";
+    bool output = solve(preProcessing(condition));
+
+    cout << "Valutato: " << output << "\n";
+
+    return output;
 }
 
+/*bool Transition::checkCondition(unordered_map<string, double *> &variables)
+{
+    return solve(preProcessing(getCondition()));
+}
+*/
 ostream &operator<<(ostream &os, Transition &obj)
 {
     os << obj.getCondition();

@@ -29,11 +29,13 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
             }
         }
 
-        unordered_map<string, double> variables;
+        unordered_map<string, double *> variables;
+        double *y;
         for (json variable : automata["variables"])
         {
             string var = variable["value"];
-            variables[variable["name"]] = stod(var);
+            y = new double(stod(var));
+            variables[variable["name"]] = y;
         }
 
         int i = -1;
