@@ -15,9 +15,9 @@ int main(int argc, char const *argv[])
     Node q2("q2", "second node");
     Node q3("q3", "third node");
 
-    q1.addTransition("(x>=5) & (y<1) & (y!=10)", q2); // q1 -> q2
-    q2.addTransition("(x>=10) | (y==10)", q3);        // q2 -> q3
-    q2.addTransition("(x<5) & (y>1) & (y!=10)", q1);
+    q1.addTransition("(x>=5)", q2);  // q1 -> q2
+    q2.addTransition("(x>=10)", q3); // q2 -> q3
+    q2.addTransition("(x<5)", q1);
 
     q3.addTransition("(x<5)", q1);
     vector<Node> nodes = {q1, q2, q3};
@@ -58,11 +58,11 @@ int main(int argc, char const *argv[])
         cout << "Inserisci valore di x: ";
         cin >> *(variables["x"]);
 
-        cout << "Inserisci valore di y: ";
-        cin >> *(variables["y"]);
+        // cout << "Inserisci valore di y: ";
+        // cin >> *(variables["y"]);
 
         cout << "\nX: " << *(variables["x"]);
-        cout << "\nY: " << *(variables["y"]);
+        // cout << "\nY: " << *(variables["y"]);
 
         // automata.setAutomataVariables(variables);
         automata.checkForChanges();
