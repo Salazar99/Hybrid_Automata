@@ -11,6 +11,7 @@ using namespace std;
 int main(int argc, char const *argv[])
 {
     UtilsJson j;
+
     vector<Automata> v = j.ScrapingJson("../settings.json");
 
     for (Automata a : v)

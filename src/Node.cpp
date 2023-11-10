@@ -45,14 +45,14 @@ void Node::setDescription(string description)
 
 /// @brief returns all the transitions of the node
 /// @return Node.transitions
-unordered_map<Transition, Node *, TransitionHash, TransitionEqual> Node::getTransitions()
+unordered_map<Transition, string, TransitionHash, TransitionEqual> Node::getTransitions()
 {
     return this->transitions;
 }
 
 /// @brief change the transitions of the node
 /// @param transitions the new transitions
-void Node::setTransitions(unordered_map<Transition, Node *, TransitionHash, TransitionEqual> &transitions)
+void Node::setTransitions(unordered_map<Transition, string, TransitionHash, TransitionEqual> &transitions)
 {
     this->transitions = transitions;
 }
@@ -68,11 +68,11 @@ bool Node::operator==(const Node &other)
 /// @brief adds a transition to the transitions of the node
 /// @param condition
 /// @param destination
-void Node::addTransition(string condition, Node &destination)
+void Node::addTransition(string condition, string destination)
 {
     Transition *aux = new Transition(condition);
     this->transitionKeys.push_back(*aux);
-    this->transitions[*aux] = &destination;
+    this->transitions[*aux] = destination;
 }
 
 /// @brief returns all the transitions' condition
@@ -85,18 +85,18 @@ vector<Transition> Node::getTransitionKeys()
 /// @brief checks if any transition is satisfied
 /// @param sharedVariables the variables of the automata
 /// @return Node (the new current node)
-Node Node::checkTransitions(unordered_map<string, double *> &sharedVariables)
+string Node::checkTransitions(unordered_map<string, double *> &sharedVariables)
 {
     for (Transition t : getTransitionKeys())
     {
 
         if (t.checkCondition(sharedVariables))
         {
-            return *(transitions[t]);
+            return transitions[t];
         }
     }
 
-    return *this;
+    return this->getName();
 }
 
 /// @brief override of the '<<' operator
@@ -107,6 +107,6 @@ ostream &operator<<(ostream &os, Node &obj)
 {
     os << "Name: " << obj.name << ", description: " << obj.description << ", transitions: \n";
     for (Transition t : obj.getTransitionKeys())
-        os << "  " << t << " ----> " << obj.getTransitions()[t]->getName() << "\n";
+        os << "  " << t << " ----> " << obj.getTransitions()[t] << "\n";
     return os;
 }

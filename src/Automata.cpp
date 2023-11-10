@@ -71,11 +71,18 @@ void Automata::setCurrentStatus(Status status)
 
 bool Automata::checkForChanges()
 {
-    Node newNode = currentNode.checkTransitions(automataVariables);
-    if (!(newNode == currentNode))
+    string newNode = currentNode.checkTransitions(automataVariables);
+
+    if (newNode == currentNode.getName())
+        return 0;
+
+    for (Node c : nodes)
     {
-        setCurrentNode(newNode);
-        return 1;
+        if (c.getName() == newNode)
+        {
+            setCurrentNode(c);
+            return 1;
+        }
     }
     return 0;
 }
