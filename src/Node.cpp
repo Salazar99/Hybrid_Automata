@@ -45,14 +45,14 @@ void Node::setDescription(string description)
 
 /// @brief returns all the transitions of the node
 /// @return Node.transitions
-unordered_map<Transition, Node, TransitionHash, TransitionEqual> Node::getTransitions()
+unordered_map<Transition, Node *, TransitionHash, TransitionEqual> Node::getTransitions()
 {
     return this->transitions;
 }
 
 /// @brief change the transitions of the node
 /// @param transitions the new transitions
-void Node::setTransitions(unordered_map<Transition, Node, TransitionHash, TransitionEqual> transitions)
+void Node::setTransitions(unordered_map<Transition, Node *, TransitionHash, TransitionEqual> &transitions)
 {
     this->transitions = transitions;
 }
@@ -60,7 +60,7 @@ void Node::setTransitions(unordered_map<Transition, Node, TransitionHash, Transi
 /// @brief override of the '==' operator
 /// @param other the other object
 /// @return true if equals, false otherwise
-bool Node::operator==(Node &other)
+bool Node::operator==(const Node &other)
 {
     return this->name == other.name;
 }
@@ -68,11 +68,11 @@ bool Node::operator==(Node &other)
 /// @brief adds a transition to the transitions of the node
 /// @param condition
 /// @param destination
-void Node::addTransition(string condition, Node destination)
+void Node::addTransition(string condition, Node &destination)
 {
-    Transition aux(condition);
-    transitionKeys.push_back(aux);
-    this->transitions[aux] = destination;
+    Transition *aux = new Transition(condition);
+    this->transitionKeys.push_back(*aux);
+    this->transitions[*aux] = &destination;
 }
 
 /// @brief returns all the transitions' condition
@@ -85,13 +85,14 @@ vector<Transition> Node::getTransitionKeys()
 /// @brief checks if any transition is satisfied
 /// @param sharedVariables the variables of the automata
 /// @return Node (the new current node)
-Node Node::checkTransitions(unordered_map<string, double> sharedVariables)
+Node Node::checkTransitions(unordered_map<string, double *> &sharedVariables)
 {
-    for (Transition t : transitionKeys)
+    for (Transition t : getTransitionKeys())
     {
+
         if (t.checkCondition(sharedVariables))
         {
-            return transitions[t];
+            return *(transitions[t]);
         }
     }
 

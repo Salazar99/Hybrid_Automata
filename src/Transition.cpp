@@ -154,8 +154,6 @@ bool Transition::solve(string str)
                 expressionFinal += c;
         }
     }
-    cout << "\n"
-         << expressionFinal << "\n\n";
     return evaluateLogicalEquation(expressionFinal) == '1' ? 1 : 0;
 }
 
@@ -175,7 +173,7 @@ string preProcessing(string str)
     return newStr;
 }
 
-bool Transition::checkCondition(unordered_map<string, double> variables)
+bool Transition::checkCondition(unordered_map<string, double *> &variables)
 {
     return solve(preProcessing(getCondition()));
 }
