@@ -2,22 +2,30 @@
 #include <iostream>
 #include <stack>
 
+/// @brief constructor
+/// @param condition the condition of the transition
 Transition::Transition(string condition)
 {
     this->condition = condition;
 }
 
+/// @brief return the condition of the transition
+/// @return the condition
 string Transition::getCondition()
 {
     return condition;
 }
 
+/// @brief set the condition of the transition
+/// @param condition the condition of the transition
 void Transition::setCondition(string condition)
 {
     this->condition = condition;
 }
 
-// Evaluate the single expression like "(5>9)" --> 0 (false))
+/// @brief evaluate the single expression like "(5>9)" --> 0 (false))
+/// @param expression the expression to evaluate
+/// @return the evaluation of the expression
 bool Transition::evaluateSingleEquation(string &expression)
 {
 
@@ -85,7 +93,9 @@ bool Transition::evaluateSingleEquation(string &expression)
     return false;
 }
 
-// Evaluate ONLY logical expression with true false like "(1 & 1) | (1 | 0)"
+/// @brief Evaluate ONLY logical expression with true false like "(1 & 1) | (1 | 0)"
+/// @param str the logical expression to evaluate
+/// @return 0 or 1 (false, true)
 char Transition::evaluateLogicalEquation(string str)
 {
     stack<char> arr;
@@ -124,7 +134,9 @@ char Transition::evaluateLogicalEquation(string str)
     return arr.top();
 }
 
-// Scraping the initial equation to obtain a simple logical expression and then solve it
+/// @brief Scraping the initial equation to obtain a simple logical expression and then solve it
+/// @param str the initial equation
+/// @return the evaluation
 bool Transition::solve(string str)
 {
     string expressionFinal = "";
@@ -157,6 +169,9 @@ bool Transition::solve(string str)
     return evaluateLogicalEquation(expressionFinal) == '1' ? 1 : 0;
 }
 
+/// @brief perform pre-processing to make evaluation easier
+/// @param str the string to pre-process
+/// @return the processed string to evaluate
 string preProcessing(string str)
 {
     string newStr = "";
@@ -173,6 +188,9 @@ string preProcessing(string str)
     return newStr;
 }
 
+/// @brief replace the variables in the condition with the real values and check them
+/// @param variables the map containing the couple <name, value>
+/// @return the evaluation
 bool Transition::checkCondition(unordered_map<string, double *> &variables)
 {
     string condition = getCondition();
@@ -203,6 +221,8 @@ bool Transition::checkCondition(unordered_map<string, double *> &variables)
     return solve(preProcessing(getCondition()));
 }
 */
+
+/// @brief to string
 ostream &operator<<(ostream &os, Transition &obj)
 {
     os << obj.getCondition();

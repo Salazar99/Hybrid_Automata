@@ -8,9 +8,7 @@ using json = nlohmann::json;
 vector<Automata> UtilsJson::ScrapingJson(string c)
 {
     std::ifstream f(c);
-
     json data = json::parse(f);
-
     vector<Automata> arrAutomata;
     vector<Node> arrNodes;
     Node startNode;

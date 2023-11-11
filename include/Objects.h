@@ -85,6 +85,7 @@ private:
     vector<Node> finalNodes;                           /*the final nodes*/
     unordered_map<string, double *> automataVariables; /*hashmap that contains all the automata variables (variableName, 1.0)*/
     Status currentStatus;                              /*current status (OFF, RUNNING, PAUSE)*/
+    unordered_map<string, Node> nodesNames;            /*hashmap that connects nodes' names to the actual nodes*/
 
 public:
     Automata(vector<Node> nodes, Node initialNode, vector<Node> finalNodes, unordered_map<string, double *> &automataVariables, Status status);
@@ -100,6 +101,8 @@ public:
     void setAutomataVariables(unordered_map<string, double *> &automataVaribles);
     Status getCurrentStatus();
     void setCurrentStatus(Status status);
+    unordered_map<string, Node> getNodesNames();
+    void setNodesNames(unordered_map<string, Node> &nodesNames);
     bool checkForChanges();
     friend ostream &operator<<(ostream &os, Automata &obj);
 };
