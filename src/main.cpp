@@ -13,7 +13,7 @@ int main(int argc, char const *argv[])
 
     UtilsJson j;
 
-    vector<Automata> v = j.ScrapingJson("../settings.json");
+    vector<Automata> v = j.ScrapingJson("C://Users//tomvi//Hybrid_Automata//settings.json");
 
     unordered_map<string, double *> variables;
     double x = 1.56;
@@ -45,7 +45,7 @@ int main(int argc, char const *argv[])
             // cout << "Inserisci valore di y: ";
             // cin >> *(variables["y"]);
 
-            cout << "\nX: " << *(variables["x"]);
+            cout << "\nX: " << *(variables["x"]) << "\n";
             // cout << "\nY: " << *(variables["y"]);
 
             // automata.setAutomataVariables(variables);
