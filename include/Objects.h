@@ -52,9 +52,11 @@ private:
     vector<Transition> transitionKeys;                                              /*an arraylist for all the transition of its edges, very useful*/
     unordered_map<Transition, string, TransitionHash, TransitionEqual> transitions; /*an hashmap that contains couples that represent each edge (condition, destination) */
 
+    string instructions;
+
 public:
     Node();
-    Node(string name, string description);
+    Node(string name, string description, string instructions);
     string getName();
     void setName(string name);
     string getDescription();
@@ -64,6 +66,7 @@ public:
     void setTransitions(unordered_map<Transition, string, TransitionHash, TransitionEqual> &transitions);
     void addTransition(string condition, string destination);
     string checkTransitions(unordered_map<string, double *> &sharedVariables);
+    void executeNodeInstructions(unordered_map<string, double *> &sharedVariables);
     bool operator==(const Node &other);
     friend ostream &operator<<(ostream &os, Node &obj);
 };

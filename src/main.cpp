@@ -13,7 +13,7 @@ int main(int argc, char const *argv[])
 
     UtilsJson j;
 
-    vector<Automata> v = j.ScrapingJson("C://Users//tomvi//Hybrid_Automata//settings.json");
+    vector<Automata> v = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//settings.json");
 
     unordered_map<string, double *> variables;
     double x = 1.56;

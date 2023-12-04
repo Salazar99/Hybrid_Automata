@@ -127,6 +127,9 @@ bool Automata::checkForChanges()
 {
 
     string newNode = currentNode.checkTransitions(automataVariables);
+
+    nodesNames[newNode].executeNodeInstructions(automataVariables);
+
     if (newNode == currentNode.getName())
         return 0;
 
