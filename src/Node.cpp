@@ -171,6 +171,8 @@ double solve(string str)
     char c;
     while (str.find("(") != string::npos)
     {
+
+        //
         c = str[i];
         if (c == '(') // Identifying the beginning of comparison between numbers
         {
@@ -194,6 +196,8 @@ double solve(string str)
         {
             if (c != '(')
                 expressionTemp += c;
+            else
+                expressionTemp = "";
         }
         i++;
     }
@@ -238,7 +242,6 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
                     pos = aux[1].find(pair.first);
                 }
             }
-
             value = new double;
             *value = solve(aux[1]);
             sharedVariables[aux[0]] = value;
