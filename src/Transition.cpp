@@ -1,6 +1,7 @@
 #include "../include/Objects.h"
 #include <iostream>
 #include <stack>
+#include "../include/tinyexpr.h"
 
 /// @brief constructor
 /// @param condition the condition of the transition
@@ -29,13 +30,25 @@ void Transition::setCondition(string condition)
 bool Transition::evaluateSingleEquation(string &expression)
 {
 
+    for (size_t i = 0; i < expression.length(); ++i)
+    {
+        if (expression[i] == '[')
+        {
+            expression[i] = '(';
+        }
+        else if (expression[i] == ']')
+        {
+            expression[i] = ')';
+        }
+    }
+
     size_t pos = expression.find("<=");
     if (pos != string::npos)
     {
         string left = expression.substr(0, pos);
         string right = expression.substr(pos + 2);
-        double a = stod(left);
-        double b = stod(right);
+        double a = te_interp(left.c_str(), 0);
+        double b = te_interp(right.c_str(), 0);
         return a <= b;
     }
 
@@ -44,8 +57,10 @@ bool Transition::evaluateSingleEquation(string &expression)
     {
         string left = expression.substr(0, pos);
         string right = expression.substr(pos + 2);
-        double a = stod(left);
-        double b = stod(right);
+        cout << right;
+        cout << te_interp(right.c_str(), 0);
+        double a = te_interp(left.c_str(), 0);
+        double b = te_interp(right.c_str(), 0);
         return a >= b;
     }
 
@@ -54,8 +69,8 @@ bool Transition::evaluateSingleEquation(string &expression)
     {
         string left = expression.substr(0, pos);
         string right = expression.substr(pos + 1);
-        double a = stod(left);
-        double b = stod(right);
+        double a = te_interp(left.c_str(), 0);
+        double b = te_interp(right.c_str(), 0);
         return a > b;
     }
 
@@ -64,8 +79,8 @@ bool Transition::evaluateSingleEquation(string &expression)
     {
         string left = expression.substr(0, pos);
         string right = expression.substr(pos + 1);
-        double a = stod(left);
-        double b = stod(right);
+        double a = te_interp(left.c_str(), 0);
+        double b = te_interp(right.c_str(), 0);
         return a < b;
     }
 
@@ -74,8 +89,8 @@ bool Transition::evaluateSingleEquation(string &expression)
     {
         string left = expression.substr(0, pos);
         string right = expression.substr(pos + 2);
-        double a = stod(left);
-        double b = stod(right);
+        double a = te_interp(left.c_str(), 0);
+        double b = te_interp(right.c_str(), 0);
         return a == b;
     }
 
@@ -84,8 +99,8 @@ bool Transition::evaluateSingleEquation(string &expression)
     {
         string left = expression.substr(0, pos);
         string right = expression.substr(pos + 2);
-        double a = stod(left);
-        double b = stod(right);
+        double a = te_interp(left.c_str(), 0);
+        double b = te_interp(right.c_str(), 0);
         return a != b;
     }
 

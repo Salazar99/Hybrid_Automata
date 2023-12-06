@@ -12,7 +12,7 @@
                     [
                         {
                             "to":"Q1",
-                            "condition":"(x>=5)"
+                            "condition":"(x>=sqrt[4]+ln[e])"
                         }
                     ]
                 },
