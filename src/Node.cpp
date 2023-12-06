@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include "../include/tinyexpr.h"
 
 /// @brief empty constructor
 Node::Node()
@@ -87,6 +88,10 @@ vector<Transition> Node::getTransitionKeys()
     return transitionKeys;
 }
 
+/// @brief splits the string into different parts given a delimiter and returns a vector of substrings;
+/// @param s the string to split
+/// @param delimiter the delimiter
+/// @return a vector of substrings
 std::vector<std::string> split(const std::string &s, char delimiter)
 {
     std::vector<std::string> tokens;
@@ -101,6 +106,8 @@ std::vector<std::string> split(const std::string &s, char delimiter)
     return tokens;
 }
 
+/// @brief prints the system variables map
+/// @param map the pointer to unordered map
 void printMap(unordered_map<string, double *> &sharedVariables)
 {
     for (auto &pair : sharedVariables)
@@ -109,112 +116,18 @@ void printMap(unordered_map<string, double *> &sharedVariables)
     }
 }
 
-/// @brief evaluate the single expression like "(5>9)" --> 0 (false))
-/// @param expression the expression to evaluate
-/// @return the evaluation of the expression
-string evaluateSingleEquation(string expression)
-{
-
-    size_t pos = expression.find("+");
-    if (pos != string::npos)
-    {
-        string left = expression.substr(0, pos);
-        string right = expression.substr(pos + 1);
-        double a = stod(left);
-        double b = stod(right);
-        return to_string(a + b);
-    }
-
-    pos = expression.find("-");
-    if (pos != string::npos)
-    {
-        string left = expression.substr(0, pos);
-        string right = expression.substr(pos + 1);
-        double a = stod(left);
-        double b = stod(right);
-        return to_string(a - b);
-    }
-
-    pos = expression.find("*");
-    if (pos != string::npos)
-    {
-        string left = expression.substr(0, pos);
-        string right = expression.substr(pos + 1);
-        double a = stod(left);
-        double b = stod(right);
-        return to_string(a * b);
-    }
-
-    pos = expression.find("/");
-    if (pos != string::npos)
-    {
-        string left = expression.substr(0, pos);
-        string right = expression.substr(pos + 1);
-        double a = stod(left);
-        double b = stod(right);
-        return to_string(a / b);
-    }
-
-    // Return false for invalid expressions
-    return "ao";
-}
-
-/// @brief Scraping the initial equation to obtain a simple mathematical expression and then solve it
-/// @param str the initial equation
-/// @return the evaluation
-double solve(string str)
-{
-    string expressionFinal = "";
-    string expressionTemp = "";
-    int flag = 0;
-    int i = 0;
-    char c;
-    while (str.find("(") != string::npos)
-    {
-
-        //
-        c = str[i];
-        if (c == '(') // Identifying the beginning of comparison between numbers
-        {
-            flag = 1;
-        }
-        else if (c == ')') // Identifying the ending of comparison between numbers
-        {
-            flag = 0;
-
-            cout << str << "\n";
-
-            // expressionFinal += evaluateSingleEquation(expressionTemp) ? "1" : "0";
-            str.replace(str.find(expressionTemp) - 1, expressionTemp.length() + 2, evaluateSingleEquation(expressionTemp));
-
-            cout << str << "\n";
-            i = -1;
-            expressionTemp = "";
-        }
-
-        if (flag) // build the string with two numbers to be comparised
-        {
-            if (c != '(')
-                expressionTemp += c;
-            else
-                expressionTemp = "";
-        }
-        i++;
-    }
-    return stod(str);
-}
-
+/// @brief execute all the node instructions
+/// @param sharedVariables the system variables
 void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariables)
 {
     // removing all the spaces
     instructions.erase(std::remove(instructions.begin(), instructions.end(), ' '), instructions.end());
     instructions.erase(std::remove(instructions.begin(), instructions.end(), '\n'), instructions.end());
 
-    cout << "\n"
+    /*cout << "\n"
          << instructions << "\n";
     cout << "Variables: "
-         << "\n";
-    printMap(sharedVariables);
+         << "\n";*/
 
     vector<string> distinctInstructions = split(instructions, ';'); // splitting at ; character
     vector<string> aux;
@@ -224,6 +137,7 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
         cout << s << "\n";
         aux = split(s, '='); // aux[0] = leftoperand -- aux[1] = rightoperand
 
+        // check if the instruction is a simple assignment
         if (aux[1].find("+") == string::npos && aux[1].find("-") == string::npos && aux[1].find("*") == string::npos && aux[1].find("/") == string::npos)
         {
             value = new double;
@@ -232,7 +146,7 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
         }
         else
         {
-
+            // if the string has variables, then we replace their values
             for (pair<string, double *> pair : sharedVariables)
             {
                 int pos = aux[1].find(pair.first);
@@ -243,10 +157,11 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
                 }
             }
             value = new double;
-            *value = solve(aux[1]);
-            sharedVariables[aux[0]] = value;
+            *value = te_interp(aux[1].c_str(), 0); // solve the instruction
+            sharedVariables[aux[0]] = value;       // insert or assign the value
         }
     }
+    printMap(sharedVariables);
 }
 
 /// @brief checks if any transition is satisfied

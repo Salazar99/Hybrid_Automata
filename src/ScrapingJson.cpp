@@ -21,7 +21,7 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
         store = 0;
         for (json node : automata["node"])
         {
-            Node n(node["name"], node["description"], "  a=(2*((7/(1+1))+(5+2))); b=(((30/5)*6)+(3*8)) ; z=  (((100/20)-3)*2.5);   ");
+            Node n(node["name"], node["description"], "  a=x*(7/(1+1)+5+2); b=(((30/5)*6)+(3*8)) ; z=  (((100/20)-3)*2.5);   ");
             arrNodes.push_back(n);
             if (node["flag"] == "start")
             {

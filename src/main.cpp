@@ -1,4 +1,5 @@
 #include "../include/UtilsJson.h"
+#include "../include/tinyexpr.h"
 #include <iostream>
 #include <algorithm>
 #include <time.h>
@@ -10,7 +11,6 @@ using namespace std;
 
 int main(int argc, char const *argv[])
 {
-
     UtilsJson j;
 
     vector<Automata> v = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//settings.json");
