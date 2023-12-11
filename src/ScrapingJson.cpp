@@ -21,7 +21,7 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
         store = 0;
         for (json node : automata["node"])
         {
-            Node n(node["name"], node["description"], node["instructions"]);
+            Node n(node["name"], node["description"], node["instructions"], (node["flag"] == "start") ? true : false);
             arrNodes.push_back(n);
             if (node["flag"] == "start")
             {
@@ -71,7 +71,7 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
         }
 
         Status status = RUNNING;
-        Automata c(arrNodes, arrNodes[store], finalNodes, variables, status);
+        Automata c(arrNodes, arrNodes[store], finalNodes, variables, status, 1);
         arrAutomata.push_back(c);
         arrNodes.clear(); // empty for next automata creation
     }

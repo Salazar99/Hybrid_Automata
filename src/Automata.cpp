@@ -7,7 +7,7 @@
 /// @param finalNodes the final nodes of the automata
 /// @param automataVariables the variables of the automata
 /// @param status the curren status of the automata
-Automata::Automata(vector<Node> nodes, Node initialNode, vector<Node> finalNodes, unordered_map<string, double *> &automataVariables, Status status)
+Automata::Automata(vector<Node> nodes, Node initialNode, vector<Node> finalNodes, unordered_map<string, double *> &automataVariables, Status status, int time_inside_node)
 {
     this->nodes = nodes;
 
@@ -21,6 +21,7 @@ Automata::Automata(vector<Node> nodes, Node initialNode, vector<Node> finalNodes
     this->finalNodes = finalNodes;
     this->automataVariables = automataVariables;
     this->currentStatus = status;
+    this->time_inside_node = time_inside_node;
 }
 
 /// @brief return the nodes of the automata
@@ -128,8 +129,14 @@ bool Automata::checkForChanges()
 
     string newNode = currentNode.checkTransitions(automataVariables);
 
-    nodesNames[newNode].executeNodeInstructions(automataVariables);
+    if (newNode != currentNode.getName())
+    {
+        nodesNames[newNode].setFirstVisit(true);
+        time_inside_node = 1;
+    }
 
+    nodesNames[newNode].executeNodeInstructions(automataVariables, time_inside_node);
+    time_inside_node++;
     if (newNode == currentNode.getName())
         return 0;
 

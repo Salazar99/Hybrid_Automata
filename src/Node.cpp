@@ -14,11 +14,12 @@ Node::Node()
 /// @brief constructor
 /// @param name the name of the node
 /// @param description the description of the node
-Node::Node(string name, string description, string instructions)
+Node::Node(string name, string description, string instructions, bool firstVisit)
 {
     this->name = name;
     this->description = description;
     this->instructions = instructions;
+    this->firstVisit = firstVisit;
 }
 
 /// @brief returns the name of the node
@@ -88,6 +89,16 @@ vector<Transition> Node::getTransitionKeys()
     return transitionKeys;
 }
 
+void Node::setFirstVisit(bool value)
+{
+    this->firstVisit = value;
+}
+
+bool Node::getFirstVisit()
+{
+    return this->firstVisit;
+}
+
 /// @brief splits the string into different parts given a delimiter and returns a vector of substrings;
 /// @param s the string to split
 /// @param delimiter the delimiter
@@ -116,9 +127,58 @@ void printMap(unordered_map<string, double *> &sharedVariables)
     }
 }
 
+double Node::ode_solver(string eq, double cauchy, int t0, double h, double t_final)
+{
+    int num_steps = static_cast<int>(t_final / h) + 1;
+    // cout << "num_steps: " << num_steps << "\n";
+    vector<double> t(t0 + 1);
+    vector<double> ystar(t0 + 1);
+    t[0] = 0.0;
+    ystar[0] = cauchy;
+    vector<string> aux = split(eq, '=');
+
+    cout << "aux[0]: " << aux[0] << ", [1]: " << aux[1] << "\n";
+
+    string copia = aux[1];
+    // cout << "Qui ci siamo arrivati: " << aux[1] << "\n";
+    vector<string> var = split(eq, '\'');
+
+    // cout << "Variabile: " << var[0] << "\n";
+
+    int i;
+    for (i = 0; (i < num_steps - 1) && (i < t0); ++i)
+    {
+        // cout << "Primo Replace: " << aux[1] << "\n";
+
+        int pos = aux[1].find(var[0]);
+        while (pos != string::npos)
+        {
+            aux[1].replace(pos, var[0].length(), to_string(ystar[i]));
+            pos = aux[1].find(var[0]);
+        }
+
+        pos = aux[1].find("t");
+        while (pos != string::npos)
+        {
+            aux[1].replace(pos, 1, to_string(t[i]));
+            pos = aux[1].find("t");
+        }
+
+        double k1 = te_interp(aux[1].c_str(), 0);
+
+        // cout << "k1: " << k1 << "\n";
+
+        ystar[i + 1] = ystar[i] + h * k1;
+        t[i + 1] = t[i] + h;
+        aux[1] = copia;
+    }
+
+    return ystar[i];
+}
+
 /// @brief execute all the node instructions
 /// @param sharedVariables the system variables
-void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariables)
+void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariables, int time)
 {
     // removing all the spaces
     instructions.erase(std::remove(instructions.begin(), instructions.end(), ' '), instructions.end());
@@ -135,6 +195,29 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
     for (string s : distinctInstructions)
     {
         cout << s << "\n";
+
+        if (s.find("'") != string::npos) // siamo equazione differenziale s = y'
+        {
+            aux = split(s, '\'');
+
+            cout << "aux[0]: " << aux[0] << "\n";
+
+            value = new double;
+            cout << "First Visit: " << getFirstVisit() << "\n";
+            if (firstVisit)
+            {
+                cout << "First Visit, new cauchy: " << *sharedVariables[aux[0]] << "\n";
+                double *newCauchy = new double;
+                *newCauchy = *sharedVariables[aux[0]];
+                cauchy[aux[0]] = newCauchy;
+                firstVisit = false;
+            }
+            *value = ode_solver(s, *cauchy[aux[0]], time, 0.1, 1000000);
+            cout << "New Value X: " << *value << "\n";
+            sharedVariables[aux[0]] = value;
+            continue;
+        }
+
         aux = split(s, '='); // aux[0] = leftoperand -- aux[1] = rightoperand
 
         /*

@@ -16,21 +16,20 @@ int main(int argc, char const *argv[])
     vector<Automata> v = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//settings.json");
 
     unordered_map<string, double *> variables;
-    double x = 1.56;
-    double y = 2.0;
+    double x = 20;
     variables["x"] = &x;
-    variables["y"] = &y;
 
     for (Automata a : v)
     {
         a.setAutomataVariables(variables);
         cout << a;
         vector<Node> aux;
-
+        int stop;
         while (1)
         {
             aux = a.getFinalNodes();
-            if (!(find(aux.begin(), aux.end(), a.getCurrentNode()) == aux.end()))
+
+            if (!aux.empty() && !(find(aux.begin(), aux.end(), a.getCurrentNode()) == aux.end()))
             {
                 cout << "Raggiunto il nodo finale: " << a.getCurrentNode().getName() << "\n";
                 break;
@@ -38,10 +37,6 @@ int main(int argc, char const *argv[])
             // random variables
 
             // variables["x"] = unif(re);
-
-            cout << "Inserisci valore di x: ";
-            cin >> *(variables["x"]);
-
             // cout << "Inserisci valore di y: ";
             // cin >> *(variables["y"]);
 
@@ -52,6 +47,9 @@ int main(int argc, char const *argv[])
             a.checkForChanges();
             cout << "Nodo corrente: " << a.getCurrentNode().getName() << "\n";
             //  this_thread::sleep_for(chrono::seconds(10));
+
+            cout << "Next step: ";
+            cin >> stop;
         }
     }
 

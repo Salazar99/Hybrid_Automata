@@ -51,12 +51,24 @@ private:
     string description;                                                             /*a description of the node*/
     vector<Transition> transitionKeys;                                              /*an arraylist for all the transition of its edges, very useful*/
     unordered_map<Transition, string, TransitionHash, TransitionEqual> transitions; /*an hashmap that contains couples that represent each edge (condition, destination) */
+    unordered_map<string, double *> cauchy;
 
+    /*
+
+    x'...
+    y'...
+
+    x -> 15
+    y -> 20
+
+    */
+
+    bool firstVisit;
     string instructions;
 
 public:
     Node();
-    Node(string name, string description, string instructions);
+    Node(string name, string description, string instructions, bool firstVisit);
     string getName();
     void setName(string name);
     string getDescription();
@@ -66,9 +78,12 @@ public:
     void setTransitions(unordered_map<Transition, string, TransitionHash, TransitionEqual> &transitions);
     void addTransition(string condition, string destination);
     string checkTransitions(unordered_map<string, double *> &sharedVariables);
-    void executeNodeInstructions(unordered_map<string, double *> &sharedVariables);
+    double ode_solver(string, double, int, double, double);
+    void executeNodeInstructions(unordered_map<string, double *> &sharedVariables, int time);
     bool operator==(const Node &other);
     friend ostream &operator<<(ostream &os, Node &obj);
+    void setFirstVisit(bool value);
+    bool getFirstVisit();
 };
 
 enum Status
@@ -89,9 +104,10 @@ private:
     unordered_map<string, double *> automataVariables; /*hashmap that contains all the automata variables (variableName, 1.0)*/
     Status currentStatus;                              /*current status (OFF, RUNNING, PAUSE)*/
     unordered_map<string, Node> nodesNames;            /*hashmap that connects nodes' names to the actual nodes*/
+    int time_inside_node;
 
 public:
-    Automata(vector<Node> nodes, Node initialNode, vector<Node> finalNodes, unordered_map<string, double *> &automataVariables, Status status);
+    Automata(vector<Node> nodes, Node initialNode, vector<Node> finalNodes, unordered_map<string, double *> &automataVariables, Status status, int time_inside_node);
     vector<Node> getNodes();
     void setNodes(vector<Node> &nodes);
     Node getInitialNode();

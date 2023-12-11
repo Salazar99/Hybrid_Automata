@@ -5,43 +5,29 @@
             "node":
             [
                 {
-                    "name":"Q0",
-                    "description":"First Node",
-                    "instructions":"a=x*(7/(1+1)+5+2);",
+                    "name":"Off",
+                    "description":"x >= 18",
+                    "instructions":"x' = -0.1*x;",
                     "flag":"start",
                     "transitions":
                     [
                         {
-                            "to":"Q1",
-                            "condition":"(x>=sqrt[4]+ln[e])"
+                            "to":"On",
+                            "condition":"(x<19)"
                         }
                     ]
                 },
                 {
-                    "name":"Q1",
-                    "description":"Second Node",
-                    "instructions":"b=(((30/5)*6)+(3*8));",
+                    "name":"On",
+                    "description":"x <= 22",
+                    "instructions":"x' = 5-0.1*x;",
                     "flag":"none",
                     "transitions":
                     [
                         {
-                            "to":"Q0",
-                            "condition":"(x<5)"
-                        },
-                        {
-                            "to":"Q2",
-                            "condition":"(x>=10)"
+                            "to":"Off",
+                            "condition":"(x>21)"
                         }
-                    ]
-                },
-                {
-                    "name":"Q2",
-                    "description":"Third Node",
-                    "instructions":"z=  (((100/20)-3)*2.5);",
-                    "flag":"final",
-                    "transitions":
-                    [
-
                     ]
                 }
             ],
@@ -49,7 +35,7 @@
             [
                 {
                     "name":"x",
-                    "value":"1"
+                    "value":"20"
                 }
             ]
         }
