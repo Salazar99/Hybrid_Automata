@@ -57,8 +57,6 @@ bool Transition::evaluateSingleEquation(string &expression)
     {
         string left = expression.substr(0, pos);
         string right = expression.substr(pos + 2);
-        cout << right;
-        cout << te_interp(right.c_str(), 0);
         double a = te_interp(left.c_str(), 0);
         double b = te_interp(right.c_str(), 0);
         return a >= b;

@@ -137,6 +137,12 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
         cout << s << "\n";
         aux = split(s, '='); // aux[0] = leftoperand -- aux[1] = rightoperand
 
+        /*
+        if equazione differenziale:
+            calcola_eq(s, sharedVariables["x"], )
+
+        */
+
         // check if the instruction is a simple assignment
         if (aux[1].find("+") == string::npos && aux[1].find("-") == string::npos && aux[1].find("*") == string::npos && aux[1].find("/") == string::npos)
         {

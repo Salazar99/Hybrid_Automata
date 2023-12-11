@@ -7,6 +7,7 @@
                 {
                     "name":"Q0",
                     "description":"First Node",
+                    "instructions":"a=x*(7/(1+1)+5+2);",
                     "flag":"start",
                     "transitions":
                     [
@@ -19,6 +20,7 @@
                 {
                     "name":"Q1",
                     "description":"Second Node",
+                    "instructions":"b=(((30/5)*6)+(3*8));",
                     "flag":"none",
                     "transitions":
                     [
@@ -35,6 +37,7 @@
                 {
                     "name":"Q2",
                     "description":"Third Node",
+                    "instructions":"z=  (((100/20)-3)*2.5);",
                     "flag":"final",
                     "transitions":
                     [
