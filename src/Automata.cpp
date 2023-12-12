@@ -7,6 +7,7 @@
 /// @param finalNodes the final nodes of the automata
 /// @param automataVariables the variables of the automata
 /// @param status the curren status of the automata
+/// @param time_inside_node timer that represents the current time inside of a node
 Automata::Automata(vector<Node> nodes, Node initialNode, vector<Node> finalNodes, unordered_map<string, double *> &automataVariables, Status status, int time_inside_node)
 {
     this->nodes = nodes;
@@ -142,15 +143,6 @@ bool Automata::checkForChanges()
 
     setCurrentNode(nodesNames[newNode]);
     return 1;
-
-    /*for (Node c : nodes)
-    {
-        if (c.getName() == newNode)
-        {
-            setCurrentNode(c);
-            return 1;
-        }
-    }*/
 }
 
 /// @brief to string

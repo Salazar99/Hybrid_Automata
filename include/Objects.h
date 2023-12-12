@@ -51,20 +51,9 @@ private:
     string description;                                                             /*a description of the node*/
     vector<Transition> transitionKeys;                                              /*an arraylist for all the transition of its edges, very useful*/
     unordered_map<Transition, string, TransitionHash, TransitionEqual> transitions; /*an hashmap that contains couples that represent each edge (condition, destination) */
-    unordered_map<string, double *> cauchy;
-
-    /*
-
-    x'...
-    y'...
-
-    x -> 15
-    y -> 20
-
-    */
-
-    bool firstVisit;
-    string instructions;
+    unordered_map<string, double *> cauchy;                                         /*an hashmap that stores initial values for differential equations*/
+    bool firstVisit;                                                                /*true if we just arrived into a node*/
+    string instructions;                                                            /*all the instructions inside the node*/
 
 public:
     Node();
@@ -104,7 +93,7 @@ private:
     unordered_map<string, double *> automataVariables; /*hashmap that contains all the automata variables (variableName, 1.0)*/
     Status currentStatus;                              /*current status (OFF, RUNNING, PAUSE)*/
     unordered_map<string, Node> nodesNames;            /*hashmap that connects nodes' names to the actual nodes*/
-    int time_inside_node;
+    int time_inside_node;                              /*current node life timer*/
 
 public:
     Automata(vector<Node> nodes, Node initialNode, vector<Node> finalNodes, unordered_map<string, double *> &automataVariables, Status status, int time_inside_node);

@@ -229,12 +229,6 @@ bool Transition::checkCondition(unordered_map<string, double *> &variables)
     return output;
 }
 
-/*bool Transition::checkCondition(unordered_map<string, double *> &variables)
-{
-    return solve(preProcessing(getCondition()));
-}
-*/
-
 /// @brief to string
 ostream &operator<<(ostream &os, Transition &obj)
 {

@@ -89,11 +89,15 @@ vector<Transition> Node::getTransitionKeys()
     return transitionKeys;
 }
 
+/// @brief set the value of firstVisit
+/// @param value the value to assign
 void Node::setFirstVisit(bool value)
 {
     this->firstVisit = value;
 }
 
+/// @brief return the value of firstVisit
+/// @return value if firstVisit
 bool Node::getFirstVisit()
 {
     return this->firstVisit;
@@ -127,10 +131,16 @@ void printMap(unordered_map<string, double *> &sharedVariables)
     }
 }
 
+/// @brief resolve a first order differential equation
+/// @param eq the equation
+/// @param cauchy initial condition
+/// @param t0 aim moment
+/// @param h delta
+/// @param t_final final time
+/// @return
 double Node::ode_solver(string eq, double cauchy, int t0, double h, double t_final)
 {
     int num_steps = static_cast<int>(t_final / h) + 1;
-    // cout << "num_steps: " << num_steps << "\n";
     vector<double> t(t0 + 1);
     vector<double> ystar(t0 + 1);
     t[0] = 0.0;
@@ -140,16 +150,13 @@ double Node::ode_solver(string eq, double cauchy, int t0, double h, double t_fin
     cout << "aux[0]: " << aux[0] << ", [1]: " << aux[1] << "\n";
 
     string copia = aux[1];
-    // cout << "Qui ci siamo arrivati: " << aux[1] << "\n";
-    vector<string> var = split(eq, '\'');
 
-    // cout << "Variabile: " << var[0] << "\n";
+    vector<string> var = split(eq, '\'');
 
     int i;
     for (i = 0; (i < num_steps - 1) && (i < t0); ++i)
     {
-        // cout << "Primo Replace: " << aux[1] << "\n";
-
+        // replacing variables with their actual values
         int pos = aux[1].find(var[0]);
         while (pos != string::npos)
         {
@@ -165,9 +172,6 @@ double Node::ode_solver(string eq, double cauchy, int t0, double h, double t_fin
         }
 
         double k1 = te_interp(aux[1].c_str(), 0);
-
-        // cout << "k1: " << k1 << "\n";
-
         ystar[i + 1] = ystar[i] + h * k1;
         t[i + 1] = t[i] + h;
         aux[1] = copia;
@@ -184,11 +188,6 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
     instructions.erase(std::remove(instructions.begin(), instructions.end(), ' '), instructions.end());
     instructions.erase(std::remove(instructions.begin(), instructions.end(), '\n'), instructions.end());
 
-    /*cout << "\n"
-         << instructions << "\n";
-    cout << "Variables: "
-         << "\n";*/
-
     vector<string> distinctInstructions = split(instructions, ';'); // splitting at ; character
     vector<string> aux;
     double *value;
@@ -196,7 +195,7 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
     {
         cout << s << "\n";
 
-        if (s.find("'") != string::npos) // siamo equazione differenziale s = y'
+        if (s.find("'") != string::npos)
         {
             aux = split(s, '\'');
 
@@ -218,20 +217,15 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
             continue;
         }
 
-        aux = split(s, '='); // aux[0] = leftoperand -- aux[1] = rightoperand
-
-        /*
-        if equazione differenziale:
-            calcola_eq(s, sharedVariables["x"], )
-
-        */
+        // aux[0] = leftoperand -- aux[1] = rightoperand
+        aux = split(s, '=');
 
         // check if the instruction is a simple assignment
         if (aux[1].find("+") == string::npos && aux[1].find("-") == string::npos && aux[1].find("*") == string::npos && aux[1].find("/") == string::npos)
         {
             value = new double;
             *value = stod(aux[1]);
-            sharedVariables[aux[0]] = value; // insert or assign the value
+            sharedVariables[aux[0]] = value;
         }
         else
         {
@@ -261,13 +255,9 @@ string Node::checkTransitions(unordered_map<string, double *> &sharedVariables)
     cout << "CheckTransitions, name: " << getName() << ", size transitions: " << transitionKeys.size() << "\n";
     for (Transition t : getTransitionKeys())
     {
-
         if (t.checkCondition(sharedVariables))
-        {
             return transitions[t];
-        }
     }
-
     return this->getName();
 }
 

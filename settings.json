@@ -20,7 +20,7 @@
                 {
                     "name":"On",
                     "description":"x <= 22",
-                    "instructions":"x' = 5-0.1*x;",
+                    "instructions":"x' = 5-0.1*x;a = 5;",
                     "flag":"none",
                     "transitions":
                     [

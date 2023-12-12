@@ -5,6 +5,9 @@
 using namespace std;
 using json = nlohmann::json;
 
+/// @brief creates all the automatas
+/// @return the automatas
+
 vector<Automata> UtilsJson::ScrapingJson(string c)
 {
     std::ifstream f(c);
@@ -13,12 +16,17 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
     vector<Node> arrNodes;
     Node startNode;
     vector<Node> finalNodes;
+    unordered_map<string, double *> variables;
     int j = 0;
     int store = 0;
+
+    // find all the automata in settings.json
     for (json automata : data["automata"])
     {
         j = 0;
         store = 0;
+
+        // find all the nodes for each automata
         for (json node : automata["node"])
         {
             Node n(node["name"], node["description"], node["instructions"], (node["flag"] == "start") ? true : false);
@@ -35,7 +43,7 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
             j++;
         }
 
-        unordered_map<string, double *> variables;
+        // find all the variables for each automata
         double *y;
         for (json variable : automata["variables"])
         {
@@ -44,8 +52,9 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
             variables[variable["name"]] = y;
         }
 
+        // adding transictions to nodes
         int i = -1;
-        for (Node n : arrNodes) // adding transictions to nodes
+        for (Node n : arrNodes)
         {
             i++;
             for (json node : automata["node"])
@@ -73,7 +82,8 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
         Status status = RUNNING;
         Automata c(arrNodes, arrNodes[store], finalNodes, variables, status, 1);
         arrAutomata.push_back(c);
-        arrNodes.clear(); // empty for next automata creation
+        // empty for next automata creation
+        arrNodes.clear();
     }
     return arrAutomata;
 }

@@ -13,7 +13,8 @@ int main(int argc, char const *argv[])
 {
     UtilsJson j;
 
-    vector<Automata> v = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//settings.json");
+    // vector<Automata> v = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//settings.json");
+    vector<Automata> v = j.ScrapingJson("../settings.json");
 
     unordered_map<string, double *> variables;
     double x = 20;
@@ -21,7 +22,6 @@ int main(int argc, char const *argv[])
 
     for (Automata a : v)
     {
-        a.setAutomataVariables(variables);
         cout << a;
         vector<Node> aux;
         int stop;
@@ -34,22 +34,12 @@ int main(int argc, char const *argv[])
                 cout << "Raggiunto il nodo finale: " << a.getCurrentNode().getName() << "\n";
                 break;
             }
-            // random variables
-
-            // variables["x"] = unif(re);
-            // cout << "Inserisci valore di y: ";
-            // cin >> *(variables["y"]);
-
-            cout << "\nX: " << *(variables["x"]) << "\n";
-            // cout << "\nY: " << *(variables["y"]);
 
             // automata.setAutomataVariables(variables);
             a.checkForChanges();
             cout << "Nodo corrente: " << a.getCurrentNode().getName() << "\n";
-            //  this_thread::sleep_for(chrono::seconds(10));
-
-            cout << "Next step: ";
-            cin >> stop;
+            this_thread::sleep_for(chrono::seconds(2));
+            // cin >> stop;
         }
     }
 
