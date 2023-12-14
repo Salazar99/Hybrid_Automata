@@ -147,7 +147,7 @@ double Node::ode_solver(string eq, double cauchy, int t0, double h, double t_fin
     ystar[0] = cauchy;
     vector<string> aux = split(eq, '=');
 
-    cout << "aux[0]: " << aux[0] << ", [1]: " << aux[1] << "\n";
+    // cout << "aux[0]: " << aux[0] << ", [1]: " << aux[1] << "\n";
 
     string copia = aux[1];
 
@@ -193,26 +193,26 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
     double *value;
     for (string s : distinctInstructions)
     {
-        cout << s << "\n";
+        // cout << s << "\n";
 
         if (s.find("'") != string::npos)
         {
             aux = split(s, '\'');
 
-            cout << "aux[0]: " << aux[0] << "\n";
+            // cout << "aux[0]: " << aux[0] << "\n";
 
             value = new double;
-            cout << "First Visit: " << getFirstVisit() << "\n";
+            // cout << "First Visit: " << getFirstVisit() << "\n";
             if (firstVisit)
             {
-                cout << "First Visit, new cauchy: " << *sharedVariables[aux[0]] << "\n";
+                // cout << "First Visit, new cauchy: " << *sharedVariables[aux[0]] << "\n";
                 double *newCauchy = new double;
                 *newCauchy = *sharedVariables[aux[0]];
                 cauchy[aux[0]] = newCauchy;
                 firstVisit = false;
             }
             *value = ode_solver(s, *cauchy[aux[0]], time, 0.1, 1000000);
-            cout << "New Value X: " << *value << "\n";
+            // cout << "New Value X: " << *value << "\n";
             sharedVariables[aux[0]] = value;
             continue;
         }
@@ -252,7 +252,7 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
 /// @return Node (the new current node)
 string Node::checkTransitions(unordered_map<string, double *> &sharedVariables)
 {
-    cout << "CheckTransitions, name: " << getName() << ", size transitions: " << transitionKeys.size() << "\n";
+    // cout << "CheckTransitions, name: " << getName() << ", size transitions: " << transitionKeys.size() << "\n";
     for (Transition t : getTransitionKeys())
     {
         if (t.checkCondition(sharedVariables))

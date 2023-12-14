@@ -37,9 +37,9 @@ int main(int argc, char const *argv[])
 
             // automata.setAutomataVariables(variables);
             a.checkForChanges();
-            cout << "Nodo corrente: " << a.getCurrentNode().getName() << "\n";
-            this_thread::sleep_for(chrono::seconds(2));
-            // cin >> stop;
+            cout << "Nodo corrente: " << a.getCurrentNode().getName() << "\n\n";
+            // this_thread::sleep_for(chrono::seconds(2));
+            cin >> stop;
         }
     }
     return 0;

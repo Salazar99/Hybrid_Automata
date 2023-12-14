@@ -160,6 +160,7 @@ ostream &operator<<(ostream &os, Automata &obj)
     {
         os << "- " << n.getName() << "\n";
     }
-    os << "Status: " << (obj.getCurrentStatus() == 0 ? "OFF" : (obj.getCurrentStatus() == 1 ? "RUNNING" : "PAUSE")) << "\n";
+    os << (obj.getFinalNodes().empty() ? "No final node declared\n" : "");
+    os << "Status: " << (obj.getCurrentStatus() == 0 ? "OFF" : (obj.getCurrentStatus() == 1 ? "RUNNING" : "PAUSE")) << "\n\n";
     return os;
 }
