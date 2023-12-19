@@ -8,10 +8,9 @@
 #include <thread>
 #include <chrono>
 
-#include<cstdlib>
-#include<ctime>
-#include<cmath>
-
+#include <cstdlib>
+#include <ctime>
+#include <cmath>
 
 using namespace std;
 
@@ -19,8 +18,9 @@ int main(int argc, char const *argv[])
 {
     long start = time(NULL);
     UtilsJson j;
-    vector<Automata> v = j.ScrapingJson("C://Users//tomvi//Hybrid_Automata//settings.json");
-    //vector<Automata> v = j.ScrapingJson("../settings.json");
+    vector<Automata> v = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//settings.json");
+    // vector<Automata> v = j.ScrapingJson("C://Users//tomvi//Hybrid_Automata//settings.json");
+    // vector<Automata> v = j.ScrapingJson("../settings.json");
     int stop;
     for (int j = 0; j < v.size(); j++)
     {
@@ -51,7 +51,7 @@ int main(int argc, char const *argv[])
     }
 
     cout << "Total Istanti: " << istanti;
-    cout << "\nCi ha messo " << time(NULL)-start << " secondi";
+    cout << "\nCi ha messo " << time(NULL) - start << " secondi";
 
     /*for (Automata a : v)
     {
