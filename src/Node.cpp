@@ -1,4 +1,5 @@
 #include "../include/Objects.h"
+#include "../include/global_variables.h"
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -211,7 +212,7 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
                 cauchy[aux[0]] = newCauchy;
                 firstVisit = false;
             }
-            *value = ode_solver(s, *cauchy[aux[0]], time, 0.1, 1000000);
+            *value = ode_solver(s, *cauchy[aux[0]], time, delta, finaltime);
             // cout << "New Value X: " << *value << "\n";
             sharedVariables[aux[0]] = value;
             continue;

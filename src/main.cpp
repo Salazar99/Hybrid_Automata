@@ -1,3 +1,4 @@
+#include "../include/global_variables.h"
 #include "../include/UtilsJson.h"
 #include "../include/tinyexpr.h"
 #include <iostream>
@@ -12,15 +13,40 @@ using namespace std;
 int main(int argc, char const *argv[])
 {
     UtilsJson j;
-
     // vector<Automata> v = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//settings.json");
     vector<Automata> v = j.ScrapingJson("../settings.json");
+    int stop;
+    for (int j = 0; j < v.size(); j++)
+    {
+        cout << v[j];
+    }
+    int istanti = 0;
 
-    unordered_map<string, double *> variables;
-    double x = 20;
-    variables["x"] = &x;
+    for (double time = 1; time < finaltime; time = time + delta)
+    {
 
-    for (Automata a : v)
+        for (int j = 0; j < v.size(); j++)
+        {
+            v[j].checkForChanges();
+            cout << "Nodo corrente: " << v[j].getCurrentNode().getName() << "\n\n";
+        }
+
+        // this_thread::sleep_for(chrono::seconds(1));
+
+        this_thread::sleep_for(std::chrono::milliseconds(500));
+        istanti++;
+        /*for (Automata a : v)
+        {
+            a.checkForChanges();
+            cout << "Nodo corrente: " << a.getCurrentNode().getName() << "\n\n";
+
+            cin >> stop;
+        }*/
+    }
+
+    cout << "Total Istanti: " << istanti;
+
+    /*for (Automata a : v)
     {
         cout << a;
         vector<Node> aux;
@@ -41,6 +67,6 @@ int main(int argc, char const *argv[])
             // this_thread::sleep_for(chrono::seconds(2));
             cin >> stop;
         }
-    }
+    }*/
     return 0;
 }

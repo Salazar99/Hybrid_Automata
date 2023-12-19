@@ -1,5 +1,6 @@
 #include "../include/UtilsJson.h"
 #include "../include/json.hpp"
+#include "../include/global_variables.h"
 #include <iostream>
 
 using namespace std;
@@ -7,6 +8,9 @@ using json = nlohmann::json;
 
 /// @brief creates all the automatas
 /// @return the automatas
+
+double delta;
+double finaltime;
 
 vector<Automata> UtilsJson::ScrapingJson(string c)
 {
@@ -20,8 +24,14 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
     int j = 0;
     int store = 0;
 
+    // set global variables
+    string h_string = data["system"]["global"]["h"];
+    delta = stod(h_string);
+    string tfinal_string = data["system"]["global"]["tfinal"];
+    finaltime = stod(tfinal_string);
+
     // find all the automata in settings.json
-    for (json automata : data["automata"])
+    for (json automata : data["system"]["automata"])
     {
         j = 0;
         store = 0;

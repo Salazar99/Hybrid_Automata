@@ -1,43 +1,52 @@
 {
-    "automata":
-    [
+    "system":
+    {
+        "global":
         {
-            "node":
-            [
-                {
-                    "name":"Off",
-                    "description":"x >= 18",
-                    "instructions":"x' = -0.1*x;",
-                    "flag":"start",
-                    "transitions":
-                    [
-                        {
-                            "to":"On",
-                            "condition":"(x<19)"
-                        }
-                    ]
-                },
-                {
-                    "name":"On",
-                    "description":"x <= 22",
-                    "instructions":"x' = 5-0.1*x;a = 5;",
-                    "flag":"none",
-                    "transitions":
-                    [
-                        {
-                            "to":"Off",
-                            "condition":"(x>21)"
-                        }
-                    ]
-                }
-            ],
-            "variables":
-            [
-                {
-                    "name":"x",
-                    "value":"20"
-                }
-            ]
-        }
-    ]
+            "h":"0.1",
+            "tfinal":"10"
+        },
+
+        "automata":
+        [
+            {
+                "node":
+                [
+                    {
+                        "name":"Off",
+                        "description":"x >= 18",
+                        "instructions":"x' = -0.1*x;",
+                        "flag":"start",
+                        "transitions":
+                        [
+                            {
+                                "to":"On",
+                                "condition":"(x<19)"
+                            }
+                        ]
+                    },
+                    {
+                        "name":"On",
+                        "description":"x <= 22",
+                        "instructions":"x' = 5-0.1*x;a = 5;",
+                        "flag":"none",
+                        "transitions":
+                        [
+                            {
+                                "to":"Off",
+                                "condition":"(x>21)"
+                            }
+                        ]
+                    }
+                ],
+                "variables":
+                [
+                    {
+                        "name":"x",
+                        "value":"20"
+                    }
+                ]
+            }
+        ]
+    }
 }
