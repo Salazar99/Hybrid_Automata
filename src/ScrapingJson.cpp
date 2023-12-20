@@ -4,6 +4,12 @@
 #include "../include/tinyexpr.h"
 #include <iostream>
 
+#ifdef DEBUG_MODE
+#define DEBUG_COMMENT(comment) std::cout << "[DEBUG] " << comment << std::endl;
+#else
+#define DEBUG_COMMENT(comment)
+#endif
+
 using namespace std;
 using json = nlohmann::json;
 
@@ -26,9 +32,9 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
     int store = 0;
 
     // set global variables
-    string h_string = data["system"]["global"]["h"];
+    string h_string = data["system"]["global"]["delta"];
     delta = stod(h_string);
-    string tfinal_string = data["system"]["global"]["tfinal"];
+    string tfinal_string = data["system"]["global"]["finaltime"];
     finaltime = stod(tfinal_string);
 
     // find all the automata in settings.json
@@ -79,10 +85,6 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
                         for (Node n1 : arrNodes)
                         {
                             to = (n1.getName() != transition["to"]) ? to : n1.getName();
-                            /*if (n1.getName() == transition["to"])
-                            {
-                                to = n1;
-                            }*/
                         }
                         arrNodes[i].addTransition(transition["condition"], to);
                     }

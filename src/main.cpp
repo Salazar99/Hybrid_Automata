@@ -7,10 +7,13 @@
 #include <random>
 #include <thread>
 #include <chrono>
-
-#include <cstdlib>
 #include <ctime>
-#include <cmath>
+
+#ifdef DEBUG_MODE
+#define DEBUG_COMMENT(comment) std::cout << "[DEBUG] " << comment << std::endl;
+#else
+#define DEBUG_COMMENT(comment)
+#endif
 
 using namespace std;
 
@@ -18,16 +21,22 @@ int main(int argc, char const *argv[])
 {
     long start = time(NULL);
     UtilsJson j;
-    vector<Automata> v = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//settings.json");
-    // vector<Automata> v = j.ScrapingJson("C://Users//tomvi//Hybrid_Automata//settings.json");
-    // vector<Automata> v = j.ScrapingJson("../settings.json");
 
-    int stop;
+    /*
+        NEEDs TO BE ADDED IN YOUR CMAKELIST
+        #target_compile_definitions(main PRIVATE $<$<BOOL:${DEBUG_MODE}>:DEBUG_MODE>)
+    */
+    // vector<Automata> v = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//settings.json");
+    // vector<Automata> v = j.ScrapingJson("C://Users//tomvi//Hybrid_Automata//settings.json");
+    vector<Automata> v = j.ScrapingJson("../settings.json");
+
     for (int j = 0; j < v.size(); j++)
     {
         cout << v[j];
     }
     int istanti = 0;
+
+    DEBUG_COMMENT("Questo è un commento di debug" << istanti << " \n\n\n");
 
     for (double time = 1; time < finaltime; time = time + delta)
     {
@@ -38,43 +47,12 @@ int main(int argc, char const *argv[])
             cout << "Nodo corrente: " << v[j].getCurrentNode().getName() << "\n\n";
         }
 
-        // this_thread::sleep_for(chrono::seconds(1));
-
         this_thread::sleep_for(std::chrono::milliseconds(500));
         istanti++;
-        /*for (Automata a : v)
-        {
-            a.checkForChanges();
-            cout << "Nodo corrente: " << a.getCurrentNode().getName() << "\n\n";
-
-            cin >> stop;
-        }*/
     }
 
     cout << "Total Istanti: " << istanti;
     cout << "\nCi ha messo " << time(NULL) - start << " secondi";
 
-    /*for (Automata a : v)
-    {
-        cout << a;
-        vector<Node> aux;
-        int stop;
-        while (1)
-        {
-            aux = a.getFinalNodes();
-
-            if (!aux.empty() && !(find(aux.begin(), aux.end(), a.getCurrentNode()) == aux.end()))
-            {
-                cout << "Raggiunto il nodo finale: " << a.getCurrentNode().getName() << "\n";
-                break;
-            }
-
-            // automata.setAutomataVariables(variables);
-            a.checkForChanges();
-            cout << "Nodo corrente: " << a.getCurrentNode().getName() << "\n\n";
-            // this_thread::sleep_for(chrono::seconds(2));
-            cin >> stop;
-        }
-    }*/
     return 0;
 }

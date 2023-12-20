@@ -3,8 +3,8 @@
     {
         "global":
         {
-            "h":"0.1",
-            "tfinal":"10"
+            "delta":"0.1",
+            "finaltime":"10"
         },
 
         "automata":

@@ -1,6 +1,12 @@
 #include "../include/Objects.h"
 #include <iostream>
 
+#ifdef DEBUG_MODE
+#define DEBUG_COMMENT(comment) std::cout << "[DEBUG] " << comment << std::endl;
+#else
+#define DEBUG_COMMENT(comment)
+#endif
+
 /// @brief constructor
 /// @param nodes the nodes of the automata
 /// @param initialNodes the initial node of the automata

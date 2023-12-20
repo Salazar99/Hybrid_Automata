@@ -7,6 +7,12 @@
 #include <algorithm>
 #include "../include/tinyexpr.h"
 
+#ifdef DEBUG_MODE
+#define DEBUG_COMMENT(comment) std::cout << "[DEBUG] " << comment << std::endl;
+#else
+#define DEBUG_COMMENT(comment)
+#endif
+
 /// @brief empty constructor
 Node::Node()
 {
@@ -148,7 +154,7 @@ double Node::ode_solver(string eq, double cauchy, int t0, double h, double t_fin
     ystar[0] = cauchy;
     vector<string> aux = split(eq, '=');
 
-    // cout << "aux[0]: " << aux[0] << ", [1]: " << aux[1] << "\n";
+    DEBUG_COMMENT("aux[0]: " << aux[0] << ", [1]: " << aux[1] << "\n");
 
     string copia = aux[1];
 
@@ -178,7 +184,7 @@ double Node::ode_solver(string eq, double cauchy, int t0, double h, double t_fin
     {
         // replacing variables with their actual values
 
-        // cout << "Pre-Replace: " << aux[1] << "\n";
+        DEBUG_COMMENT("Pre-Replace: " << aux[1] << "\n");
 
         int pos = aux[1].find(var[0]);
         while (pos != string::npos)
@@ -194,7 +200,7 @@ double Node::ode_solver(string eq, double cauchy, int t0, double h, double t_fin
             pos = aux[1].find("t");
         }
 
-        // cout << "Post-Replace: " << aux[1] << "\n";
+        DEBUG_COMMENT("Post-Replace: " << aux[1] << "\n");
 
         double k1 = te_interp(aux[1].c_str(), 0);
         ystar[i + 1] = ystar[i] + h * k1;
@@ -218,25 +224,25 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
     double *value;
     for (string s : distinctInstructions)
     {
-        // cout << s << "\n";
+        DEBUG_COMMENT(s << "\n");
 
         if (s.find("'") != string::npos)
         {
             aux = split(s, '\'');
 
-            // cout << "aux[0]: " << aux[0] << "\n";
+            DEBUG_COMMENT("aux[0]: " << aux[0] << "\n");
 
             value = new double;
-            // cout << "First Visit: " << getFirstVisit() << "\n";
+            DEBUG_COMMENT("First Visit: " << getFirstVisit() << "\n");
             if (firstVisit)
             {
-                // cout << "First Visit, new cauchy: " << *sharedVariables[aux[0]] << "\n";
+                DEBUG_COMMENT("First Visit, new cauchy: " << *sharedVariables[aux[0]] << "\n");
                 double *newCauchy = new double;
                 *newCauchy = *sharedVariables[aux[0]];
                 cauchy[aux[0]] = newCauchy;
             }
             *value = ode_solver(s, *cauchy[aux[0]], time, delta, finaltime, sharedVariables);
-            // cout << "New Value X: " << *value << "\n";
+            DEBUG_COMMENT("New Value X: " << *value << "\n");
             sharedVariables[aux[0]] = value;
             continue;
         }
@@ -277,7 +283,7 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
 /// @return Node (the new current node)
 string Node::checkTransitions(unordered_map<string, double *> &sharedVariables)
 {
-    // cout << "CheckTransitions, name: " << getName() << ", size transitions: " << transitionKeys.size() << "\n";
+    DEBUG_COMMENT("CheckTransitions, name: " << getName() << ", size transitions: " << transitionKeys.size() << "\n");
     for (Transition t : getTransitionKeys())
     {
         if (t.checkCondition(sharedVariables))

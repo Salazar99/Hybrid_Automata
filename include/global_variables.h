@@ -1,4 +1,5 @@
 
+// Header for declaration of global variables
 
-extern double delta;     // Dichiarazione della variabile globale h
-extern double finaltime; // Dichiarazione della variabile globale tfinal
+extern double delta;     // Declaration of the global variable delta
+extern double finaltime; // Declaration of the global variable finaltime
