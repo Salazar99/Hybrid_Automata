@@ -21,6 +21,7 @@ int main(int argc, char const *argv[])
     vector<Automata> v = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//settings.json");
     // vector<Automata> v = j.ScrapingJson("C://Users//tomvi//Hybrid_Automata//settings.json");
     // vector<Automata> v = j.ScrapingJson("../settings.json");
+
     int stop;
     for (int j = 0; j < v.size(); j++)
     {

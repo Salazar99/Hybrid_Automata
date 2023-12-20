@@ -1,6 +1,7 @@
 #include "../include/UtilsJson.h"
 #include "../include/json.hpp"
 #include "../include/global_variables.h"
+#include "../include/tinyexpr.h"
 #include <iostream>
 
 using namespace std;
@@ -58,7 +59,7 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
         for (json variable : automata["variables"])
         {
             string var = variable["value"];
-            y = new double(stod(var));
+            y = new double(te_interp(var.c_str(), 0));
             variables[variable["name"]] = y;
         }
 

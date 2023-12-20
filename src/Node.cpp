@@ -139,7 +139,7 @@ void printMap(unordered_map<string, double *> &sharedVariables)
 /// @param h delta
 /// @param t_final final time
 /// @return
-double Node::ode_solver(string eq, double cauchy, int t0, double h, double t_final)
+double Node::ode_solver(string eq, double cauchy, int t0, double h, double t_final, unordered_map<string, double *> &sharedVariables)
 {
     int num_steps = static_cast<int>(t_final / h) + 1;
     vector<double> t(t0 + 1);
@@ -152,12 +152,34 @@ double Node::ode_solver(string eq, double cauchy, int t0, double h, double t_fin
 
     string copia = aux[1];
 
+    // y'=((3*x+2)^2) * ((y+1)^0.5);
+
     vector<string> var = split(eq, '\'');
+
+    // if the string has variables, then we replace their values
+    for (pair<string, double *> pair : sharedVariables)
+    {
+
+        if (pair.first == var[0])
+            continue;
+
+        int pos = copia.find(pair.first);
+        while (pos != string::npos)
+        {
+            copia.replace(pos, pair.first.length(), to_string(*(pair.second)));
+            pos = copia.find(pair.first);
+        }
+    }
+
+    aux[1] = copia;
 
     int i;
     for (i = 0; (i < num_steps - 1) && (i < t0); ++i)
     {
         // replacing variables with their actual values
+
+        // cout << "Pre-Replace: " << aux[1] << "\n";
+
         int pos = aux[1].find(var[0]);
         while (pos != string::npos)
         {
@@ -171,6 +193,8 @@ double Node::ode_solver(string eq, double cauchy, int t0, double h, double t_fin
             aux[1].replace(pos, 1, to_string(t[i]));
             pos = aux[1].find("t");
         }
+
+        // cout << "Post-Replace: " << aux[1] << "\n";
 
         double k1 = te_interp(aux[1].c_str(), 0);
         ystar[i + 1] = ystar[i] + h * k1;
@@ -210,9 +234,8 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
                 double *newCauchy = new double;
                 *newCauchy = *sharedVariables[aux[0]];
                 cauchy[aux[0]] = newCauchy;
-                firstVisit = false;
             }
-            *value = ode_solver(s, *cauchy[aux[0]], time, delta, finaltime);
+            *value = ode_solver(s, *cauchy[aux[0]], time, delta, finaltime, sharedVariables);
             // cout << "New Value X: " << *value << "\n";
             sharedVariables[aux[0]] = value;
             continue;
@@ -245,6 +268,7 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
             sharedVariables[aux[0]] = value;       // insert or assign the value
         }
     }
+    firstVisit = false;
     printMap(sharedVariables);
 }
 

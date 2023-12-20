@@ -15,7 +15,7 @@
                     {
                         "name":"Off",
                         "description":"x >= 18",
-                        "instructions":"x' = -0.1*x;",
+                        "instructions":"x' = -0.1*x;y'=((3*x+2)^2) * ((y+1)^0.5);",
                         "flag":"start",
                         "transitions":
                         [
@@ -28,7 +28,7 @@
                     {
                         "name":"On",
                         "description":"x <= 22",
-                        "instructions":"x' = 5-0.1*x;a = 5;",
+                        "instructions":"x' = 5-0.1*x;a = 5;y'=((3*x+2)^2) * ((y+1)^0.5);",
                         "flag":"none",
                         "transitions":
                         [
@@ -44,6 +44,10 @@
                     {
                         "name":"x",
                         "value":"20"
+                    },
+                    {
+                        "name":"y",
+                        "value":"7/9"
                     }
                 ]
             }

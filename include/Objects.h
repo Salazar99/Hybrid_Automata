@@ -67,7 +67,7 @@ public:
     void setTransitions(unordered_map<Transition, string, TransitionHash, TransitionEqual> &transitions);
     void addTransition(string condition, string destination);
     string checkTransitions(unordered_map<string, double *> &sharedVariables);
-    double ode_solver(string, double, int, double, double);
+    double ode_solver(string, double, int, double, double, unordered_map<string, double *> &sharedVariables);
     void executeNodeInstructions(unordered_map<string, double *> &sharedVariables, int time);
     bool operator==(const Node &other);
     friend ostream &operator<<(ostream &os, Node &obj);
