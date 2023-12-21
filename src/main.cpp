@@ -26,9 +26,9 @@ int main(int argc, char const *argv[])
         NEEDs TO BE ADDED IN YOUR CMAKELIST
         #target_compile_definitions(main PRIVATE $<$<BOOL:${DEBUG_MODE}>:DEBUG_MODE>)
     */
-    // vector<Automata> v = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//settings.json");
+    vector<Automata> v = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//settings.json");
     // vector<Automata> v = j.ScrapingJson("C://Users//tomvi//Hybrid_Automata//settings.json");
-    vector<Automata> v = j.ScrapingJson("../settings.json");
+    // vector<Automata> v = j.ScrapingJson("../settings.json");
 
     for (int j = 0; j < v.size(); j++)
     {
@@ -47,7 +47,7 @@ int main(int argc, char const *argv[])
             cout << "Nodo corrente: " << v[j].getCurrentNode().getName() << "\n\n";
         }
 
-        this_thread::sleep_for(std::chrono::milliseconds(500));
+        this_thread::sleep_for(std::chrono::milliseconds(1000));
         istanti++;
     }
 

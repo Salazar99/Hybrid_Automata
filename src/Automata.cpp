@@ -133,6 +133,16 @@ void Automata::setNodesNames(unordered_map<string, Node> &nodeNames)
 /// @return 1 if the current node changed, 0 otherwise
 bool Automata::checkForChanges()
 {
+    /* se si dovesse gestire la questione della prima accensione con condizioni di spostamento fin da subito
+        basta controllare il primo istante
+        if (time==1){
+            checktransition....
+        }
+        ricordati di rendere time globale
+    */
+
+    currentNode.executeNodeInstructions(automataVariables, time_inside_node);
+    time_inside_node++;
 
     string newNode = currentNode.checkTransitions(automataVariables);
 
@@ -142,8 +152,6 @@ bool Automata::checkForChanges()
         time_inside_node = 1;
     }
 
-    nodesNames[newNode].executeNodeInstructions(automataVariables, time_inside_node);
-    time_inside_node++;
     if (newNode == currentNode.getName())
         return 0;
 
