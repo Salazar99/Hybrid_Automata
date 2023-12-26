@@ -73,6 +73,7 @@ public:
     friend ostream &operator<<(ostream &os, Node &obj);
     void setFirstVisit(bool value);
     bool getFirstVisit();
+    string getActualInstructions();
 };
 
 enum Status
@@ -86,6 +87,7 @@ enum Status
 class Automata
 {
 private:
+    string name;                                       /*the name of the Automata*/
     vector<Node> nodes;                                /*all the nodes*/
     Node initialNode;                                  /*the initial node*/
     Node currentNode;                                  /*the current node*/
@@ -96,7 +98,7 @@ private:
     int time_inside_node;                              /*current node life timer*/
 
 public:
-    Automata(vector<Node> nodes, Node initialNode, vector<Node> finalNodes, unordered_map<string, double *> &automataVariables, Status status, int time_inside_node);
+    Automata(string name, vector<Node> nodes, Node initialNode, vector<Node> finalNodes, unordered_map<string, double *> &automataVariables, Status status, int time_inside_node);
     vector<Node> getNodes();
     void setNodes(vector<Node> &nodes);
     Node getInitialNode();
@@ -112,5 +114,22 @@ public:
     unordered_map<string, Node> getNodesNames();
     void setNodesNames(unordered_map<string, Node> &nodesNames);
     bool checkForChanges();
+    void setName(string name);
+    string getName();
     friend ostream &operator<<(ostream &os, Automata &obj);
+    string getInstructions();
+};
+
+/// @brief class that represents one System
+class System
+{
+private:
+    vector<Automata> automata;                        /*all the Automata*/
+    unordered_map<string, string> AutomataDependence; /*hashmap that contains all automata-variables dependence*/
+
+public:
+    System(vector<Automata> automata, unordered_map<string, string> &AutomataDependence);
+    vector<Automata> getAutomata();
+    unordered_map<string, string> getAutomataDependence();
+    friend ostream &operator<<(ostream &os, System &obj);
 };

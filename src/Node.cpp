@@ -110,6 +110,13 @@ bool Node::getFirstVisit()
     return this->firstVisit;
 }
 
+/// @brief return the actual node istruction
+/// @return the actual node istructions
+string Node::getActualInstructions()
+{
+    return this->instructions;
+}
+
 /// @brief splits the string into different parts given a delimiter and returns a vector of substrings;
 /// @param s the string to split
 /// @param delimiter the delimiter

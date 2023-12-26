@@ -21,19 +21,23 @@ int main(int argc, char const *argv[])
 {
     long start = time(NULL);
     UtilsJson j;
+    unordered_map<string, string> automataActualIstruction;
 
     /*
         NEEDs TO BE ADDED IN YOUR CMAKELIST
         #target_compile_definitions(main PRIVATE $<$<BOOL:${DEBUG_MODE}>:DEBUG_MODE>)
     */
-    vector<Automata> v = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//settings.json");
-    // vector<Automata> v = j.ScrapingJson("C://Users//tomvi//Hybrid_Automata//settings.json");
-    // vector<Automata> v = j.ScrapingJson("../settings.json");
-
-    for (int j = 0; j < v.size(); j++)
+    // vector<Automata> v = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//settings.json");
+    //  vector<Automata> v = j.ScrapingJson("C://Users//tomvi//Hybrid_Automata//settings.json");
+    System s = j.ScrapingJson("../settings.json");
+    vector<Automata> v = s.getAutomata();
+    cout << s;
+    /*
+    for (Automata a : v)
     {
-        cout << v[j];
+        cout << a;
     }
+    */
     int istanti = 0;
 
     DEBUG_COMMENT("Questo è un commento di debug" << istanti << " \n\n\n");
@@ -68,6 +72,15 @@ int main(int argc, char const *argv[])
 
 
         */
+
+        // filling the actualIstructions' automatas
+        for (Automata a : v)
+        {
+            automataActualIstruction[a.getInstructions()] = a.getName();
+        }
+
+        // for(Automa v : graph.getSortedList())
+        // same code
 
         for (int j = 0; j < v.size(); j++)
         {

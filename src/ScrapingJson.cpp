@@ -19,11 +19,12 @@ using json = nlohmann::json;
 double delta;
 double finaltime;
 
-vector<Automata> UtilsJson::ScrapingJson(string c)
+System UtilsJson::ScrapingJson(string c)
 {
     std::ifstream f(c);
     json data = json::parse(f);
     vector<Automata> arrAutomata;
+    unordered_map<string, string> automataDependence;
     vector<Node> arrNodes;
     Node startNode;
     vector<Node> finalNodes;
@@ -67,6 +68,7 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
             string var = variable["value"];
             y = new double(te_interp(var.c_str(), 0));
             variables[variable["name"]] = y;
+            automataDependence[variable["name"]] = automata["name"];
         }
 
         // adding transictions to nodes
@@ -93,10 +95,11 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
         }
 
         Status status = RUNNING;
-        Automata c(arrNodes, arrNodes[store], finalNodes, variables, status, 1);
+        Automata c(automata["name"], arrNodes, arrNodes[store], finalNodes, variables, status, 1);
         arrAutomata.push_back(c);
         // empty for next automata creation
         arrNodes.clear();
     }
-    return arrAutomata;
+
+    return System(arrAutomata, automataDependence);
 }

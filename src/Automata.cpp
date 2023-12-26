@@ -8,14 +8,16 @@
 #endif
 
 /// @brief constructor
+/// @param name the name of the automata
 /// @param nodes the nodes of the automata
 /// @param initialNodes the initial node of the automata
 /// @param finalNodes the final nodes of the automata
 /// @param automataVariables the variables of the automata
 /// @param status the curren status of the automata
 /// @param time_inside_node timer that represents the current time inside of a node
-Automata::Automata(vector<Node> nodes, Node initialNode, vector<Node> finalNodes, unordered_map<string, double *> &automataVariables, Status status, int time_inside_node)
+Automata::Automata(string name, vector<Node> nodes, Node initialNode, vector<Node> finalNodes, unordered_map<string, double *> &automataVariables, Status status, int time_inside_node)
 {
+    this->name = name;
     this->nodes = nodes;
 
     for (int i = 0; i < nodes.size(); i++)
@@ -129,6 +131,27 @@ void Automata::setNodesNames(unordered_map<string, Node> &nodeNames)
     this->nodesNames = nodeNames;
 }
 
+/// @brief set the autonamata's name
+/// @param name pf the automata
+void Automata::setName(string name)
+{
+    this->name = name;
+}
+
+/// @brief get the autonamata's name
+/// @return the automata name
+string Automata::getName()
+{
+    return this->name;
+}
+
+/// @brief get the autonamata's name
+/// @return the automata name
+string Automata::getInstructions()
+{
+    return getCurrentNode().getActualInstructions();
+}
+
 /// @brief check if we are in the conditions to change the current node
 /// @return 1 if the current node changed, 0 otherwise
 bool Automata::checkForChanges()
@@ -162,11 +185,13 @@ bool Automata::checkForChanges()
 /// @brief to string
 ostream &operator<<(ostream &os, Automata &obj)
 {
+    os << "Automata Name: " << obj.getName() << "\n\n";
     os << "Nodes: \n";
     for (Node n : obj.getNodes())
     {
         os << "- " << n << "\n";
     }
+    // os << "Instruction:" << obj.getInstructions() << "\n";
     os << "Initial Node: " << obj.getInitialNode().getName() << "\n";
     os << "Current Node: " << obj.getCurrentNode().getName() << "\n";
     os << "Final Nodes: \n";
