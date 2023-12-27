@@ -15,6 +15,11 @@ GraphNode::GraphNode(string name)
     this->nodeName = name;
 }
 
+string GraphNode::getName()
+{
+    return this->nodeName;
+}
+
 GraphEdge::GraphEdge(GraphNode *source, GraphNode *target)
 {
     this->source = source;

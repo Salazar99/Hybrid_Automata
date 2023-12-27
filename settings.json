@@ -16,7 +16,7 @@
                     {
                         "name":"Off",
                         "description":"x >= 18",
-                        "instructions":"x' = -0.1*x;y'=((3*x+2)^2) * ((y+1)^0.5);",
+                        "instructions":"x' = -0.1*x;",
                         "flag":"start",
                         "transitions":
                         [
@@ -29,7 +29,7 @@
                     {
                         "name":"On",
                         "description":"x <= 22",
-                        "instructions":"x' = 5-0.1*x;a = 5;y'=((3*x+2)^2) * ((y+1)^0.5);",
+                        "instructions":"x' = 5-0.1*x; d = 2 + c;",
                         "flag":"none",
                         "transitions":
                         [
@@ -45,10 +45,6 @@
                     {
                         "name":"x",
                         "value":"20"
-                    },
-                    {
-                        "name":"y",
-                        "value":"7/9"
                     }
                 ]
             },
@@ -72,7 +68,7 @@
                     {
                         "name":"On",
                         "description":"f <= 22",
-                        "instructions":"f' = 5-0.1*f;",
+                        "instructions":"f' = 5-0.1*f; a = d + 5;",
                         "flag":"none",
                         "transitions":
                         [
@@ -87,6 +83,45 @@
                 [
                     {
                         "name":"f",
+                        "value":"20"
+                    }
+                ]
+            },
+            {
+                "name":"C",
+                "node":
+                [
+                    {
+                        "name":"Off",
+                        "description":"g >= 18",
+                        "instructions":"g' = -0.1*g;",
+                        "flag":"start",
+                        "transitions":
+                        [
+                            {
+                                "to":"On",
+                                "condition":"(g<19)"
+                            }
+                        ]
+                    },  
+                    {
+                        "name":"On",
+                        "description":"g <= 22",
+                        "instructions":"g' = 5-0.1*g; c = 6;",
+                        "flag":"none",
+                        "transitions":
+                        [
+                            {
+                                "to":"Off",
+                                "condition":"(g>21)"
+                            }
+                        ]
+                    }
+                ],
+                "variables":
+                [
+                    {
+                        "name":"g",
                         "value":"20"
                     }
                 ]

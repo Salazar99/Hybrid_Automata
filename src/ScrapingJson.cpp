@@ -2,7 +2,7 @@
 #include "../include/json.hpp"
 #include "../include/global_variables.h"
 #include "../include/tinyexpr.h"
-#include <string.h>
+#include <string>
 #include <iostream>
 
 #ifdef DEBUG_MODE

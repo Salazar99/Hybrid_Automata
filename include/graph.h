@@ -15,6 +15,7 @@ public:
     string nodeName;
     vector<GraphEdge *> outgoingEdges;
     GraphNode(string name);
+    string getName();
 };
 
 /// @brief class that represents a edge in the graph

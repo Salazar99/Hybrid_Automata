@@ -154,7 +154,7 @@ void printMap(unordered_map<string, double *> &sharedVariables)
 /// @return
 double Node::ode_solver(string eq, double cauchy, int t0, double h, double t_final, unordered_map<string, double *> &sharedVariables)
 {
-    int num_steps = static_cast<int>(t_final / h) + 1;
+    long num_steps = static_cast<long>(t_final / h) + 1;
     vector<double> t(t0 + 1);
     vector<double> ystar(t0 + 1);
     t[0] = 0.0;
@@ -282,7 +282,7 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
         }
     }
     firstVisit = false;
-    printMap(sharedVariables);
+    // printMap(sharedVariables);
 }
 
 /// @brief checks if any transition is satisfied
