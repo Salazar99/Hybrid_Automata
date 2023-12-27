@@ -3,6 +3,7 @@
 #include "../include/global_variables.h"
 #include "../include/tinyexpr.h"
 #include <string>
+#include <sstream>
 #include <iostream>
 
 #ifdef DEBUG_MODE
