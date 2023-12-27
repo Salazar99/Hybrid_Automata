@@ -10,6 +10,7 @@
         "automata":
         [
             {
+                "name":"A",
                 "node":
                 [
                     {
@@ -24,7 +25,7 @@
                                 "condition":"(x<19)"
                             }
                         ]
-                    },
+                    },  
                     {
                         "name":"On",
                         "description":"x <= 22",
@@ -50,7 +51,47 @@
                         "value":"7/9"
                     }
                 ]
+            },
+            {
+                "name":"B",
+                "node":
+                [
+                    {
+                        "name":"Off",
+                        "description":"f >= 18",
+                        "instructions":"f' = -0.1*f;",
+                        "flag":"start",
+                        "transitions":
+                        [
+                            {
+                                "to":"On",
+                                "condition":"(f<19)"
+                            }
+                        ]
+                    },  
+                    {
+                        "name":"On",
+                        "description":"f <= 22",
+                        "instructions":"f' = 5-0.1*f;",
+                        "flag":"none",
+                        "transitions":
+                        [
+                            {
+                                "to":"Off",
+                                "condition":"(f>21)"
+                            }
+                        ]
+                    }
+                ],
+                "variables":
+                [
+                    {
+                        "name":"f",
+                        "value":"20"
+                    }
+                ]
             }
+            
         ]
     }
 }

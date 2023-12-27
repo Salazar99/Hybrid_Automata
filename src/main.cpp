@@ -17,23 +17,37 @@
 
 using namespace std;
 
+/// @brief prints the system variables map
+/// @param map the pointer to unordered map
+void printMap2(unordered_map<string, double *> &sharedVariables)
+{
+    for (auto &pair : sharedVariables)
+    {
+        std::cout << pair.first << ": " << *(pair.second) << "\n";
+    }
+}
+
 int main(int argc, char const *argv[])
 {
     long start = time(NULL);
     UtilsJson j;
+    unordered_map<string, string> automataActualIstruction;
 
     /*
         NEEDs TO BE ADDED IN YOUR CMAKELIST
         #target_compile_definitions(main PRIVATE $<$<BOOL:${DEBUG_MODE}>:DEBUG_MODE>)
     */
-    vector<Automata> v = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//settings.json");
-    // vector<Automata> v = j.ScrapingJson("C://Users//tomvi//Hybrid_Automata//settings.json");
-    // vector<Automata> v = j.ScrapingJson("../settings.json");
-
-    for (int j = 0; j < v.size(); j++)
+    // vector<Automata> v = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//settings.json");
+    //  vector<Automata> v = j.ScrapingJson("C://Users//tomvi//Hybrid_Automata//settings.json");
+    System s = j.ScrapingJson("../settings.json");
+    vector<Automata> v = s.getAutomata();
+    cout << s;
+    /*
+    for (Automata a : v)
     {
-        cout << v[j];
+        cout << a;
     }
+    */
     int istanti = 0;
 
     DEBUG_COMMENT("Questo è un commento di debug" << istanti << " \n\n\n");
@@ -69,13 +83,29 @@ int main(int argc, char const *argv[])
 
         */
 
+        // filling the actualIstructions' automatas
+        for (int j = 0; j < v.size(); j++)
+        {
+            automataActualIstruction[v[j].getInstructions()] = v[j].getName();
+            // cout << "\nIstruzioni attuali nodo corrente: " << v[j].getInstructions() << "\n";
+        }
+
+        // for(Automa v : graph.getSortedList())
+        // same code
+
         for (int j = 0; j < v.size(); j++)
         {
             v[j].checkForChanges();
             cout << "Nodo corrente: " << v[j].getCurrentNode().getName() << "\n\n";
         }
 
-        this_thread::sleep_for(std::chrono::milliseconds(1000));
+        for (int j = 0; j < v.size(); j++)
+        {
+            cout << "Mappa per Automa" << j << "\n";
+            printMap2(*v[j].getAutomataVariables());
+        }
+
+        this_thread::sleep_for(std::chrono::milliseconds(5000));
         istanti++;
     }
 

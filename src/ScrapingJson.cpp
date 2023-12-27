@@ -2,6 +2,7 @@
 #include "../include/json.hpp"
 #include "../include/global_variables.h"
 #include "../include/tinyexpr.h"
+#include <string.h>
 #include <iostream>
 
 #ifdef DEBUG_MODE
@@ -13,17 +14,20 @@
 using namespace std;
 using json = nlohmann::json;
 
+vector<string> split_string(const std::string &s, char delimiter);
+
 /// @brief creates all the automatas
 /// @return the automatas
 
 double delta;
 double finaltime;
 
-vector<Automata> UtilsJson::ScrapingJson(string c)
+System UtilsJson::ScrapingJson(string c)
 {
     std::ifstream f(c);
     json data = json::parse(f);
     vector<Automata> arrAutomata;
+    unordered_map<string, string> automataDependence;
     vector<Node> arrNodes;
     Node startNode;
     vector<Node> finalNodes;
@@ -58,6 +62,20 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
                 finalNodes.push_back(n);
             }
             j++;
+
+            string tmp = node["instructions"];
+            tmp.erase(std::remove(tmp.begin(), tmp.end(), ' '), tmp.end());
+            tmp.erase(std::remove(tmp.begin(), tmp.end(), '\n'), tmp.end());
+            vector<string> distinctInstructions = split_string(tmp, ';'); // splitting at ; character
+            vector<string> aux;
+            for (string s : distinctInstructions) // loop single istructions
+            {
+                aux = split_string(s, '=');
+                if (aux[0].find('\'') == string::npos)
+                {
+                    automataDependence[aux[0]] = automata["name"];
+                }
+            }
         }
 
         // find all the variables for each automata
@@ -67,6 +85,7 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
             string var = variable["value"];
             y = new double(te_interp(var.c_str(), 0));
             variables[variable["name"]] = y;
+            automataDependence[variable["name"]] = automata["name"];
         }
 
         // adding transictions to nodes
@@ -93,10 +112,29 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
         }
 
         Status status = RUNNING;
-        Automata c(arrNodes, arrNodes[store], finalNodes, variables, status, 1);
+        Automata c(automata["name"], arrNodes, arrNodes[store], finalNodes, variables, status, 1);
         arrAutomata.push_back(c);
         // empty for next automata creation
         arrNodes.clear();
     }
-    return arrAutomata;
+
+    return System(arrAutomata, automataDependence, variables);
+}
+
+/// @brief splits the string into different parts given a delimiter and returns a vector of substrings;
+/// @param s the string to split
+/// @param delimiter the delimiter
+/// @return a vector of substrings
+std::vector<string> split_string(const std::string &s, char delimiter)
+{
+    std::vector<std::string> tokens;
+    std::istringstream ss(s);
+    std::string token;
+
+    while (std::getline(ss, token, delimiter))
+    {
+        tokens.push_back(token);
+    }
+
+    return tokens;
 }

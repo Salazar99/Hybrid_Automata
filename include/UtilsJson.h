@@ -5,5 +5,5 @@
 class UtilsJson
 {
 public:
-    vector<Automata> ScrapingJson(string);
+    System ScrapingJson(string);
 };
