@@ -2,6 +2,7 @@
 #include "../include/json.hpp"
 #include "../include/global_variables.h"
 #include "../include/tinyexpr.h"
+#include <string.h>
 #include <iostream>
 
 #ifdef DEBUG_MODE
@@ -12,6 +13,8 @@
 
 using namespace std;
 using json = nlohmann::json;
+
+vector<string> split_string(const std::string &s, char delimiter);
 
 /// @brief creates all the automatas
 /// @return the automatas
@@ -59,6 +62,20 @@ System UtilsJson::ScrapingJson(string c)
                 finalNodes.push_back(n);
             }
             j++;
+
+            string tmp = node["instructions"];
+            tmp.erase(std::remove(tmp.begin(), tmp.end(), ' '), tmp.end());
+            tmp.erase(std::remove(tmp.begin(), tmp.end(), '\n'), tmp.end());
+            vector<string> distinctInstructions = split_string(tmp, ';'); // splitting at ; character
+            vector<string> aux;
+            for (string s : distinctInstructions) // loop single istructions
+            {
+                aux = split_string(s, '=');
+                if (aux[0].find('\'') == string::npos)
+                {
+                    automataDependence[aux[0]] = automata["name"];
+                }
+            }
         }
 
         // find all the variables for each automata
@@ -101,5 +118,23 @@ System UtilsJson::ScrapingJson(string c)
         arrNodes.clear();
     }
 
-    return System(arrAutomata, automataDependence);
+    return System(arrAutomata, automataDependence, variables);
+}
+
+/// @brief splits the string into different parts given a delimiter and returns a vector of substrings;
+/// @param s the string to split
+/// @param delimiter the delimiter
+/// @return a vector of substrings
+std::vector<string> split_string(const std::string &s, char delimiter)
+{
+    std::vector<std::string> tokens;
+    std::istringstream ss(s);
+    std::string token;
+
+    while (std::getline(ss, token, delimiter))
+    {
+        tokens.push_back(token);
+    }
+
+    return tokens;
 }

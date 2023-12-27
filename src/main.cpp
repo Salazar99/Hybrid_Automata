@@ -17,6 +17,16 @@
 
 using namespace std;
 
+/// @brief prints the system variables map
+/// @param map the pointer to unordered map
+void printMap2(unordered_map<string, double *> &sharedVariables)
+{
+    for (auto &pair : sharedVariables)
+    {
+        std::cout << pair.first << ": " << *(pair.second) << "\n";
+    }
+}
+
 int main(int argc, char const *argv[])
 {
     long start = time(NULL);
@@ -74,9 +84,10 @@ int main(int argc, char const *argv[])
         */
 
         // filling the actualIstructions' automatas
-        for (Automata a : v)
+        for (int j = 0; j < v.size(); j++)
         {
-            automataActualIstruction[a.getInstructions()] = a.getName();
+            automataActualIstruction[v[j].getInstructions()] = v[j].getName();
+            // cout << "\nIstruzioni attuali nodo corrente: " << v[j].getInstructions() << "\n";
         }
 
         // for(Automa v : graph.getSortedList())
@@ -88,7 +99,13 @@ int main(int argc, char const *argv[])
             cout << "Nodo corrente: " << v[j].getCurrentNode().getName() << "\n\n";
         }
 
-        this_thread::sleep_for(std::chrono::milliseconds(1000));
+        for (int j = 0; j < v.size(); j++)
+        {
+            cout << "Mappa per Automa" << j << "\n";
+            printMap2(*v[j].getAutomataVariables());
+        }
+
+        this_thread::sleep_for(std::chrono::milliseconds(5000));
         istanti++;
     }
 

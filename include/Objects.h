@@ -87,15 +87,15 @@ enum Status
 class Automata
 {
 private:
-    string name;                                       /*the name of the Automata*/
-    vector<Node> nodes;                                /*all the nodes*/
-    Node initialNode;                                  /*the initial node*/
-    Node currentNode;                                  /*the current node*/
-    vector<Node> finalNodes;                           /*the final nodes*/
-    unordered_map<string, double *> automataVariables; /*hashmap that contains all the automata variables (variableName, 1.0)*/
-    Status currentStatus;                              /*current status (OFF, RUNNING, PAUSE)*/
-    unordered_map<string, Node> nodesNames;            /*hashmap that connects nodes' names to the actual nodes*/
-    int time_inside_node;                              /*current node life timer*/
+    string name;                                        /*the name of the Automata*/
+    vector<Node> nodes;                                 /*all the nodes*/
+    Node initialNode;                                   /*the initial node*/
+    Node currentNode;                                   /*the current node*/
+    vector<Node> finalNodes;                            /*the final nodes*/
+    unordered_map<string, double *> *automataVariables; /*hashmap that contains all the automata variables (variableName, 1.0)*/
+    Status currentStatus;                               /*current status (OFF, RUNNING, PAUSE)*/
+    unordered_map<string, Node> nodesNames;             /*hashmap that connects nodes' names to the actual nodes*/
+    int time_inside_node;                               /*current node life timer*/
 
 public:
     Automata(string name, vector<Node> nodes, Node initialNode, vector<Node> finalNodes, unordered_map<string, double *> &automataVariables, Status status, int time_inside_node);
@@ -107,7 +107,7 @@ public:
     void setCurrentNode(Node &currentNode);
     vector<Node> getFinalNodes();
     void setFinalNodes(vector<Node> &finalNodes);
-    unordered_map<string, double *> getAutomataVariables();
+    unordered_map<string, double *> *getAutomataVariables();
     void setAutomataVariables(unordered_map<string, double *> &automataVaribles);
     Status getCurrentStatus();
     void setCurrentStatus(Status status);
@@ -126,9 +126,10 @@ class System
 private:
     vector<Automata> automata;                        /*all the Automata*/
     unordered_map<string, string> AutomataDependence; /*hashmap that contains all automata-variables dependence*/
+    unordered_map<string, double *> automataVariables;
 
 public:
-    System(vector<Automata> automata, unordered_map<string, string> &AutomataDependence);
+    System(vector<Automata> automata, unordered_map<string, string> &AutomataDependence, unordered_map<string, double *> &automataVariables);
     vector<Automata> getAutomata();
     unordered_map<string, string> getAutomataDependence();
     friend ostream &operator<<(ostream &os, System &obj);

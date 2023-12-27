@@ -28,7 +28,7 @@ Automata::Automata(string name, vector<Node> nodes, Node initialNode, vector<Nod
     this->initialNode = initialNode;
     this->currentNode = initialNode;
     this->finalNodes = finalNodes;
-    this->automataVariables = automataVariables;
+    this->automataVariables = &automataVariables;
     this->currentStatus = status;
     this->time_inside_node = time_inside_node;
 }
@@ -91,7 +91,7 @@ void Automata::setFinalNodes(vector<Node> &finalNodes)
 
 /// @brief return the automata variables
 /// @return the automata variables
-unordered_map<string, double *> Automata::getAutomataVariables()
+unordered_map<string, double *> *Automata::getAutomataVariables()
 {
     return this->automataVariables;
 }
@@ -100,7 +100,7 @@ unordered_map<string, double *> Automata::getAutomataVariables()
 /// @param autoamtaVariables the new map
 void Automata::setAutomataVariables(unordered_map<string, double *> &autoamtaVariables)
 {
-    this->automataVariables = autoamtaVariables;
+    this->automataVariables = &autoamtaVariables;
 }
 
 /// @brief return the current status
@@ -164,10 +164,10 @@ bool Automata::checkForChanges()
         ricordati di rendere time globale
     */
 
-    currentNode.executeNodeInstructions(automataVariables, time_inside_node);
+    currentNode.executeNodeInstructions(*automataVariables, time_inside_node);
     time_inside_node++;
 
-    string newNode = currentNode.checkTransitions(automataVariables);
+    string newNode = currentNode.checkTransitions(*automataVariables);
 
     if (newNode != currentNode.getName())
     {
