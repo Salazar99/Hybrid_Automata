@@ -8,3 +8,4 @@ exceptionSolver.exe
 #alde
 CMakeLists.txt
 build
+src/export.csv

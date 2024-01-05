@@ -12,6 +12,8 @@
 #include <chrono>
 #include <ctime>
 
+#include "../include/csvfile.h"
+
 #ifdef DEBUG_MODE
 #define DEBUG_COMMENT(comment) std::cout << "[DEBUG] " << comment << std::endl;
 #else
@@ -58,9 +60,9 @@ int main(int argc, char const *argv[])
         NEEDs TO BE ADDED IN YOUR CMAKELIST
         #target_compile_definitions(main PRIVATE $<$<BOOL:${DEBUG_MODE}>:DEBUG_MODE>)
     */
-    // vector<Automata> v = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//settings.json");
-    //  vector<Automata> v = j.ScrapingJson("C://Users//tomvi//Hybrid_Automata//settings.json");
-    System s = j.ScrapingJson("../settings.json");
+    //System s = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//settings.json");
+    System s = j.ScrapingJson("C://Users//tomvi//Hybrid_Automata//settings.json");
+    //System s = j.ScrapingJson("../settings.json");
     vector<Automata> v = s.getAutomata();
     cout << s;
 
@@ -74,36 +76,24 @@ int main(int argc, char const *argv[])
         indici[v[j].getName()] = j;
     }
 
+    try   //adding global variables and single automatas' variables' name in the first row
+    {
+        csvfile csv("../../src/export.csv",true); // throws exceptions!
+        csv << "TIMES";
+        for(auto const& key : s.getAutomataDependence())
+            {
+                csv << key.first;
+        } 
+        csv << endrow;
+    }
+    catch (const std::exception &ex)
+    {
+        std::cout << "Exception was thrown: " << ex.what() << std::endl;
+    }
+
     for (double time = 1; time < finaltime; time = time + delta)
     {
 
-        /*
-            secondo me ci servirà una mappa delle "dipendenze", ovvero x è calcolato nell'automa a, d in b....
-            x -> a
-            d -> b
-            c -> d
-
-            ci servirà una mappa che si aggiorna ad ogni time, con automa e le istruzioni del suo nodo corrente
-            hashmap <automa-instructions>
-
-
-            l'idea è di avere un grafo con gli automi come nodi e poi gli archi rappresentano le dipendenze, top-sort, abbiamo l'ordine
-            (chatgpt dice che ha senso)
-            guardatevi al volo algoritmisacrograal che in 3 secondi lo riprendete
-            vi lascio uno pseudocodice
-
-            crea grafo dell'istante
-            per ognuno di questi:
-                crea nodo nel grafo
-                cicla ogni istruzione:
-                    aggiungi arco (a->b, a va eseguito prima di b)
-            calcola topological sort
-            seguendo l'ordine esegui gli automi
-
-
-
-
-        */
         unordered_map<string, GraphNode *> nodes_map;
         /*
         Automa A -> nodo_A
@@ -166,7 +156,6 @@ int main(int argc, char const *argv[])
         "B" -> 1
         return top -> "B", "A"
         ordine di s.v -> "A", "B"
-
         */
         vector<GraphNode *> sorted = g.topologicalSort();
 
@@ -178,20 +167,35 @@ int main(int argc, char const *argv[])
             // cout << "Nodo corrente: " << v[indici[sorted[j]->getName()]].getCurrentNode().getName() << "\n\n";
         }
 
-        /*for (int j = 0; j < v.size(); j++)
-        {
-            v[j].checkForChanges();
-            cout << "Nodo corrente: " << v[j].getCurrentNode().getName() << "\n\n";
-        }*/
-
+        unordered_map<string, double> mergedAutomataVariables; //variable map made from merging all automatas variables
         for (int j = 0; j < v.size(); j++)
         {
             cout << "Mappa per Automa" << j << "\n";
             printMap2(*v[j].getAutomataVariables());
+            for(auto const& key : *v[j].getAutomataVariables())
+            {
+                mergedAutomataVariables[key.first] = *(key.second);
+            } 
         }
 
-        this_thread::sleep_for(std::chrono::milliseconds(2000));
+        try   //adding global variables and single automatas' variables' name in the first row
+        {
+            csvfile csv("../../src/export.csv",false); // throws exceptions!
+            csv << time;
+            for(auto const& key : s.getAutomataDependence())
+            {
+                    csv << mergedAutomataVariables[key.first];
+            } 
+            csv << endrow;
+        }
+        catch (const std::exception &ex)
+        {
+            std::cout << "Exception was thrown: " << ex.what() << std::endl;
+        }
+
+        this_thread::sleep_for(std::chrono::milliseconds(0));
         istanti++;
+        
     }
 
     cout << "Total Istanti: " << istanti;
