@@ -27,9 +27,9 @@ int main(int argc, char const *argv[])
     UtilsJson j;
     unordered_map<string, string> automataActualIstruction;
 
-    System s = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//secondexample.json");
-    // System s = j.ScrapingJson("C://Users//tomvi//Hybrid_Automata//settings.json");
-    // System s = j.ScrapingJson("../settings.json");
+    // System s = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//secondexample.json");
+    //  System s = j.ScrapingJson("C://Users//tomvi//Hybrid_Automata//settings.json");
+    System s = j.ScrapingJson("../thirdexample.json");
     vector<Automata> v = s.getAutomata();
     cout << s;
 
@@ -45,6 +45,7 @@ int main(int argc, char const *argv[])
 
     try // adding global variables and single automatas' variables' name in the first row
     {
+        // csvfile csv("../src/export.csv", true);
         csvfile csv("../../src/export.csv", true); // throws exceptions!
         csv << "TIMES";
         for (auto const &key : s.getAutomataDependence())
@@ -132,6 +133,7 @@ int main(int argc, char const *argv[])
         // adding global variables and single automatas' variables' name in the first row
         try
         {
+            // csvfile csv("../src/export.csv", false);
             csvfile csv("../../src/export.csv", false); // throws exceptions!
             csv << time;
             for (auto const &key : s.getAutomataDependence())
