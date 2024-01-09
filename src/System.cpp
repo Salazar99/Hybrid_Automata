@@ -38,7 +38,7 @@ unordered_map<string, string> System::getAutomataDependence()
 /// @brief to string
 ostream &operator<<(ostream &os, System &obj)
 {
-    os << "System: \n\n";
+    os << "\nSystem: \n\n";
     for (Automata s : obj.getAutomata())
     {
         os << s << "\n\n";

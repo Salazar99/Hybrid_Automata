@@ -2,8 +2,8 @@
 #include "../include/json.hpp"
 #include "../include/global_variables.h"
 #include "../include/tinyexpr.h"
+#include "../include/tools.h"
 #include <string>
-#include <sstream>
 #include <iostream>
 
 #ifdef DEBUG_MODE
@@ -14,8 +14,6 @@
 
 using namespace std;
 using json = nlohmann::json;
-
-vector<string> split_string(const std::string &s, char delimiter);
 
 /// @brief creates all the automatas
 /// @return the automatas
@@ -120,22 +118,4 @@ System UtilsJson::ScrapingJson(string c)
     }
 
     return System(arrAutomata, automataDependence, variables);
-}
-
-/// @brief splits the string into different parts given a delimiter and returns a vector of substrings;
-/// @param s the string to split
-/// @param delimiter the delimiter
-/// @return a vector of substrings
-std::vector<string> split_string(const std::string &s, char delimiter)
-{
-    std::vector<std::string> tokens;
-    std::istringstream ss(s);
-    std::string token;
-
-    while (std::getline(ss, token, delimiter))
-    {
-        tokens.push_back(token);
-    }
-
-    return tokens;
 }

@@ -2,9 +2,8 @@
 #include "../include/UtilsJson.h"
 #include "../include/tinyexpr.h"
 #include "../include/graph.h"
-#include <sstream>
-#include <string>
-#include <iostream>
+#include "../include/tools.h"
+
 #include <algorithm>
 #include <time.h>
 #include <random>
@@ -22,47 +21,15 @@
 
 using namespace std;
 
-/// @brief splits the string into different parts given a delimiter and returns a vector of substrings;
-/// @param s the string to split
-/// @param delimiter the delimiter
-/// @return a vector of substrings
-std::vector<string> split_string3(const std::string &s, char delimiter)
-{
-    std::vector<std::string> tokens;
-    std::istringstream ss(s);
-    std::string token;
-
-    while (std::getline(ss, token, delimiter))
-    {
-        tokens.push_back(token);
-    }
-
-    return tokens;
-}
-
-/// @brief prints the system variables map
-/// @param map the pointer to unordered map
-void printMap2(unordered_map<string, double *> &sharedVariables)
-{
-    for (auto &pair : sharedVariables)
-    {
-        std::cout << pair.first << ": " << *(pair.second) << "\n";
-    }
-}
-
 int main(int argc, char const *argv[])
 {
     long start = time(NULL);
     UtilsJson j;
     unordered_map<string, string> automataActualIstruction;
 
-    /*
-        NEEDs TO BE ADDED IN YOUR CMAKELIST
-        #target_compile_definitions(main PRIVATE $<$<BOOL:${DEBUG_MODE}>:DEBUG_MODE>)
-    */
-    //System s = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//settings.json");
-    System s = j.ScrapingJson("C://Users//tomvi//Hybrid_Automata//settings.json");
-    //System s = j.ScrapingJson("../settings.json");
+    System s = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//secondexample.json");
+    // System s = j.ScrapingJson("C://Users//tomvi//Hybrid_Automata//settings.json");
+    // System s = j.ScrapingJson("../settings.json");
     vector<Automata> v = s.getAutomata();
     cout << s;
 
@@ -76,58 +43,49 @@ int main(int argc, char const *argv[])
         indici[v[j].getName()] = j;
     }
 
-    try   //adding global variables and single automatas' variables' name in the first row
+    try // adding global variables and single automatas' variables' name in the first row
     {
-        csvfile csv("../../src/export.csv",true); // throws exceptions!
+        csvfile csv("../../src/export.csv", true); // throws exceptions!
         csv << "TIMES";
-        for(auto const& key : s.getAutomataDependence())
-            {
-                csv << key.first;
-        } 
+        for (auto const &key : s.getAutomataDependence())
+        {
+            csv << key.first;
+        }
         csv << endrow;
     }
-    catch (const std::exception &ex)
+    catch (const exception &ex)
     {
-        std::cout << "Exception was thrown: " << ex.what() << std::endl;
+        cout << "Exception was thrown: " << ex.what() << endl;
     }
 
     for (double time = 1; time < finaltime; time = time + delta)
     {
 
+        cout << "################## TIME = " << time << " ##################\n";
+
         unordered_map<string, GraphNode *> nodes_map;
-        /*
-        Automa A -> nodo_A
-        Automa B -> nodo_B
 
-        */
-
+        /*creating the graph*/
         Graph g;
         for (int j = 0; j < v.size(); j++)
         {
-            cout << "\nAutoma " << v[j].getName() << " ,Nodo attuale: " << v[j].getCurrentNode().getName() << "\n";
             GraphNode *node = new GraphNode(v[j].getName());
             nodes_map[v[j].getName()] = node;
             g.addNode(node);
         }
 
-        // filling the actualIstructions' automatas
+        // adding all the edges in the graph
         for (int j = 0; j < v.size(); j++)
         {
-            /*
-                y'=((3*x+2)^2) * ((y+1)^0.5);
-                y'=((x+2)^2) * ((y+1)^0.5);
-            */
-            // automataActualIstruction[v[j].getInstructions()] = v[j].getName();
-            //  cout << "\nIstruzioni attuali nodo corrente: " << v[j].getInstructions() << "\n";
             string tmp_instr = v[j].getInstructions();
-            tmp_instr.erase(std::remove(tmp_instr.begin(), tmp_instr.end(), ' '), tmp_instr.end());
-            tmp_instr.erase(std::remove(tmp_instr.begin(), tmp_instr.end(), '\n'), tmp_instr.end());
-            vector<string> distinctInstructions = split_string3(tmp_instr, ';'); // splitting at ; character
+            tmp_instr.erase(remove(tmp_instr.begin(), tmp_instr.end(), ' '), tmp_instr.end());
+            tmp_instr.erase(remove(tmp_instr.begin(), tmp_instr.end(), '\n'), tmp_instr.end());
+            vector<string> distinctInstructions = split_string(tmp_instr, ';'); // splitting at ; character
             string aux;
 
             for (string str : distinctInstructions) // loop single istructions
             {
-                aux = split_string3(str, '=')[1]; // take right part of the instruction
+                aux = split_string(str, '=')[1]; // take right part of the instruction
 
                 for (auto const &x : s.getAutomataDependence())
                 {
@@ -137,65 +95,69 @@ int main(int argc, char const *argv[])
                         {
 
                             /*
-                            v[j] ha una dipendenza su x.second, ovvero deve aspettare x.second
-                            x.second -> v[j] ----- x.second deve essere eseguito per primo
+                            v[j] needs to be executed after x.second
+                            x.second -> v[j] is the edge in the graph
                             */
                             g.addEdge(nodes_map[x.second], nodes_map[v[j].getName()]);
                         }
                     }
-                    // cout << "- " << x.first << " : " << x.second << ";\n";
                 }
             }
         }
 
-        // for(Automa v : graph.getSortedList())
-        // same code
-
-        /*
-        "A" -> 0
-        "B" -> 1
-        return top -> "B", "A"
-        ordine di s.v -> "A", "B"
-        */
         vector<GraphNode *> sorted = g.topologicalSort();
 
+        cout << "\n\nOrdine di esecuzione: ";
         for (int j = 0; j < sorted.size(); j++)
         {
-            cout << "\ntocca all'automa: " << sorted[j]->getName() << "\n";
+            if (j != sorted.size() - 1)
+            {
+                cout << sorted[j]->getName() << ", ";
+            }
+            else
+            {
+                cout << sorted[j]->getName() << "\n";
+            }
+        }
+
+        // execution of every automatas in topological order
+        for (int j = 0; j < sorted.size(); j++)
+        {
             v[indici[sorted[j]->getName()]].checkForChanges();
-            cout << "\nAutoma " << v[indici[sorted[j]->getName()]].getName() << " ,Nodo attuale dpc: " << v[indici[sorted[j]->getName()]].getCurrentNode().getName() << "\n";
-            // cout << "Nodo corrente: " << v[indici[sorted[j]->getName()]].getCurrentNode().getName() << "\n\n";
+            cout << "\nAutoma " << v[indici[sorted[j]->getName()]].getName() << " ,Nodo attuale: " << v[indici[sorted[j]->getName()]].getCurrentNode().getName() << "\n";
         }
+        cout << "\nVariables Map: \n";
+        printMap(*v[0].getAutomataVariables());
 
-        unordered_map<string, double> mergedAutomataVariables; //variable map made from merging all automatas variables
-        for (int j = 0; j < v.size(); j++)
+        // adding global variables and single automatas' variables' name in the first row
+        try
         {
-            cout << "Mappa per Automa" << j << "\n";
-            printMap2(*v[j].getAutomataVariables());
-            for(auto const& key : *v[j].getAutomataVariables())
-            {
-                mergedAutomataVariables[key.first] = *(key.second);
-            } 
-        }
-
-        try   //adding global variables and single automatas' variables' name in the first row
-        {
-            csvfile csv("../../src/export.csv",false); // throws exceptions!
+            csvfile csv("../../src/export.csv", false); // throws exceptions!
             csv << time;
-            for(auto const& key : s.getAutomataDependence())
+            for (auto const &key : s.getAutomataDependence())
             {
-                    csv << mergedAutomataVariables[key.first];
-            } 
+
+                // if the variable has not already been assigned than i print 0
+                if ((*(v[0].getAutomataVariables())).find(key.first) == (*(v[0].getAutomataVariables())).end())
+                {
+                    csv << 0;
+                }
+                else
+                {
+                    csv << *(*(v[0].getAutomataVariables()))[key.first];
+                }
+            }
+
             csv << endrow;
         }
-        catch (const std::exception &ex)
+        catch (const exception &ex)
         {
-            std::cout << "Exception was thrown: " << ex.what() << std::endl;
+            cout << "Exception was thrown: " << ex.what() << endl;
         }
 
-        this_thread::sleep_for(std::chrono::milliseconds(0));
+        this_thread::sleep_for(chrono::milliseconds(0));
         istanti++;
-        
+        cout << "\n\n";
     }
 
     cout << "Total Istanti: " << istanti;

@@ -1,5 +1,6 @@
 #include "../include/Objects.h"
 #include "../include/global_variables.h"
+#include "../include/tools.h"
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -117,34 +118,6 @@ string Node::getActualInstructions()
     return this->instructions;
 }
 
-/// @brief splits the string into different parts given a delimiter and returns a vector of substrings;
-/// @param s the string to split
-/// @param delimiter the delimiter
-/// @return a vector of substrings
-std::vector<std::string> split(const std::string &s, char delimiter)
-{
-    std::vector<std::string> tokens;
-    std::istringstream ss(s);
-    std::string token;
-
-    while (std::getline(ss, token, delimiter))
-    {
-        tokens.push_back(token);
-    }
-
-    return tokens;
-}
-
-/// @brief prints the system variables map
-/// @param map the pointer to unordered map
-void printMap(unordered_map<string, double *> &sharedVariables)
-{
-    for (auto &pair : sharedVariables)
-    {
-        std::cout << pair.first << ": " << *(pair.second) << "\n";
-    }
-}
-
 /// @brief resolve a first order differential equation
 /// @param eq the equation
 /// @param cauchy initial condition
@@ -159,15 +132,13 @@ double Node::ode_solver(string eq, double cauchy, int t0, double h, double t_fin
     vector<double> ystar(t0 + 1);
     t[0] = 0.0;
     ystar[0] = cauchy;
-    vector<string> aux = split(eq, '=');
+    vector<string> aux = split_string(eq, '=');
 
     DEBUG_COMMENT("aux[0]: " << aux[0] << ", [1]: " << aux[1] << "\n");
 
     string copia = aux[1];
 
-    // y'=((3*x+2)^2) * ((y+1)^0.5);
-
-    vector<string> var = split(eq, '\'');
+    vector<string> var = split_string(eq, '\'');
 
     // if the string has variables, then we replace their values
     for (pair<string, double *> pair : sharedVariables)
@@ -226,7 +197,7 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
     instructions.erase(std::remove(instructions.begin(), instructions.end(), ' '), instructions.end());
     instructions.erase(std::remove(instructions.begin(), instructions.end(), '\n'), instructions.end());
 
-    vector<string> distinctInstructions = split(instructions, ';'); // splitting at ; character
+    vector<string> distinctInstructions = split_string(instructions, ';'); // splitting at ; character
     vector<string> aux;
     double *value;
     for (string s : distinctInstructions)
@@ -235,7 +206,7 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
 
         if (s.find("'") != string::npos)
         {
-            aux = split(s, '\'');
+            aux = split_string(s, '\'');
 
             DEBUG_COMMENT("aux[0]: " << aux[0] << "\n");
 
@@ -255,7 +226,7 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
         }
 
         // aux[0] = leftoperand -- aux[1] = rightoperand
-        aux = split(s, '=');
+        aux = split_string(s, '=');
 
         // check if the instruction is a simple assignment
         if (aux[1].find("+") == string::npos && aux[1].find("-") == string::npos && aux[1].find("*") == string::npos && aux[1].find("/") == string::npos)

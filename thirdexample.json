@@ -4,7 +4,7 @@
         "global":
         {
             "delta":"0.1",
-            "finaltime":"10"
+            "finaltime":"5"
         },
 
         "automata":
