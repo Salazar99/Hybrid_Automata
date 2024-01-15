@@ -68,7 +68,7 @@ public:
     void addTransition(string condition, string destination);
     string checkTransitions(unordered_map<string, double *> &sharedVariables);
     double ode_solver(string, double, int, double, double, unordered_map<string, double *> &sharedVariables);
-    void executeNodeInstructions(unordered_map<string, double *> &sharedVariables, int time);
+    void executeNodeInstructions(unordered_map<string, double *> &sharedVariables, unordered_map<string, double> &tempVariables, int time);
     bool operator==(const Node &other);
     friend ostream &operator<<(ostream &os, Node &obj);
     void setFirstVisit(bool value);
@@ -93,9 +93,10 @@ private:
     Node currentNode;                                   /*the current node*/
     vector<Node> finalNodes;                            /*the final nodes*/
     unordered_map<string, double *> *automataVariables; /*hashmap that contains all the automata variables (variableName, 1.0)*/
-    Status currentStatus;                               /*current status (OFF, RUNNING, PAUSE)*/
-    unordered_map<string, Node> nodesNames;             /*hashmap that connects nodes' names to the actual nodes*/
-    int time_inside_node;                               /*current node life timer*/
+    unordered_map<string, double> *tempVariables;
+    Status currentStatus;                   /*current status (OFF, RUNNING, PAUSE)*/
+    unordered_map<string, Node> nodesNames; /*hashmap that connects nodes' names to the actual nodes*/
+    int time_inside_node;                   /*current node life timer*/
 
 public:
     Automata(string name, vector<Node> nodes, Node initialNode, vector<Node> finalNodes, unordered_map<string, double *> &automataVariables, Status status, int time_inside_node);
@@ -109,6 +110,7 @@ public:
     void setFinalNodes(vector<Node> &finalNodes);
     unordered_map<string, double *> *getAutomataVariables();
     void setAutomataVariables(unordered_map<string, double *> &automataVaribles);
+    void setTempVariables(unordered_map<string, double> &tempVariables);
     Status getCurrentStatus();
     void setCurrentStatus(Status status);
     unordered_map<string, Node> getNodesNames();
@@ -127,10 +129,12 @@ private:
     vector<Automata> automata;                        /*all the Automata*/
     unordered_map<string, string> AutomataDependence; /*hashmap that contains all automata-variables dependence*/
     unordered_map<string, double *> automataVariables;
+    unordered_map<string, double> tempVariables;
 
 public:
-    System(vector<Automata> automata, unordered_map<string, string> &AutomataDependence, unordered_map<string, double *> &automataVariables);
+    System(vector<Automata> automata, unordered_map<string, string> &AutomataDependence, unordered_map<string, double *> &automataVariables, unordered_map<string, double> &tempVariables);
     vector<Automata> getAutomata();
     unordered_map<string, string> getAutomataDependence();
+    void refreshVariables();
     friend ostream &operator<<(ostream &os, System &obj);
 };

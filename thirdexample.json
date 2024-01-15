@@ -3,8 +3,8 @@
     {
         "global":
         {
-            "delta":"0.1",
-            "finaltime":"5"
+            "delta":"0.001",
+            "finaltime":"10"
         },
 
         "automata":
@@ -16,7 +16,7 @@
                     {
                         "name":"Off",
                         "description":"x >= 18",
-                        "instructions":"x' = -0.1*x;",
+                        "instructions":"x' = -0.1*x;d = 1",
                         "flag":"start",
                         "transitions":
                         [
@@ -29,7 +29,7 @@
                     {
                         "name":"On",
                         "description":"x <= 22",
-                        "instructions":"x' = 5-0.1*x; d = 2 + c;",
+                        "instructions":"x' = 5-0.1*x; d = 2;",
                         "flag":"none",
                         "transitions":
                         [
@@ -45,6 +45,10 @@
                     {
                         "name":"x",
                         "value":"20"
+                    },
+                    {
+                        "name":"d",
+                        "value":"0"
                     }
                 ]
             },
@@ -84,6 +88,10 @@
                     {
                         "name":"f",
                         "value":"20"
+                    },
+                    {
+                        "name":"a",
+                        "value":"0"
                     }
                 ]
             },
@@ -107,7 +115,7 @@
                     {
                         "name":"On",
                         "description":"g <= 22",
-                        "instructions":"g' = 5-0.1*g; c = 6;",
+                        "instructions":"g' = 5-0.1*g; c = a + 6;",
                         "flag":"none",
                         "transitions":
                         [
@@ -123,6 +131,10 @@
                     {
                         "name":"g",
                         "value":"20"
+                    },
+                    {
+                        "name":"c",
+                        "value":"0"
                     }
                 ]
             }

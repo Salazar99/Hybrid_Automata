@@ -191,7 +191,7 @@ double Node::ode_solver(string eq, double cauchy, int t0, double h, double t_fin
 
 /// @brief execute all the node instructions
 /// @param sharedVariables the system variables
-void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariables, int time)
+void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariables, unordered_map<string, double> &tempVariables, int time)
 {
     // removing all the spaces
     instructions.erase(std::remove(instructions.begin(), instructions.end(), ' '), instructions.end());
@@ -221,7 +221,8 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
             }
             *value = ode_solver(s, *cauchy[aux[0]], time, delta, finaltime, sharedVariables);
             DEBUG_COMMENT("New Value X: " << *value << "\n");
-            sharedVariables[aux[0]] = value;
+            tempVariables[aux[0]] = *(value);
+            // sharedVariables[aux[0]] = value;
             continue;
         }
 
@@ -233,7 +234,8 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
         {
             value = new double;
             *value = stod(aux[1]);
-            sharedVariables[aux[0]] = value;
+            tempVariables[aux[0]] = *(value);
+            // sharedVariables[aux[0]] = value;
         }
         else
         {
@@ -249,7 +251,8 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
             }
             value = new double;
             *value = te_interp(aux[1].c_str(), 0); // solve the instruction
-            sharedVariables[aux[0]] = value;       // insert or assign the value
+            tempVariables[aux[0]] = *(value);
+            // sharedVariables[aux[0]] = value;       // insert or assign the value
         }
     }
     firstVisit = false;

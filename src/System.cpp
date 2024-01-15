@@ -10,14 +10,16 @@
 /// @brief constructor
 /// @param automata the Automata of the System
 /// @param VariablesDependence automata-variables dependence of the system
-System::System(vector<Automata> automata, unordered_map<string, string> &AutomataDependence, unordered_map<string, double *> &automataVariables)
+System::System(vector<Automata> automata, unordered_map<string, string> &AutomataDependence, unordered_map<string, double *> &automataVariables, unordered_map<string, double> &tempVariables)
 {
     this->automata = automata;
     this->AutomataDependence = AutomataDependence;
     this->automataVariables = automataVariables;
+    this->tempVariables = tempVariables;
     for (int j = 0; j < this->automata.size(); j++)
     {
         this->automata[j].setAutomataVariables(this->automataVariables);
+        this->automata[j].setTempVariables(this->tempVariables);
     }
 }
 
@@ -33,6 +35,33 @@ vector<Automata> System::getAutomata()
 unordered_map<string, string> System::getAutomataDependence()
 {
     return this->AutomataDependence;
+}
+
+void System::refreshVariables()
+{
+    /*
+
+    temp:
+
+
+    shared:
+    x = 15
+    a = 3 -> 5
+
+
+    for ogni variabile temp:
+        shared[temp.first] = temp.second;
+
+    temp.clear()
+
+    */
+
+    for (auto const &key : tempVariables)
+    {
+        *automataVariables[key.first] = key.second;
+    }
+
+    tempVariables.clear();
 }
 
 /// @brief to string

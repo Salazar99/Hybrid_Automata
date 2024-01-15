@@ -116,6 +116,6 @@ System UtilsJson::ScrapingJson(string c)
         // empty for next automata creation
         arrNodes.clear();
     }
-
-    return System(arrAutomata, automataDependence, variables);
+    unordered_map<string, double> tempVariables;
+    return System(arrAutomata, automataDependence, variables, tempVariables);
 }

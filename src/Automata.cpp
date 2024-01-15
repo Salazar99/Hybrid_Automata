@@ -103,6 +103,13 @@ void Automata::setAutomataVariables(unordered_map<string, double *> &autoamtaVar
     this->automataVariables = &autoamtaVariables;
 }
 
+/// @brief set the map string->double of the variables
+/// @param autoamtaVariables the new map
+void Automata::setTempVariables(unordered_map<string, double> &tempVariables)
+{
+    this->tempVariables = &tempVariables;
+}
+
 /// @brief return the current status
 /// @return the current status
 Status Automata::getCurrentStatus()
@@ -164,7 +171,7 @@ bool Automata::checkForChanges()
         ricordati di rendere time globale
     */
 
-    currentNode.executeNodeInstructions(*automataVariables, time_inside_node);
+    currentNode.executeNodeInstructions(*automataVariables, *tempVariables, time_inside_node);
     time_inside_node++;
 
     string newNode = currentNode.checkTransitions(*automataVariables);
