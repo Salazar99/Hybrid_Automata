@@ -10,6 +10,10 @@
 #include <chrono>
 #include <ctime>
 
+/*
+x = beta+a;
+*/
+
 #include "../include/csvfile.h"
 
 #ifdef DEBUG_MODE
@@ -25,9 +29,9 @@ int main(int argc, char const *argv[])
     long start = time(NULL);
     UtilsJson j;
 
-    // System s = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//secondexample.json");
+    System s = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//watertanks.json");
     //  System s = j.ScrapingJson("C://Users//tomvi//Hybrid_Automata//settings.json");
-    System s = j.ScrapingJson("../thirdexample.json");
+    // System s = j.ScrapingJson("../thirdexample.json");
     vector<Automata> v = s.getAutomata();
     cout << s;
 
@@ -51,11 +55,10 @@ int main(int argc, char const *argv[])
         cout << "Exception was thrown: " << ex.what() << endl;
     }
 
-    for (double time = 1; time < finaltime; time = time + delta)
+    for (double time = 1; time < finaltime + 1; time = time + delta)
     {
         cout << "################## TIME = " << time << " ##################\n";
 
-        // execution of every automatas in topological order
         for (int j = 0; j < v.size(); j++)
         {
             v[j].checkForChanges();

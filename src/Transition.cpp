@@ -1,6 +1,7 @@
 #include "../include/Objects.h"
 #include <iostream>
 #include <stack>
+#include "../include/tools.h"
 #include "../include/tinyexpr.h"
 
 #ifdef DEBUG_MODE
@@ -219,12 +220,14 @@ bool Transition::checkCondition(unordered_map<string, double *> &variables)
 
     for (pair<string, double *> pair : variables)
     {
+        /*
         pos = condition.find(pair.first);
         while (pos != string::npos)
         {
             condition.replace(pos, pair.first.length(), to_string(*(pair.second)));
             pos = condition.find(pair.first);
-        }
+        }*/
+        condition = replace_var(condition, pair.first, to_string(*(pair.second)));
     }
 
     DEBUG_COMMENT("Condizione post-replace: " << condition << "\n");

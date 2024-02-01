@@ -121,7 +121,7 @@ string Node::getActualInstructions()
 /// @brief resolve a first order differential equation
 /// @param eq the equation
 /// @param cauchy initial condition
-/// @param t0 aim moment
+/// @param t0 time to return
 /// @param h delta
 /// @param t_final final time
 /// @return
@@ -147,12 +147,14 @@ double Node::ode_solver(string eq, double cauchy, int t0, double h, double t_fin
         if (pair.first == var[0])
             continue;
 
-        int pos = copia.find(pair.first);
+        copia = replace_var(copia, pair.first, to_string(*(pair.second)));
+
+        /*int pos = copia.find(pair.first);
         while (pos != string::npos)
         {
             copia.replace(pos, pair.first.length(), to_string(*(pair.second)));
             pos = copia.find(pair.first);
-        }
+        }*/
     }
 
     aux[1] = copia;
@@ -164,19 +166,23 @@ double Node::ode_solver(string eq, double cauchy, int t0, double h, double t_fin
 
         DEBUG_COMMENT("Pre-Replace: " << aux[1] << "\n");
 
-        int pos = aux[1].find(var[0]);
+        aux[1] = replace_var(aux[1], var[0], to_string(ystar[i]));
+
+        /*int pos = aux[1].find(var[0]);
         while (pos != string::npos)
         {
             aux[1].replace(pos, var[0].length(), to_string(ystar[i]));
             pos = aux[1].find(var[0]);
-        }
+        }*/
 
-        pos = aux[1].find("t");
+        aux[1] = replace_var(aux[1], "t", to_string(t[i]));
+
+        /*int pos = aux[1].find("t");
         while (pos != string::npos)
         {
             aux[1].replace(pos, 1, to_string(t[i]));
             pos = aux[1].find("t");
-        }
+        }*/
 
         DEBUG_COMMENT("Post-Replace: " << aux[1] << "\n");
 
@@ -242,12 +248,14 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
             // if the string has variables, then we replace their values
             for (pair<string, double *> pair : sharedVariables)
             {
-                int pos = aux[1].find(pair.first);
+                aux[1] = replace_var(aux[1], pair.first, to_string(*(pair.second)));
+
+                /*int pos = aux[1].find(pair.first);
                 while (pos != string::npos)
                 {
                     aux[1].replace(pos, pair.first.length(), to_string(*(pair.second)));
                     pos = aux[1].find(pair.first);
-                }
+                }*/
             }
             value = new double;
             *value = te_interp(aux[1].c_str(), 0); // solve the instruction
