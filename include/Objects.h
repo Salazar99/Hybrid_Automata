@@ -54,6 +54,8 @@ private:
     unordered_map<string, double *> cauchy;                                         /*an hashmap that stores initial values for differential equations*/
     bool firstVisit;                                                                /*true if we just arrived into a node*/
     string instructions;                                                            /*all the instructions inside the node*/
+    vector<double> ode_solver_values;
+    vector<double> ode_solver_times;
 
 public:
     Node();

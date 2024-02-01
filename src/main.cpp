@@ -30,7 +30,7 @@ int main(int argc, char const *argv[])
     UtilsJson j;
 
     System s = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//watertanks.json");
-    //   System s = j.ScrapingJson("C://Users//tomvi//Hybrid_Automata//settings.json");
+    //    System s = j.ScrapingJson("C://Users//tomvi//Hybrid_Automata//settings.json");
     // System s = j.ScrapingJson("../watertanks.json");
     vector<Automata> v = s.getAutomata();
     cout << s;

@@ -8,6 +8,8 @@
 #include <algorithm>
 #include "../include/tinyexpr.h"
 
+#define DEBUG_MODE
+
 #ifdef DEBUG_MODE
 #define DEBUG_COMMENT(comment) std::cout << "[DEBUG] " << comment << std::endl;
 #else
@@ -143,11 +145,8 @@ double Node::ode_solver(string eq, double cauchy, int t0, double h, double t_fin
     // if the string has variables, then we replace their values
     for (pair<string, double *> pair : sharedVariables)
     {
-
-        if (pair.first == var[0])
-            continue;
-
-        copia = replace_var(copia, pair.first, to_string(*(pair.second)));
+        if (pair.first != var[0])
+            copia = replace_var(copia, pair.first, to_string(*(pair.second)));
 
         /*int pos = copia.find(pair.first);
         while (pos != string::npos)
@@ -156,43 +155,48 @@ double Node::ode_solver(string eq, double cauchy, int t0, double h, double t_fin
             pos = copia.find(pair.first);
         }*/
     }
-
-    aux[1] = copia;
-
+    /*aux[1] = copia;
     int i;
     for (i = 0; (i < num_steps - 1) && (i < t0); ++i)
     {
         // replacing variables with their actual values
 
-        DEBUG_COMMENT("Pre-Replace: " << aux[1] << "\n");
+        // DEBUG_COMMENT("Pre-Replace: " << aux[1] << "\n");
 
         aux[1] = replace_var(aux[1], var[0], to_string(ystar[i]));
 
-        /*int pos = aux[1].find(var[0]);
-        while (pos != string::npos)
-        {
-            aux[1].replace(pos, var[0].length(), to_string(ystar[i]));
-            pos = aux[1].find(var[0]);
-        }*/
-
         aux[1] = replace_var(aux[1], "t", to_string(t[i]));
 
-        /*int pos = aux[1].find("t");
-        while (pos != string::npos)
-        {
-            aux[1].replace(pos, 1, to_string(t[i]));
-            pos = aux[1].find("t");
-        }*/
-
-        DEBUG_COMMENT("Post-Replace: " << aux[1] << "\n");
-
+        // DEBUG_COMMENT("Post-Replace: " << aux[1] << "\n");
+        DEBUG_COMMENT("k1= " << aux[1].c_str() << "\n");
         double k1 = te_interp(aux[1].c_str(), 0);
+        DEBUG_COMMENT("Operazione: " << ystar[i] << "+" << h << "*" << k1 << "\n");
+
         ystar[i + 1] = ystar[i] + h * k1;
         t[i + 1] = t[i] + h;
         aux[1] = copia;
-    }
+    }*/
 
-    return ystar[i];
+    /*for (int i = 0; i < ode_solver_values.size(); i++)
+    {
+        cout << "Pos: " << i << "->" << ode_solver_values[i] << "\n";
+    }*/
+
+    aux[1] = copia;
+    double new_value;
+    double new_time;
+
+    aux[1] = replace_var(aux[1], var[0], to_string(ode_solver_values[t0 - 1]));
+    aux[1] = replace_var(aux[1], "t", to_string(ode_solver_times[t0 - 1]));
+    DEBUG_COMMENT("k1= " << aux[1].c_str() << "\n");
+    double k1 = te_interp(aux[1].c_str(), 0);
+    DEBUG_COMMENT("Operazione: " << ode_solver_values[t0 - 1] << "+" << h << "*" << k1 << "\n");
+    new_value = ode_solver_values[t0 - 1] + h * k1;
+    new_time = ode_solver_times[t0 - 1] + h;
+    ode_solver_values.push_back(new_value);
+    ode_solver_times.push_back(new_time);
+
+    return ode_solver_values[t0];
 }
 
 /// @brief execute all the node instructions
@@ -208,25 +212,29 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
     double *value;
     for (string s : distinctInstructions)
     {
-        DEBUG_COMMENT(s << "\n");
+        // DEBUG_COMMENT(s << "\n");
 
         if (s.find("'") != string::npos)
         {
             aux = split_string(s, '\'');
 
-            DEBUG_COMMENT("aux[0]: " << aux[0] << "\n");
+            // DEBUG_COMMENT("aux[0]: " << aux[0] << "\n");
 
             value = new double;
-            DEBUG_COMMENT("First Visit: " << getFirstVisit() << "\n");
+            // DEBUG_COMMENT("First Visit: " << getFirstVisit() << "\n");
             if (firstVisit)
             {
-                DEBUG_COMMENT("First Visit, new cauchy: " << *sharedVariables[aux[0]] << "\n");
+                ode_solver_values.clear();
+                ode_solver_times.clear();
+                ode_solver_times.push_back(0.0);
+                //  DEBUG_COMMENT("First Visit, new cauchy: " << *sharedVariables[aux[0]] << "\n");
                 double *newCauchy = new double;
                 *newCauchy = *sharedVariables[aux[0]];
                 cauchy[aux[0]] = newCauchy;
+                ode_solver_values.push_back(*cauchy[aux[0]]);
             }
             *value = ode_solver(s, *cauchy[aux[0]], time, delta, finaltime, sharedVariables);
-            DEBUG_COMMENT("New Value X: " << *value << "\n");
+            // DEBUG_COMMENT("New Value X: " << *value << "\n");
             tempVariables[aux[0]] = *(value);
             // sharedVariables[aux[0]] = value;
             continue;
