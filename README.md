@@ -119,28 +119,36 @@ Follow the next example to define Systems in .json standard:
 
 When you need to define instructions to execute inside a node, you need to follow these rules:
 
-1. **Simple Assignment**
+1. **Simple Assignment**<br>
+   ```plaintext
    x = 5; #no particular rules just remember the ; at the end
-2. **Math Operation**
+   ```
+2. **Math Operation**<br>
+   ```plaintext
    x = 5 + a; #no particular rules just remember the ; at the end and make sure that the other variable exists
-3. **Differential Equation**
-   x' = 5\*x + a - 0.02; #the derivative is written with the ' after the variable and with no brackets such as "x'(t)", always remember the ; at the end
+   ```
+3. **Differential Equation**<br>
+   ```plaintext
+   x' = 5*x + a - 0.02; #the derivative is written with the ' after the variable and with no brackets such as "x'(t)", always remember the ; at the end
+   ```
 
 #### Guide for Transitions
 
 Delimit with parenthesis and if you need to use the and/or operator you can write conditions like this:
 
-```bash
+```plaintext
 (x<19) & (x+5>=4) #and operator
 (x<19) | (x+5>=4) #or operator
 ```
 
 Some more examples:
 
-```bash
+```plaintext
 ((x<19) & (x+5>=4)) & (x+x<6)
 (((x<19) | (x+5>=4)) & (2*x>=5)) | (x+1==0)
 ```
+
+For a complete example with multiple automatas and various types of instructions and conditions you can read the [Watertanks Example](watertanks.json)
 
 ## Stack
 
