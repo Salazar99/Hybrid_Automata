@@ -36,8 +36,8 @@ int main(int argc, char const *argv[])
 
     try
     {
-        // csvfile csv("../src/export.csv", true);
-        csvfile csv("../../src/export.csv", true); // throws exceptions!
+        // csvfile csv("../export.csv", true);
+        csvfile csv("../../export.csv", true); // throws exceptions!
         csv << "TIMES";
         for (auto const &key : s.getAutomataDependence())
         {
