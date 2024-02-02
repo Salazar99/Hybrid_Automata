@@ -128,10 +128,6 @@ string Node::getActualInstructions()
 double Node::ode_solver(string eq, double cauchy, int t0, double h, double t_final, unordered_map<string, double *> &sharedVariables)
 {
     long num_steps = static_cast<long>(t_final / h) + 1;
-    vector<double> t(t0 + 1);
-    vector<double> ystar(t0 + 1);
-    t[0] = 0.0;
-    ystar[0] = cauchy;
     vector<string> aux = split_string(eq, '=');
 
     DEBUG_COMMENT("aux[0]: " << aux[0] << ", [1]: " << aux[1] << "\n");

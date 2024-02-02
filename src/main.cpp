@@ -23,10 +23,11 @@ int main(int argc, char const *argv[])
 {
     long start = time(NULL);
     UtilsJson j;
-
-    System s = j.ScrapingJson("C://Users//aleal//Desktop//evrthng//Hybrid_Automata//watertanks.json");
-    //    System s = j.ScrapingJson("C://Users//tomvi//Hybrid_Automata//settings.json");
-    // System s = j.ScrapingJson("../watertanks.json");
+#ifdef WINDOWS
+    System s = j.ScrapingJson("..//..//watertanks.json");
+#else
+    System s = j.ScrapingJson("../watertanks.json");
+#endif
     vector<Automata> v = s.getAutomata();
     cout << s;
 
@@ -36,8 +37,12 @@ int main(int argc, char const *argv[])
 
     try
     {
-        // csvfile csv("../export.csv", true);
-        csvfile csv("../../export.csv", true); // throws exceptions!
+#ifdef WINDOWS
+        csvfile csv("../../export.csv", true);
+#else
+        csvfile csv("../export.csv", true);
+#endif
+        // throws exceptions!
         csv << "TIMES";
         for (auto const &key : s.getAutomataDependence())
         {
@@ -68,8 +73,11 @@ int main(int argc, char const *argv[])
         printMap(*v[0].getAutomataVariables());
         try
         {
-            // csvfile csv("../export.csv", false);
-            csvfile csv("../../export.csv", false); // throws exceptions!
+#ifdef WINDOWS
+            csvfile csv("../../export.csv", false);
+#else
+            csvfile csv("../export.csv", false);
+#endif
             csv << time;
             for (auto const &key : s.getAutomataDependence())
             {
