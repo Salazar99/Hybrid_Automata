@@ -9,11 +9,6 @@
 #include <thread>
 #include <chrono>
 #include <ctime>
-
-/*
-x = beta+a;
-*/
-
 #include "../include/csvfile.h"
 
 #ifdef DEBUG_MODE
@@ -39,7 +34,7 @@ int main(int argc, char const *argv[])
 
     DEBUG_COMMENT("Questo è un commento di debug" << istanti << " \n\n\n");
 
-    try // adding global variables and single automatas' variables' name in the first row
+    try
     {
         // csvfile csv("../src/export.csv", true);
         csvfile csv("../../src/export.csv", true); // throws exceptions!
@@ -55,10 +50,11 @@ int main(int argc, char const *argv[])
         cout << "Exception was thrown: " << ex.what() << endl;
     }
 
-    for (double time = 1; time < finaltime + 1; time = time + delta)
+    for (double time = 1; time < finaltime + 1 - delta; time = time + delta)
     {
         cout << "################## TIME = " << time << " ##################\n";
 
+        // executing all automatas instructions and checking for possible transitions
         for (int j = 0; j < v.size(); j++)
         {
             v[j].checkForChanges();
@@ -70,12 +66,10 @@ int main(int argc, char const *argv[])
 
         cout << "\nVariables Map: \n";
         printMap(*v[0].getAutomataVariables());
-
-        // adding global variables and single automatas' variables' name in the first row
         try
         {
-            // csvfile csv("../src/export.csv", false);
-            csvfile csv("../../src/export.csv", false); // throws exceptions!
+            // csvfile csv("../export.csv", false);
+            csvfile csv("../../export.csv", false); // throws exceptions!
             csv << time;
             for (auto const &key : s.getAutomataDependence())
             {

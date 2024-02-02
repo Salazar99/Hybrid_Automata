@@ -8,8 +8,6 @@
 #include <algorithm>
 #include "../include/tinyexpr.h"
 
-#define DEBUG_MODE
-
 #ifdef DEBUG_MODE
 #define DEBUG_COMMENT(comment) std::cout << "[DEBUG] " << comment << std::endl;
 #else

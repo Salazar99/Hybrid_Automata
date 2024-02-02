@@ -40,17 +40,17 @@ string replace_var(string origin, string remove, string to_replace)
         DEBUG_COMMENT("Siamo dentro\n");
         replace_string = false;
         if (pos + 1 < origin.length() && pos - 1 >= 0)
-        { // in mezzo
+        { // something left and something right
             if (!isalpha(origin[next]) && !isdigit(origin[next]) && !isalpha(origin[pos - 1]) && !isdigit(origin[pos - 1]))
                 replace_string = true;
         }
         else if (pos + 1 >= origin.length())
-        { // solo roba prima
+        { // something left
             if (!isalpha(origin[pos - 1]) && !isdigit(origin[pos - 1]))
                 replace_string = true;
         }
         else
-        { // solo roba dopo
+        { // something right
             if (!isalpha(origin[next]) && !isdigit(origin[next]))
                 replace_string = true;
         }
