@@ -11,6 +11,9 @@
 #include <ctime>
 #include "../include/csvfile.h"
 
+#include "../include/mainwindow.h"
+#include <QApplication>
+
 #ifdef DEBUG_MODE
 #define DEBUG_COMMENT(comment) std::cout << "[DEBUG] " << comment << std::endl;
 #else
@@ -19,12 +22,12 @@
 
 using namespace std;
 
-int main(int argc, char const *argv[])
+int main(int argc, char *argv[])
 {
     long start = time(NULL);
     UtilsJson j;
 #ifdef WINDOWS
-    System s = j.ScrapingJson("..//..//watertanks.json");
+    System s = j.ScrapingJson("..//watertanks.json");
 #else
     System s = j.ScrapingJson("../watertanks.json");
 #endif
@@ -38,7 +41,7 @@ int main(int argc, char const *argv[])
     try
     {
 #ifdef WINDOWS
-        csvfile csv("../../export.csv", true);
+        csvfile csv("../export.csv", true);
 #else
         csvfile csv("../export.csv", true);
 #endif
@@ -74,11 +77,11 @@ int main(int argc, char const *argv[])
         try
         {
 #ifdef WINDOWS
-            csvfile csv("../../export.csv", false);
+            csvfile csv("../export.csv", false);
 #else
             csvfile csv("../export.csv", false);
 #endif
-            csv << time;
+            csv << time; //timestamp
             for (auto const &key : s.getAutomataDependence())
             {
 
@@ -108,5 +111,8 @@ int main(int argc, char const *argv[])
     cout << "Total Istanti: " << istanti;
     cout << "\nCi ha messo " << time(NULL) - start << " secondi";
 
-    return 0;
+    QApplication a(argc, argv);
+    MainWindow w;
+    w.show();
+    return a.exec();
 }
