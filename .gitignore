@@ -8,3 +8,5 @@ exceptionSolver.exe
 #alde
 build
 export.csv
+buildbackup/
+CMakeLists.txt.user
