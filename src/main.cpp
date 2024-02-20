@@ -24,7 +24,7 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-    long start = time(NULL);
+    /*long start = time(NULL);
     UtilsJson j;
 #ifdef WINDOWS
     System s = j.ScrapingJson("..//watertanks.json");
@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
     }
 
     cout << "Total Istanti: " << istanti;
-    cout << "\nCi ha messo " << time(NULL) - start << " secondi";
+    cout << "\nCi ha messo " << time(NULL) - start << " secondi";*/
 
     QApplication a(argc, argv);
     MainWindow w;
