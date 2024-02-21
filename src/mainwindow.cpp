@@ -18,8 +18,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // movable text
     ui->graphicsView->installEventFilter(this);
     connect(scene, &QGraphicsScene::selectionChanged, this, &MainWindow::handleSelectionChanged);
-    connect(timer, &QTimer::timeout, this, &MainWindow::handleRefresh);
-    timer->start(5000);
+    //connect(timer, &QTimer::timeout, this, &MainWindow::handleRefresh);
+    timer->start(80);
 }
 
 MainWindow::~MainWindow()
@@ -38,15 +38,15 @@ void MainWindow::handleRefresh(){
     qDebug() << "\n";
     printCircles(circles);
 
-    QMap<QGraphicsEllipseItem*, QList<QGraphicsEllipseItem*>>::const_iterator it;
+    /*QMap<QGraphicsEllipseItem*, QList<QGraphicsEllipseItem*>>::const_iterator it;
     for (it = arrows.constBegin(); it != arrows.constEnd(); ++it) {
         QGraphicsEllipseItem* start = it.key();
         QList<QGraphicsEllipseItem*> end = it.value();
 
-        /*qDebug() << "Arrow Pair: Start at" << start->sceneBoundingRect().center() << "\n";
+        qDebug() << "Arrow Pair: Start at" << start->sceneBoundingRect().center() << "\n";
         for (int i=0; i<end.size(); i++){
             qDebug() << "            End at" << end[i]->sceneBoundingRect().center() << "\n";
-        }*/
+        }
         for (int i=0; i<end.size(); i++){
             ArrowItem *arrow = new ArrowItem(start, end[i]);
             arrow->setFlag(QGraphicsItem::ItemIsSelectable);
@@ -54,11 +54,23 @@ void MainWindow::handleRefresh(){
         }
 
 
-    }
+    }*/
 
     qDebug() << "\n";
 }
 
+bool MainWindow::checkSelected(){
+    QList<QGraphicsItem*> selectedItems = scene->selectedItems();
+    for (int i=0; i<selectedItems.size(); i++)
+    {
+        if (selectedItems[i]->type() != QGraphicsEllipseItem::Type)
+            return false;
+        if (selectedItems[i]->sceneBoundingRect().center() != selectedCircle1->sceneBoundingRect().center() && selectedItems[i]->sceneBoundingRect().center() != selectedCircle2->sceneBoundingRect().center())
+            return false;
+
+    }
+    return true;
+}
 
 bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 {
@@ -86,10 +98,13 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 deleteSelectedItems();
                 return true; // Consume the event
             }else if(keyEvent->key() == Qt::Key_K){
-                if (selectedCircle1 && selectedCircle2 && scene->selectedItems().size()==2) {
+                if (selectedCircle1 && selectedCircle2 && scene->selectedItems().size()==2 && checkSelected()) {
                     std::cout << "Disegnami Seh\n";
-                    /*ArrowItem *arrow = new ArrowItem(selectedCircle1, selectedCircle2);
-                    scene->addItem(arrow);*/
+                    ArrowItem *arrow = new ArrowItem(selectedCircle1, selectedCircle2);
+                    arrow->setFlag(QGraphicsItem::ItemIsSelectable);
+
+                    drawnArrows.append(arrow);
+                    scene->addItem(arrow);
 
                     if (arrows.contains(selectedCircle1)){
                         QList<QGraphicsEllipseItem*> dest = arrows[selectedCircle1];
@@ -100,7 +115,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                         arrows.insert(selectedCircle1, QList<QGraphicsEllipseItem*>());
                         arrows[selectedCircle1].append(selectedCircle2);
                     }
-
+                    ascendingSelection = true;
                     //arrowPairs.insert(selectedCircle1, selectedCircle2);
                     // Clear previously selected circles
                     scene->selectedItems().clear();
@@ -121,6 +136,13 @@ void MainWindow::handleSelectionChanged(){
     c
 
     */
+
+    if (selectedItems.size() == 0){
+        selectedCircle1 = nullptr;
+        selectedCircle2 = nullptr;
+        ascendingSelection = true;
+    }
+
     if (selectedItems.size() == 1){
         if (selectedItems[0]->type() == QGraphicsEllipseItem::Type){
             selectedCircle1 = qgraphicsitem_cast<QGraphicsEllipseItem*>(selectedItems[0]);
@@ -129,7 +151,7 @@ void MainWindow::handleSelectionChanged(){
     }
 
     // Check if exactly two circles are selected
-    if (selectedItems.size() == 2) {
+    if (selectedItems.size() == 2 && ascendingSelection) {
         if (selectedItems[0]->type() == QGraphicsEllipseItem::Type &&
             selectedItems[1]->type() == QGraphicsEllipseItem::Type) {
             if (selectedCircle1->sceneBoundingRect().center() == qgraphicsitem_cast<QGraphicsEllipseItem*>(selectedItems[0])->sceneBoundingRect().center())
@@ -140,20 +162,23 @@ void MainWindow::handleSelectionChanged(){
             std::cout << "Position of first: " << selectedCircle1->sceneBoundingRect().center().x() << ", " << selectedCircle1->sceneBoundingRect().center().y() << "\n";
             std::cout << "Position of second: " << selectedCircle2->sceneBoundingRect().center().x() << ", " << selectedCircle2->sceneBoundingRect().center().y() << "\n";
         }
+        ascendingSelection = true;
     }
+
+    if(selectedItems.size() >= 3)ascendingSelection = false;
 
 }
 
 void MainWindow::deleteSelectedItems()
 {
-    QList<QGraphicsItem*> allItems = scene->items();
+    /*QList<QGraphicsItem*> allItems = scene->items();
 
     for (int i=0; i<allItems.size(); i++){
         if(dynamic_cast<ArrowItem*>(allItems[i]) != nullptr){
             scene->removeItem(allItems[i]);
             delete allItems[i];
         }
-    }
+    }*/
 
     // Get a list of all selected items
     QList<QGraphicsItem*> selectedItems = scene->selectedItems();
@@ -207,6 +232,25 @@ void MainWindow::deleteSelectedItems()
         for(int i=0; i<toRemove.size(); i++){
             arrows.remove(toRemove[i]);
         }
+        QList<int> arrowsToRemove;
+
+        // Iterate over the drawnArrows list in reverse order
+        for (int i = 0; i < drawnArrows.size(); i++) {
+            if (drawnArrows[i]->isMyStartOrEnd(temp)) {
+                scene->removeItem(drawnArrows[i]);
+                arrowsToRemove.append(i);
+            }
+        }
+
+        // Delete the items in reverse order
+        for (int i = arrowsToRemove.size() - 1; i >= 0; i--) {
+            delete drawnArrows[arrowsToRemove[i]];
+        }
+        // Remove the items from the drawnArrows list in reverse order
+        for (int i = arrowsToRemove.size() - 1; i >= 0; i--) {
+            drawnArrows.removeAt(arrowsToRemove[i]);
+        }
+
         /*Elimino il cerchio dalla lista dei cerchi*/
         index = -1;
         for (int i = 0; i<circles.size(); i++){

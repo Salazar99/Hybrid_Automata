@@ -12,6 +12,7 @@
 #include <QMap>
 #include <QMouseEvent> // Include the necessary header for QMouseEvent
 #include "../include/circleitem.h"
+#include "../include/arrowitem.h"
 namespace Ui {
 class MainWindow;
 }
@@ -35,9 +36,12 @@ private:
     QList<CircleItem> circles;
     QTimer *timer;
     QMap<QGraphicsEllipseItem*, QList<QGraphicsEllipseItem*>> arrows;
+    QList<ArrowItem*> drawnArrows;
+    bool ascendingSelection=true;
     void deleteSelectedItems();
     void handleSelectionChanged();
     void handleRefresh();
+    bool checkSelected();
 protected:
     bool eventFilter(QObject *watched, QEvent *event); // Declare eventFilter function
 
