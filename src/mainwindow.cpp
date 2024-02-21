@@ -18,8 +18,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // movable text
     ui->graphicsView->installEventFilter(this);
     connect(scene, &QGraphicsScene::selectionChanged, this, &MainWindow::handleSelectionChanged);
-    //connect(timer, &QTimer::timeout, this, &MainWindow::handleRefresh);
-    timer->start(80);
+    connect(timer, &QTimer::timeout, this, &MainWindow::handleRefresh);
+    timer->start(5000);
 }
 
 MainWindow::~MainWindow()
@@ -36,9 +36,9 @@ void printCircles(QList<CircleItem> list){
 void MainWindow::handleRefresh(){
 
     qDebug() << "\n";
-    printCircles(circles);
+    //printCircles(circles);
 
-    /*QMap<QGraphicsEllipseItem*, QList<QGraphicsEllipseItem*>>::const_iterator it;
+    QMap<QGraphicsEllipseItem*, QList<QGraphicsEllipseItem*>>::const_iterator it;
     for (it = arrows.constBegin(); it != arrows.constEnd(); ++it) {
         QGraphicsEllipseItem* start = it.key();
         QList<QGraphicsEllipseItem*> end = it.value();
@@ -47,14 +47,14 @@ void MainWindow::handleRefresh(){
         for (int i=0; i<end.size(); i++){
             qDebug() << "            End at" << end[i]->sceneBoundingRect().center() << "\n";
         }
-        for (int i=0; i<end.size(); i++){
+        /*for (int i=0; i<end.size(); i++){
             ArrowItem *arrow = new ArrowItem(start, end[i]);
             arrow->setFlag(QGraphicsItem::ItemIsSelectable);
             scene->addItem(arrow);
-        }
+        }*/
 
 
-    }*/
+    }
 
     qDebug() << "\n";
 }
@@ -82,7 +82,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
             QBrush greenBrush(Qt::green);
             QPen outlinePen(Qt::black);
             outlinePen.setWidth(2);
-            QGraphicsEllipseItem *newEllipse = scene->addEllipse(scenePos.x(), scenePos.y(), 60, 60, outlinePen, greenBrush);
+            QGraphicsEllipseItem *newEllipse = scene->addEllipse(scenePos.x(), scenePos.y(), 80, 80, outlinePen, greenBrush);
             CircleItem circleItem(newEllipse);
             circles.append(circleItem);
             qDebug() << "Position of the new circle: " << newEllipse->sceneBoundingRect().center();
@@ -100,18 +100,25 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
             }else if(keyEvent->key() == Qt::Key_K){
                 if (selectedCircle1 && selectedCircle2 && scene->selectedItems().size()==2 && checkSelected()) {
                     std::cout << "Disegnami Seh\n";
-                    ArrowItem *arrow = new ArrowItem(selectedCircle1, selectedCircle2);
-                    arrow->setFlag(QGraphicsItem::ItemIsSelectable);
-
-                    drawnArrows.append(arrow);
-                    scene->addItem(arrow);
+                    /*ArrowItem *arrow = new ArrowItem(selectedCircle1, selectedCircle2);
+                    arrow->setFlag(QGraphicsItem::ItemIsSelectable);*/
+                    ArrowItem *arrow;
+                    //scene->addItem(arrow);
 
                     if (arrows.contains(selectedCircle1)){
                         QList<QGraphicsEllipseItem*> dest = arrows[selectedCircle1];
                         if (!dest.contains(selectedCircle2)){
+                            arrow = new ArrowItem(selectedCircle1, selectedCircle2);
+                            arrow->setFlag(QGraphicsItem::ItemIsSelectable);
+                            scene->addItem(arrow);
+                            drawnArrows.append(arrow);
                             arrows[selectedCircle1].append(selectedCircle2);
                         }
                     }else{
+                        arrow = new ArrowItem(selectedCircle1, selectedCircle2);
+                        arrow->setFlag(QGraphicsItem::ItemIsSelectable);
+                        scene->addItem(arrow);
+                        drawnArrows.append(arrow);
                         arrows.insert(selectedCircle1, QList<QGraphicsEllipseItem*>());
                         arrows[selectedCircle1].append(selectedCircle2);
                     }
@@ -189,6 +196,38 @@ void MainWindow::deleteSelectedItems()
 
         if(dynamic_cast<ArrowItem*>(item) != nullptr){
             qDebug() << "Eliminando una freccia\n";
+            ArrowItem* temp = static_cast<ArrowItem*>(item);
+
+            QGraphicsItem * inizio= temp->startItem;
+            QGraphicsEllipseItem* cerchioInizio = qgraphicsitem_cast<QGraphicsEllipseItem*>(inizio);
+
+            QList<QGraphicsEllipseItem*> toRemove = arrows[cerchioInizio];
+            index = -1;
+            for (int i = 0; i<toRemove.size(); i++){
+                if (toRemove[i] == temp->endItem){
+                    index = i;
+                }
+            }
+            if (index!=-1){
+                arrows[qgraphicsitem_cast<QGraphicsEllipseItem*>(temp->startItem)].removeAt(index);
+                if (arrows[qgraphicsitem_cast<QGraphicsEllipseItem*>(temp->startItem)].isEmpty()){
+                    arrows.remove(qgraphicsitem_cast<QGraphicsEllipseItem*>(temp->startItem));
+                }
+            }
+
+            /*Elimino il cerchio dalla lista dei cerchi*/
+            index = -1;
+            for (int i = 0; i<drawnArrows.size(); i++){
+                if (drawnArrows[i] == temp){
+                    index = i;
+                }
+            }
+            if (index!=-1){
+                delete drawnArrows[index];
+                drawnArrows.removeAt(index);
+            }
+
+
             continue;
         }
 

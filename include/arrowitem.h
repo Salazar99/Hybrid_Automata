@@ -10,11 +10,13 @@ public:
 
     QRectF boundingRect() const override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
+    QPainterPath shape() const override;
     bool isMyStartOrEnd(QGraphicsEllipseItem* check);
-
-private:
+    bool operator==(const ArrowItem& other) const;
     QGraphicsItem *startItem;
     QGraphicsItem *endItem;
+
+
 };
 
 #endif // ARROWITEM_H
