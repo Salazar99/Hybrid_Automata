@@ -20,8 +20,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // movable text
     ui->graphicsView->installEventFilter(this);
     connect(scene, &QGraphicsScene::selectionChanged, this, &MainWindow::handleSelectionChanged);
-    //connect(timer, &QTimer::timeout, this, &MainWindow::handleRefresh);
-    timer->start(5000);
+    connect(timer, &QTimer::timeout, this, &MainWindow::handleRefresh);
+    timer->start(33);
 }
 
 MainWindow::~MainWindow()
@@ -36,8 +36,8 @@ void printCircles(QList<CircleItem*> list){
 }
 
 void MainWindow::handleRefresh(){
-
-    qDebug() << "\n";
+    ui->graphicsView->update();
+    /*qDebug() << "\n";
     printCircles(circles);
 
     QMap<QGraphicsEllipseItem*, QList<QGraphicsEllipseItem*>>::const_iterator it;
@@ -49,16 +49,11 @@ void MainWindow::handleRefresh(){
         for (int i=0; i<end.size(); i++){
             qDebug() << "            End at" << end[i]->sceneBoundingRect().center() << "\n";
         }
-        /*for (int i=0; i<end.size(); i++){
-            ArrowItem *arrow = new ArrowItem(start, end[i]);
-            arrow->setFlag(QGraphicsItem::ItemIsSelectable);
-            scene->addItem(arrow);
-        }*/
 
 
     }
 
-    qDebug() << "\n";
+    qDebug() << "\n";*/
 }
 
 bool MainWindow::checkSelected(){
@@ -213,10 +208,72 @@ void MainWindow::deleteSelectedItems()
     QList<QGraphicsItem*> selectedItems = scene->selectedItems();
     int index = -1;
     qDebug() << selectedItems.size()<<"\n";
+    int count = 0;
+    QGraphicsItem* tempItem;
+    for (int i = 0; i<selectedItems.size(); i++){
+        tempItem = selectedItems[i];
+        if(dynamic_cast<ArrowItem*>(tempItem) != nullptr){
+            qDebug() << "Eliminando una freccia\n";
+            ArrowItem* temp = static_cast<ArrowItem*>(tempItem);
+
+            QGraphicsItem * inizio= temp->startItem;
+            QGraphicsEllipseItem* cerchioInizio = qgraphicsitem_cast<QGraphicsEllipseItem*>(inizio);
+
+            QList<QGraphicsEllipseItem*> toRemove = arrows[cerchioInizio];
+            index = -1;
+            for (int i = 0; i<toRemove.size(); i++){
+                if (toRemove[i] == temp->endItem){
+                    index = i;
+                }
+            }
+            if (index!=-1){
+                arrows[qgraphicsitem_cast<QGraphicsEllipseItem*>(temp->startItem)].removeAt(index);
+                if (arrows[qgraphicsitem_cast<QGraphicsEllipseItem*>(temp->startItem)].isEmpty()){
+                    arrows.remove(qgraphicsitem_cast<QGraphicsEllipseItem*>(temp->startItem));
+                }
+            }
+
+            /*Elimino il cerchio dalla lista dei cerchi*/
+            index = -1;
+            for (int i = 0; i<drawnArrows.size(); i++){
+                if (drawnArrows[i] == temp){
+                    index = i;
+                }
+            }
+            if (index!=-1){
+                /*int aux = -1;
+                for (int j = 0; j<selectedItems.size(); j++){
+                    if(selectedItems[j] == nullptr)continue;
+
+                    if(dynamic_cast<ArrowItem*>(selectedItems[j]) != nullptr){
+                        ArrowItem* temp = static_cast<ArrowItem*>(selectedItems[j]);
+                        if (temp->startItem->sceneBoundingRect().center() == drawnArrows[index]->startItem->sceneBoundingRect().center() && temp->endItem->sceneBoundingRect().center() == drawnArrows[index]->endItem->sceneBoundingRect().center()){
+                            aux = j;
+                        }
+                    }
+                }
+                if (aux!=-1)selectedItems[aux] = nullptr;*/
+
+                delete drawnArrows[index];
+                drawnArrows.removeAt(index);
+            }
+
+            selectedItems[i] = nullptr;
+        }
+    }
+
+
     // Delete each selected item
     for (QGraphicsItem* item : selectedItems) {
 
-        if(dynamic_cast<ArrowItem*>(item) != nullptr){
+        if (item == nullptr){
+            continue;
+        }
+
+        qDebug() << item->sceneBoundingRect().center() << "\n";
+
+
+        if(dynamic_cast<CircleItem*>(item) == nullptr){
             qDebug() << "Eliminando una freccia\n";
             ArrowItem* temp = static_cast<ArrowItem*>(item);
 
@@ -245,6 +302,19 @@ void MainWindow::deleteSelectedItems()
                 }
             }
             if (index!=-1){
+                /*int aux = -1;
+                for (int j = 0; j<selectedItems.size(); j++){
+                    if(selectedItems[j] == nullptr)continue;
+
+                    if(dynamic_cast<ArrowItem*>(selectedItems[j]) != nullptr){
+                        ArrowItem* temp = static_cast<ArrowItem*>(selectedItems[j]);
+                        if (temp->startItem->sceneBoundingRect().center() == drawnArrows[index]->startItem->sceneBoundingRect().center() && temp->endItem->sceneBoundingRect().center() == drawnArrows[index]->endItem->sceneBoundingRect().center()){
+                            aux = j;
+                        }
+                    }
+                }
+                if (aux!=-1)selectedItems[aux] = nullptr;*/
+
                 delete drawnArrows[index];
                 drawnArrows.removeAt(index);
             }
@@ -305,6 +375,21 @@ void MainWindow::deleteSelectedItems()
 
         // Delete the items in reverse order
         for (int i = arrowsToRemove.size() - 1; i >= 0; i--) {
+            /*index = -1;
+            for (int j = 0; j<selectedItems.size(); j++){
+
+                if(selectedItems[j] == nullptr)continue;
+
+                if(dynamic_cast<ArrowItem*>(selectedItems[j]) != nullptr){
+                    ArrowItem* temp = static_cast<ArrowItem*>(selectedItems[j]);
+                    if (temp->startItem->sceneBoundingRect().center() == drawnArrows[arrowsToRemove[i]]->startItem->sceneBoundingRect().center() && temp->endItem->sceneBoundingRect().center() == drawnArrows[arrowsToRemove[i]]->endItem->sceneBoundingRect().center()){
+                        index = j;
+                    }
+                }
+            }
+            if (index!=-1){
+                selectedItems[index] = nullptr;
+            }*/
             delete drawnArrows[arrowsToRemove[i]];
         }
         // Remove the items from the drawnArrows list in reverse order

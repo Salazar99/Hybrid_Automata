@@ -3,6 +3,8 @@
 
 #include <QGraphicsItem>
 
+#include <QGraphicsTextItem>
+
 class ArrowItem : public QGraphicsItem
 {
 public:
@@ -17,7 +19,14 @@ public:
     QGraphicsItem *endItem;
 
     QList<QPointF> points;
+    QGraphicsTextItem *textItem;
 
+protected:
+    void updateTextPosition();
+    QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value) override;
+
+private:
+    QRectF calculateArrowRect() const;
 
 };
 

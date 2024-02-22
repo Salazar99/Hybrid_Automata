@@ -7,9 +7,11 @@ ArrowItem::ArrowItem(QGraphicsItem *startItem, QGraphicsItem *endItem, QGraphics
     : QGraphicsItem(parent), startItem(startItem), endItem(endItem)
 {
     setFlag(ItemSendsGeometryChanges);
+    textItem = new QGraphicsTextItem("Arrow", this);
+
 }
 
-QRectF ArrowItem::boundingRect() const
+QRectF ArrowItem::calculateArrowRect() const
 {
     if (!startItem || !endItem){
         //delete this;
@@ -24,70 +26,47 @@ QRectF ArrowItem::boundingRect() const
         .adjusted(-extra, -extra, extra, extra);
 }
 
-/*
-QPainterPath ArrowItem::shape() const
+void ArrowItem::updateTextPosition()
 {
-    QPainterPathStroker stroker;
-    stroker.setWidth(17.5); // Adjust the width of the stroke for padding
-
-    QPainterPath path;
-    path.moveTo(startItem->sceneBoundingRect().center());
-    path.lineTo(endItem->sceneBoundingRect().center());
-
-    // Apply the stroke to the path to add padding
-    QPainterPath paddedPath = stroker.createStroke(path);
-    return paddedPath;
-}
-*/
-
-
-/*QPainterPath ArrowItem::shape() const
-{
-    QPainterPath path;
-    path.moveTo(startItem->sceneBoundingRect().center());
-    path.lineTo(endItem->sceneBoundingRect().center());
-    // Include arrowhead in the shape
-    qreal arrowSize = 20;
-    qreal angle = atan2(endItem->sceneBoundingRect().center().y() - startItem->sceneBoundingRect().center().y(),
-                        endItem->sceneBoundingRect().center().x() - startItem->sceneBoundingRect().center().x());
-    QPointF arrowP1 = endItem->sceneBoundingRect().center() - QPointF(sin(angle - M_PI / 3) * arrowSize, cos(angle - M_PI / 3) * arrowSize);
-    QPointF arrowP2 = endItem->sceneBoundingRect().center() - QPointF(sin(angle - M_PI + M_PI / 3) * arrowSize, cos(angle - M_PI + M_PI / 3) * arrowSize);
-    path.lineTo(arrowP1);
-    path.moveTo(endItem->sceneBoundingRect().center());
-    path.lineTo(arrowP2);
-    return path;
-}*/
-
-/*
-void ArrowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
-
-    qDebug() << "Stiamo paintando\n";
-
-    if (!startItem || !endItem){
-        qDebug() << "Qualcuno è null!\n";
-        return;
-    }
-
-    bool isSelected = option->state & QStyle::State_Selected;
-    qDebug() << "Paint: " << startItem->sceneBoundingRect().center() << ", " << endItem->sceneBoundingRect().center();
-    QPen pen(isSelected ? Qt::red : Qt::black);
-    pen.setWidth(2);
     QPointF startHomemade(startItem->sceneBoundingRect().center().x(), startItem->sceneBoundingRect().center().y());
     QPointF endHomemade(endItem->sceneBoundingRect().center().x(), endItem->sceneBoundingRect().center().y());
-    painter->setPen(pen);
+    qreal angle = atan2(startHomemade.y() - endHomemade.y(), startHomemade.x() - endHomemade.x()) + 0.5;
+    qreal angle_start = atan2(endHomemade.y() - startHomemade.y(), endHomemade.x() - startHomemade.x()) - 0.5;
+    qreal endItemRadius = qMin(endItem->boundingRect().width(), endItem->boundingRect().height()) / 2.0;
+    QPointF stopLine = endHomemade + QPointF(endItemRadius*cos(angle),endItemRadius*sin(angle));
+    QPointF startLine = startHomemade + QPointF(endItemRadius*cos(angle_start),endItemRadius*sin(angle_start));
+    // Update the position of the text item relative to the arrow
 
-    qreal arrowSize = 20;
-    qreal angle = atan2(endHomemade.y() - startHomemade.y(), endHomemade.x() - startHomemade.x());
-    QPointF arrowP1 = endHomemade - QPointF(sin(angle - M_PI / 3) * arrowSize, cos(angle - M_PI / 3) * arrowSize);
-    QPointF arrowP2 = endHomemade - QPointF(sin(angle - M_PI + M_PI / 3) * arrowSize, cos(angle - M_PI + M_PI / 3) * arrowSize);
+    QPointF arrowCenter = (startLine + stopLine) / 2;
+    QPointF textOffset(0.5, 0.5); // Adjust the offset as needed
+    textItem->setPos(arrowCenter + textOffset);
+}
 
-    painter->drawLine(startHomemade, endHomemade);
-    painter->drawLine(endHomemade, arrowP1);
-    painter->drawLine(endHomemade, arrowP2);
-}*/
+QVariant ArrowItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
+{
+    if (!textItem || !change){
+        QVariant base;
+        return base;
+    }
+    qDebug() << "QUAQUA\n";
+    if (change == ItemPositionHasChanged) {
+        // Update text position whenever the arrow item moves
+        updateTextPosition();
+    }
+    return QGraphicsItem::itemChange(change, value);
+}
+
+QRectF ArrowItem::boundingRect() const
+{
+    if (!startItem || !endItem){
+        //delete this;
+        return QRectF();
+    }
+    // Calculate bounding rectangle including both arrow and text
+    QRectF arrowRect = calculateArrowRect();
+    QRectF textRect = textItem->boundingRect();
+    return arrowRect.united(textRect);
+}
 
 QPainterPath ArrowItem::shape() const
 {
@@ -145,9 +124,6 @@ QPainterPath ArrowItem::shape() const
     return stroker.createStroke(path);
 }
 
-
-
-
 void ArrowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(option);
@@ -188,31 +164,25 @@ void ArrowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     if(abs(startLine.x()-stopLine.x())<80){
         if(startLine.y()-stopLine.y()<0){
             controlPoint = QPointF(((startLine.x() + stopLine.x())/2)-80, ((startLine.y()+stopLine.y())/2));
-            qDebug() << "zioporco";
         }
         else{
             controlPoint = QPointF(((startLine.x() + stopLine.x())/2)+80, ((startLine.y()+stopLine.y())/2));
-            qDebug() << "zioporco 1";
         }
     }
     else if(abs(startLine.y()-stopLine.y())<80){
         if(startLine.x()-stopLine.x()<0){
             controlPoint = QPointF((startLine.x() + stopLine.x())/2,((startLine.y()+stopLine.y())/2)+80);
-            qDebug() << "dentro qui";
         }
         else{
             controlPoint = QPointF((startLine.x() + stopLine.x())/2, ((startLine.y()+stopLine.y())/2)-80);
-            qDebug() << "dentro qui 2";
         }
     }
     else{
         if(startLine.y()-stopLine.y()<0){
             controlPoint = QPointF(((startLine.x() + stopLine.x())/2)-40, ((startLine.y()+stopLine.y())/2)-40);
-            qDebug() << "zioporco 4";
         }
         else{
             controlPoint = QPointF(((startLine.x() + stopLine.x())/2)+40, ((startLine.y()+stopLine.y())/2)+40);
-            qDebug() << "zioporco 3";
         }
     }
 
@@ -253,9 +223,8 @@ void ArrowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     painter->drawPath(path);
     painter->drawLine(stopLine, arrowP1);
     painter->drawLine(stopLine, arrowP2);
+    updateTextPosition();
 }
-
-
 
 bool ArrowItem::operator==(const ArrowItem& other) const {
     return startItem->sceneBoundingRect().center() == other.startItem->sceneBoundingRect().center() && endItem->sceneBoundingRect().center() == other.endItem->sceneBoundingRect().center();
