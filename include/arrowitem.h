@@ -16,6 +16,8 @@ public:
     QGraphicsItem *startItem;
     QGraphicsItem *endItem;
 
+    QList<QPointF> points;
+
 
 };
 
