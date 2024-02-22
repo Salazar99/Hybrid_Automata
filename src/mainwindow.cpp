@@ -5,6 +5,8 @@
 #include <QtWidgets>
 #include <iostream>
 
+
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -18,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // movable text
     ui->graphicsView->installEventFilter(this);
     connect(scene, &QGraphicsScene::selectionChanged, this, &MainWindow::handleSelectionChanged);
-    connect(timer, &QTimer::timeout, this, &MainWindow::handleRefresh);
+    //connect(timer, &QTimer::timeout, this, &MainWindow::handleRefresh);
     timer->start(5000);
 }
 
@@ -27,16 +29,16 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void printCircles(QList<CircleItem> list){
+void printCircles(QList<CircleItem*> list){
     for (int i=0; i<list.size(); i++){
-        qDebug() << list[i];
+        qDebug() << *list[i];
     }
 }
 
 void MainWindow::handleRefresh(){
 
     qDebug() << "\n";
-    //printCircles(circles);
+    printCircles(circles);
 
     QMap<QGraphicsEllipseItem*, QList<QGraphicsEllipseItem*>>::const_iterator it;
     for (it = arrows.constBegin(); it != arrows.constEnd(); ++it) {
@@ -63,9 +65,11 @@ bool MainWindow::checkSelected(){
     QList<QGraphicsItem*> selectedItems = scene->selectedItems();
     for (int i=0; i<selectedItems.size(); i++)
     {
-        if (selectedItems[i]->type() != QGraphicsEllipseItem::Type)
+        if (selectedItems[i]->type() != CIRCLEITEM_TYPE)
             return false;
-        if (selectedItems[i]->sceneBoundingRect().center() != selectedCircle1->sceneBoundingRect().center() && selectedItems[i]->sceneBoundingRect().center() != selectedCircle2->sceneBoundingRect().center())
+
+        CircleItem *selectedCircle = dynamic_cast<CircleItem*>(selectedItems[i]);
+        if (selectedCircle->ellipse->sceneBoundingRect().center() != selectedCircle1->sceneBoundingRect().center() && selectedCircle->ellipse->sceneBoundingRect().center() != selectedCircle2->sceneBoundingRect().center())
             return false;
 
     }
@@ -82,13 +86,24 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
             QBrush greenBrush(Qt::green);
             QPen outlinePen(Qt::black);
             outlinePen.setWidth(2);
-            QGraphicsEllipseItem *newEllipse = scene->addEllipse(scenePos.x(), scenePos.y(), 80, 80, outlinePen, greenBrush);
-            CircleItem circleItem(newEllipse);
+            QGraphicsEllipseItem *newEllipse = new QGraphicsEllipseItem(scenePos.x(), scenePos.y(), 80, 80);
+            newEllipse->setPen(outlinePen);
+            newEllipse->setBrush(greenBrush);
+            /*newEllipse->setFlag(QGraphicsItem::ItemIsMovable);
+            newEllipse->setFlag(QGraphicsItem::ItemIsSelectable);*/
+            QGraphicsTextItem *textLabel = new QGraphicsTextItem("default");
+            textLabel->setDefaultTextColor(Qt::white);
+            textLabel->setFont(QFont("Arial", 10));
+            textLabel->setPos(scenePos.x() + 10, scenePos.y() + 10);
+            CircleItem *circleItem = new CircleItem(newEllipse, textLabel);
+            circleItem->setFlag(QGraphicsItem::ItemIsMovable);
+            circleItem->setFlag(QGraphicsItem::ItemIsSelectable);
             circles.append(circleItem);
+            scene -> addItem(circleItem);
             qDebug() << "Position of the new circle: " << newEllipse->sceneBoundingRect().center();
             //qDebug() << "Position of the new circle: " << newEllipse->pos().x() << ", " << newEllipse->pos().y() << "\n";
-            newEllipse->setFlag(QGraphicsItem::ItemIsMovable);
-            newEllipse->setFlag(QGraphicsItem::ItemIsSelectable);
+            /*newEllipse->setFlag(QGraphicsItem::ItemIsMovable);
+            newEllipse->setFlag(QGraphicsItem::ItemIsSelectable);*/
             qDebug() << "Mouse pressed at scenePos:" << scenePos.x() << ", " << scenePos.y() << "\n";
             return true; // Consume the event
         }
@@ -151,20 +166,27 @@ void MainWindow::handleSelectionChanged(){
     }
 
     if (selectedItems.size() == 1){
-        if (selectedItems[0]->type() == QGraphicsEllipseItem::Type){
-            selectedCircle1 = qgraphicsitem_cast<QGraphicsEllipseItem*>(selectedItems[0]);
+        if (selectedItems[0]->type() == CIRCLEITEM_TYPE){
+            CircleItem *selectedCircle = dynamic_cast<CircleItem*>(selectedItems[0]);
+            if (!selectedCircle)qDebug() << "null\n";
+
+            QGraphicsEllipseItem* temp = selectedCircle->ellipse;
+
+            selectedCircle1 = qgraphicsitem_cast<QGraphicsEllipseItem*>(selectedCircle->ellipse);
 
         }
     }
 
     // Check if exactly two circles are selected
     if (selectedItems.size() == 2 && ascendingSelection) {
-        if (selectedItems[0]->type() == QGraphicsEllipseItem::Type &&
-            selectedItems[1]->type() == QGraphicsEllipseItem::Type) {
-            if (selectedCircle1->sceneBoundingRect().center() == qgraphicsitem_cast<QGraphicsEllipseItem*>(selectedItems[0])->sceneBoundingRect().center())
-                selectedCircle2 = qgraphicsitem_cast<QGraphicsEllipseItem*>(selectedItems[1]);
+        if (selectedItems[0]->type() == CIRCLEITEM_TYPE &&
+            selectedItems[1]->type() == CIRCLEITEM_TYPE) {
+            CircleItem *selectedCircle = dynamic_cast<CircleItem*>(selectedItems[0]);
+            CircleItem *selectedCircleSecond = dynamic_cast<CircleItem*>(selectedItems[1]);
+            if (selectedCircle1->sceneBoundingRect().center() == qgraphicsitem_cast<QGraphicsEllipseItem*>(selectedCircle->ellipse)->sceneBoundingRect().center())
+                selectedCircle2 = qgraphicsitem_cast<QGraphicsEllipseItem*>(selectedCircleSecond->ellipse);
             else
-                selectedCircle2 = qgraphicsitem_cast<QGraphicsEllipseItem*>(selectedItems[0]);
+                selectedCircle2 = qgraphicsitem_cast<QGraphicsEllipseItem*>(selectedCircle->ellipse);
             std::cout << "Selected\n";
             std::cout << "Position of first: " << selectedCircle1->sceneBoundingRect().center().x() << ", " << selectedCircle1->sceneBoundingRect().center().y() << "\n";
             std::cout << "Position of second: " << selectedCircle2->sceneBoundingRect().center().x() << ", " << selectedCircle2->sceneBoundingRect().center().y() << "\n";
@@ -230,8 +252,8 @@ void MainWindow::deleteSelectedItems()
 
             continue;
         }
-
-        QGraphicsEllipseItem* temp = qgraphicsitem_cast<QGraphicsEllipseItem*>(item);
+        CircleItem *selectedCircle = dynamic_cast<CircleItem*>(item);
+        QGraphicsEllipseItem* temp = qgraphicsitem_cast<QGraphicsEllipseItem*>(selectedCircle->ellipse);
 
         /*Devo eliminare ogni arco coinvolto con il cerchio*/
 
@@ -293,16 +315,14 @@ void MainWindow::deleteSelectedItems()
         /*Elimino il cerchio dalla lista dei cerchi*/
         index = -1;
         for (int i = 0; i<circles.size(); i++){
-            if (circles[i] == CircleItem(temp)){
+            if (*circles[i] == *selectedCircle){
                 index = i;
             }
         }
         if (index!=-1)circles.removeAt(index);
 
 
-        scene->removeItem(item);
-        qDebug() << "QUA???\n";
+        scene->removeItem(selectedCircle);
         delete item;
-        qDebug() << "O QUI???\n";
     }
 }

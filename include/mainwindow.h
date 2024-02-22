@@ -33,7 +33,7 @@ private:
     QGraphicsEllipseItem *ellipse;
     QGraphicsEllipseItem *selectedCircle1 = nullptr;
     QGraphicsEllipseItem *selectedCircle2 = nullptr;
-    QList<CircleItem> circles;
+    QList<CircleItem*> circles;
     QTimer *timer;
     QMap<QGraphicsEllipseItem*, QList<QGraphicsEllipseItem*>> arrows;
     QList<ArrowItem*> drawnArrows;
