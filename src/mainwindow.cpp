@@ -4,6 +4,9 @@
 #include <QMouseEvent> // Include the necessary header for QMouseEvent
 #include <QtWidgets>
 #include <iostream>
+#include <QApplication>
+#include <QGuiApplication>
+#include <QScreen>
 
 
 
@@ -22,6 +25,24 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(scene, &QGraphicsScene::selectionChanged, this, &MainWindow::handleSelectionChanged);
     connect(timer, &QTimer::timeout, this, &MainWindow::handleRefresh);
     timer->start(33);
+
+    // Ottenere le dimensioni dello schermo primario
+    QRect screenGeometry = QGuiApplication::primaryScreen()->geometry();
+    int screenWidth = screenGeometry.width();
+    int screenHeight = screenGeometry.height();
+
+    // Calcolare le nuove dimensioni al 80% dello schermo
+    int newWidth = screenWidth *0.8;
+    int newHeight = screenHeight * 0.8;
+
+    //rightWidgetWidth+leftWidgetWidth : newWidth =
+
+    this->setFixedSize(newWidth,newHeight);
+
+    // Impostare le dimensioni del QGraphicsView
+    ui->graphicsView->setFixedSize(newWidth*0.785, newHeight*0.945);
+
+
 }
 
 MainWindow::~MainWindow()
@@ -158,17 +179,23 @@ void MainWindow::handleSelectionChanged(){
         selectedCircle1 = nullptr;
         selectedCircle2 = nullptr;
         ascendingSelection = true;
+        isCircleSelected = false;
     }
 
     if (selectedItems.size() == 1){
         if (selectedItems[0]->type() == CIRCLEITEM_TYPE){
+            isCircleSelected = true;
             CircleItem *selectedCircle = dynamic_cast<CircleItem*>(selectedItems[0]);
-            if (!selectedCircle)qDebug() << "null\n";
-
+            if (selectedCircle == nullptr)qDebug() << "null\n";
+            ui->valueLabel->setText(selectedCircle->textItem->toPlainText());
             QGraphicsEllipseItem* temp = selectedCircle->ellipse;
 
             selectedCircle1 = qgraphicsitem_cast<QGraphicsEllipseItem*>(selectedCircle->ellipse);
 
+        }else{
+            isCircleSelected = false;
+            selectedArrow = dynamic_cast<ArrowItem*>(selectedItems[0]);
+            ui->valueLabel->setText(selectedArrow->textItem->toPlainText());
         }
     }
 
@@ -411,3 +438,30 @@ void MainWindow::deleteSelectedItems()
         delete item;
     }
 }
+
+void MainWindow::on_updateButton_clicked()
+{
+    QList<QGraphicsItem*> selectedItems = scene->selectedItems();
+    if (selectedItems.size() == 1){
+        if (isCircleSelected){
+            CircleItem *selectedCircle = dynamic_cast<CircleItem*>(selectedItems[0]);
+            QGraphicsEllipseItem* ellipse = selectedCircle->ellipse;
+            if (ellipse->sceneBoundingRect().center() == selectedCircle1->sceneBoundingRect().center()){
+                for (int i = 0; i < circles.size(); i++){
+                    if (circles[i] == selectedCircle){
+                        circles[i]->textItem->setPlainText(ui->valueLabel->text());
+                    }
+                }
+            }
+        }else{
+            for (int i = 0; i<drawnArrows.size(); i++){
+                if (drawnArrows[i] == selectedArrow){
+                    drawnArrows[i]->textItem->setPlainText(ui->valueLabel->text());
+                }
+            }
+        }
+    }
+    ui->valueLabel->setText("");
+    qDebug() << "UPDATE\n";
+}
+

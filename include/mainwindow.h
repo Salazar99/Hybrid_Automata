@@ -9,6 +9,7 @@
 #include <QGraphicsView>
 #include <QTimer>
 #include <QGraphicsItem>
+#include <QLineEdit>
 #include <QMap>
 #include <QMouseEvent> // Include the necessary header for QMouseEvent
 #include "../include/circleitem.h"
@@ -37,6 +38,9 @@ private:
     QTimer *timer;
     QMap<QGraphicsEllipseItem*, QList<QGraphicsEllipseItem*>> arrows;
     QList<ArrowItem*> drawnArrows;
+    QLineEdit *valueLabel;
+    ArrowItem * selectedArrow;
+    bool isCircleSelected = false;
     bool ascendingSelection=true;
     void deleteSelectedItems();
     void handleSelectionChanged();
@@ -45,6 +49,8 @@ private:
 protected:
     bool eventFilter(QObject *watched, QEvent *event); // Declare eventFilter function
 
+private slots:
+    void on_updateButton_clicked();
 };
 
 #endif // MAINWINDOW_H
