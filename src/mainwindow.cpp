@@ -15,7 +15,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
+    ui->tabWidget->setTabText(0, "Main");
+    ui->tabWidget->setTabText(1, "Designer");
     scene = new QGraphicsScene(this);
     ui->graphicsView->setScene(scene);
     timer = new QTimer(this);
@@ -40,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setFixedSize(newWidth,newHeight);
 
     // Impostare le dimensioni del QGraphicsView
-    ui->graphicsView->setFixedSize(newWidth*0.785, newHeight*0.945);
+    ui->graphicsView->setFixedSize(newWidth*0.799, newHeight*0.935);
 
 
 }
