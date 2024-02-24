@@ -180,6 +180,10 @@ void MainWindow::handleSelectionChanged(){
         selectedCircle2 = nullptr;
         ascendingSelection = true;
         isCircleSelected = false;
+        ui->valueLabel->setText("");
+        ui->nameLabel->setText("");
+        ui->descriptionLabel->setText("");
+        ui->startCheckBox->setChecked(false);
     }
 
     if (selectedItems.size() == 1){
@@ -188,11 +192,20 @@ void MainWindow::handleSelectionChanged(){
             CircleItem *selectedCircle = dynamic_cast<CircleItem*>(selectedItems[0]);
             if (selectedCircle == nullptr)qDebug() << "null\n";
             ui->valueLabel->setText(selectedCircle->textItem->toPlainText());
+            ui->nameLabel->setText(selectedCircle->name);
+            ui->descriptionLabel->setText(selectedCircle->description);
+            if (selectedCircle->startNode){
+                ui->startCheckBox->setChecked(true);
+            }else
+                ui->startCheckBox->setChecked(false);
             QGraphicsEllipseItem* temp = selectedCircle->ellipse;
 
             selectedCircle1 = qgraphicsitem_cast<QGraphicsEllipseItem*>(selectedCircle->ellipse);
 
         }else{
+            ui->startCheckBox->setChecked(false);
+            ui->nameLabel->setText("");
+            ui->descriptionLabel->setText("");
             isCircleSelected = false;
             selectedArrow = dynamic_cast<ArrowItem*>(selectedItems[0]);
             ui->valueLabel->setText(selectedArrow->textItem->toPlainText());
@@ -450,6 +463,13 @@ void MainWindow::on_updateButton_clicked()
                 for (int i = 0; i < circles.size(); i++){
                     if (circles[i] == selectedCircle){
                         circles[i]->textItem->setPlainText(ui->valueLabel->text());
+                        circles[i]->name = ui->nameLabel->text();
+                        circles[i]->description = ui->descriptionLabel->text();
+                        circles[i]->startNode = ui->startCheckBox->isChecked();
+                        qDebug() << circles[i]->startNode << "\n";
+                    }else{
+                        if (ui->startCheckBox->isChecked())
+                            circles[i]->startNode = false;
                     }
                 }
             }
@@ -462,6 +482,9 @@ void MainWindow::on_updateButton_clicked()
         }
     }
     ui->valueLabel->setText("");
+    ui->nameLabel->setText("");
+    ui->descriptionLabel->setText("");
+    ui->startCheckBox->setChecked(false);
     qDebug() << "UPDATE\n";
 }
 

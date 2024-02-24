@@ -3,6 +3,7 @@
 #include <QPen>
 #include <QGraphicsItemGroup>
 #include <QPointF>
+#include <QString>
 
 #define CIRCLEITEM_TYPE (QGraphicsItem::UserType + 1)
 
@@ -22,6 +23,10 @@ public:
         size = ellipse->rect().size();
         pen = ellipse->pen();
         brush = ellipse->brush();
+        name = "default name";
+        description = "default description";
+        startNode = false;
+
     }
 
     // Override type() function to return a unique value for CircleItem
@@ -50,6 +55,10 @@ public:
     QBrush brush;
     QGraphicsEllipseItem* ellipse;
     QGraphicsTextItem* textItem;
+    QString name;
+    QString description;
+    bool startNode;
+
 };
 
 
