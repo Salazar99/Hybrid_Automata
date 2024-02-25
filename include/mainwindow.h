@@ -37,9 +37,13 @@ private:
     QList<CircleItem*> circles;
     QTimer *timer;
     QMap<QGraphicsEllipseItem*, QList<QGraphicsEllipseItem*>> arrows;
+    QMap<QString, QString> variablesValues;
+    QList<QString> actualVariables;
     QList<ArrowItem*> drawnArrows;
     QLineEdit *valueLabel;
     ArrowItem * selectedArrow;
+    int finalTime;
+    double delta;
     bool isCircleSelected = false;
     bool ascendingSelection=true;
     void deleteSelectedItems();
@@ -51,6 +55,8 @@ protected:
 
 private slots:
     void on_updateButton_clicked();
+    void on_tabWidget_currentChanged(int index);
+    void on_updtateVariable_clicked();
 };
 
 #endif // MAINWINDOW_H

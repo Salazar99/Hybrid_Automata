@@ -489,3 +489,91 @@ void MainWindow::on_updateButton_clicked()
     qDebug() << "UPDATE\n";
 }
 
+bool isNumeric(const QString& str) {
+    QRegularExpression regex("[+-]?[0-9]+(\.[0-9]+)?");
+    return str.contains(regex);
+}
+
+void MainWindow::on_tabWidget_currentChanged(int index)
+{
+
+    //x,y
+    //x,c
+
+    //variablesValues
+    if(index == 1)
+        return;
+    qDebug() << "ciao";
+    QList<QString> separator;
+    separator << "+" << "-" << "*" << "/" << "'" << ";" << "(" << ")" << "[" << "]" << "=";
+    QList<QString> functions;
+    functions << "log" << "exp" << "sqrt" << "cos" << "sin" << "ln" << "tan" << "arctan" << "cosin" << "cotan";
+    actualVariables.clear();
+    QString temp;
+    QString tempVar;
+    for (int i = 0; i < circles.size(); i++){ //ciclo i cerchi
+        temp = circles[i]->textItem->toPlainText();
+        tempVar.clear();
+
+        qDebug() << "temp: " << temp <<"\n" << "tempVar: " << tempVar << "\n";
+        temp.erase(std::remove(temp.begin(), temp.end(), ' '), temp.end());
+        for (int j = 0; j < temp.length(); j++){
+            if(!separator.contains(temp[j])){
+                tempVar += temp[j];
+            }
+            else{
+                if(functions.contains(tempVar)){ //siamo in una funzione matematica
+                    tempVar.clear();
+                }
+                else{ //ho finito di trovare la variabile
+                    if(!isNumeric(tempVar) && !tempVar.isEmpty() && !actualVariables.contains(tempVar)){
+                        actualVariables.append(tempVar);
+                        if(!variablesValues.contains(tempVar)){
+                            variablesValues[tempVar] = "NaN";
+                        }
+                    }
+                    tempVar.clear();
+                }
+            }
+        }
+    }
+
+    QList<QString> variablesToRemove;
+    QMap<QString,QString>::const_iterator it;
+    for (it = variablesValues.constBegin(); it != variablesValues.constEnd(); ++it) {
+        QString start = it.key();
+        if(!actualVariables.contains(start)){
+            variablesToRemove.append(start);
+        }
+    }
+
+    for(QString toRemove : variablesToRemove){
+        variablesValues.remove(toRemove);
+    }
+
+    ui->selectVariable->clear();
+    ui->selectVariable->addItems(actualVariables);
+
+    temp.clear();
+    ui->listVariables->clear();
+    for(QString toAdd : actualVariables){
+        temp = toAdd + "=" + variablesValues[toAdd];
+        ui->listVariables->addItem(temp);
+    }
+
+    qDebug() << variablesValues;
+
+}
+
+void MainWindow::on_updtateVariable_clicked()
+{
+    QString temp;
+    variablesValues[ui->selectVariable->currentText()] = QString::number(ui->variableValue->value());
+    ui->listVariables->clear();
+    for(QString toAdd : actualVariables){
+        temp = toAdd + "=" + variablesValues[toAdd];
+        ui->listVariables->addItem(temp);
+    }
+
+}
+
