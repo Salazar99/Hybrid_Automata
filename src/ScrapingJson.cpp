@@ -19,7 +19,7 @@ using json = nlohmann::json;
 /// @return the automatas
 
 double delta;
-double finaltime;
+double *finaltime = nullptr;
 
 System UtilsJson::ScrapingJson(string c)
 {
@@ -35,10 +35,14 @@ System UtilsJson::ScrapingJson(string c)
     int store = 0;
 
     // set global variables
+    finaltime = new double[2];
     string h_string = data["system"]["global"]["delta"];
     delta = stod(h_string);
+    finaltime[0] = delta;
+    std::cout <<"DeltaScraping: " << delta;
     string tfinal_string = data["system"]["global"]["finaltime"];
-    finaltime = stod(tfinal_string);
+    finaltime[1] = stod(tfinal_string);
+
 
     // find all the automata in settings.json
     for (json automata : data["system"]["automata"])

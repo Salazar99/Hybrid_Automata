@@ -70,7 +70,7 @@ QRectF ArrowItem::boundingRect() const
 
 QPainterPath ArrowItem::shape() const
 {
-    QPainterPathStroker stroker;
+    /*QPainterPathStroker stroker;
     stroker.setWidth(17.5); // Adjust the width of the stroke for padding
 
     qreal arrowSize = 20;
@@ -108,20 +108,25 @@ QPainterPath ArrowItem::shape() const
             controlPoint = QPointF(((startLine.x() + stopLine.x()) / 2) + 40, ((startLine.y() + stopLine.y()) / 2) + 40);
         }
     }
-
+    */
 
     /*
     QPainterPath path;
     path.moveTo(startLine);
     path.quadTo(controlPoint, stopLine);*/
     // Costruiamo il percorso utilizzando i punti intermedi
-    QPainterPath path;
+    /*QPainterPath path;
     path.moveTo(startLine);
     for (int i = 1; i < points.size(); ++i) {
         path.lineTo(points[i]);
     }
 
-    return stroker.createStroke(path);
+    return stroker.createStroke(path);*/
+    QRectF boundingRect = textItem->mapToParent(textItem->boundingRect()).boundingRect();
+    QPainterPath path;
+    path.addRect(boundingRect);
+    return path;
+
 }
 
 void ArrowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

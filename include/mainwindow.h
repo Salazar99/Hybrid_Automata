@@ -1,6 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+
+#include "../include/global_variables.h"
 #include <QMainWindow>
 #include <QPainter>
 #include <QFrame>
@@ -57,6 +59,7 @@ private slots:
     void on_updateButton_clicked();
     void on_tabWidget_currentChanged(int index);
     void on_updtateVariable_clicked();
+    void on_jsonButton_clicked();
 };
 
 #endif // MAINWINDOW_H

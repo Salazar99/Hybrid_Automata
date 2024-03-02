@@ -1,14 +1,24 @@
+#include "../include/global_variables.h"
 #include "../include/mainwindow.h"
 #include "../include/arrowitem.h"
+#include "../include/json.hpp"
 #include "./ui_mainwindow.h"
 #include <QMouseEvent> // Include the necessary header for QMouseEvent
 #include <QtWidgets>
 #include <iostream>
+#include <fstream>
 #include <QApplication>
 #include <QGuiApplication>
 #include <QScreen>
 
 
+#include "../include/UtilsJson.h"
+#include "../include/tinyexpr.h"
+#include "../include/tools.h"
+
+#include "../include/csvfile.h"
+
+using json = nlohmann::json;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -32,15 +42,22 @@ MainWindow::MainWindow(QWidget *parent) :
     int screenWidth = screenGeometry.width();
     int screenHeight = screenGeometry.height();
 
+    qDebug() << "Screen: " << screenWidth << ", " << screenHeight << "\n";
+
     // Calcolare le nuove dimensioni al 80% dello schermo
     int newWidth = screenWidth *0.8;
     int newHeight = screenHeight * 0.8;
+
+    qDebug() << "New Values: " << newWidth << ", " << newHeight << "\n";
 
     //rightWidgetWidth+leftWidgetWidth : newWidth =
 
     this->setFixedSize(newWidth,newHeight);
 
     // Impostare le dimensioni del QGraphicsView
+
+    qDebug() << "GraphicsView: " << newWidth*0.799 << ", " << newHeight*0.935 << "\n";
+
     ui->graphicsView->setFixedSize(newWidth*0.799, newHeight*0.935);
 
 
@@ -575,5 +592,189 @@ void MainWindow::on_updtateVariable_clicked()
         ui->listVariables->addItem(temp);
     }
 
+}
+
+
+std::string replaceCommasWithPeriods(const std::string& input) {
+    std::string result = input;
+    for (char& c : result) {
+        if (c == ',') {
+            c = '.';
+        }
+    }
+    return result;
+}
+
+void MainWindow::on_jsonButton_clicked()
+{
+    json systemData;
+    json globalData;
+    json automataArray;
+    json automatonData;
+    json nodeArray;
+    json transitionsArray;
+    json transitionData;
+    json variablesArray;
+    json variableData;
+
+    string tempAux = ui->deltaSpinBox->text().toStdString();
+    globalData["delta"] = replaceCommasWithPeriods(tempAux);
+    globalData["finaltime"] = ui->finalTimeSpinBox->text().toStdString();
+
+    for (int i = 0; i<circles.size(); i++){
+
+        json nodeData;
+        nodeData["name"] = circles[i]->name.toStdString();
+        nodeData["description"] = circles[i]->description.toStdString();
+        nodeData["instructions"] = circles[i]->textItem->toPlainText().toStdString();
+        if (circles[i]->startNode)
+            nodeData["flag"] = "start";
+        else
+            nodeData["flag"] = "none";
+        QList<QGraphicsEllipseItem*> destinations = arrows[circles[i]->ellipse];
+        for (int j = 0; j<destinations.size(); j++){
+            for (int x = 0; x<circles.size(); x++){
+                if (circles[x]->ellipse->sceneBoundingRect().center() == destinations[j]->sceneBoundingRect().center()){
+                    transitionData["to"] = circles[x]->name.toStdString();
+                    break;
+                }
+            }
+
+            for (int x = 0; x<drawnArrows.size(); x++){
+                if (drawnArrows[x]->startItem->sceneBoundingRect().center() == circles[i]->ellipse->sceneBoundingRect().center() &&
+                    drawnArrows[x]->endItem->sceneBoundingRect().center() == destinations[j]->sceneBoundingRect().center()){
+                    transitionData["condition"] = drawnArrows[x]->textItem->toPlainText().toStdString();
+                    break;
+                }
+            }
+            transitionsArray.push_back(transitionData);
+        }
+        nodeData["transitions"] = transitionsArray;
+        nodeArray.push_back(nodeData);
+        transitionsArray.clear();
+
+    }
+
+    QMap<QString, QString>::const_iterator it;
+    for (it = variablesValues.constBegin(); it != variablesValues.constEnd(); ++it) {
+        json variableData;
+        variableData["name"] = it.key().toStdString();
+        variableData["value"] = it.value().toStdString();
+        variablesArray.push_back(variableData);
+    }
+
+    automatonData["name"] = "Thermostat";
+    automatonData["node"] = nodeArray;
+    automatonData["variables"] = variablesArray;
+    automataArray.push_back(automatonData);
+    json test;
+    systemData["global"] = globalData;
+    systemData["automata"] = automataArray;
+    test["system"] = systemData;
+    std::string jsonData = test.dump(4);
+    qDebug() << jsonData;
+
+#ifdef WINDOWS
+    std::ofstream outFile("../output.json");
+#else
+    std::ofstream outFile("../output.json");
+#endif
+    if (outFile.is_open()) {
+        outFile << jsonData;
+        outFile.close();
+        qDebug() << "JSON data has been written to output.json\n";
+    } else {
+        qDebug() << "Error: Unable to open output file\n";
+    }
+
+
+    long start = time(NULL);
+    UtilsJson j;
+#ifdef WINDOWS
+    System s = j.ScrapingJson("..//output.json");
+#else
+    System s = j.ScrapingJson("../output.json");
+#endif
+    vector<Automata> v = s.getAutomata();
+    std::cout << s;
+
+    int istanti = 0;
+
+    //DEBUG_COMMENT("Questo è un commento di debug" << istanti << " \n\n\n");
+
+    try
+    {
+#ifdef WINDOWS
+        csvfile csv("../export.csv", true);
+#else
+        csvfile csv("../export.csv", true);
+#endif
+    // throws exceptions!
+        csv << "TIMES";
+        for (auto const &key : s.getAutomataDependence())
+        {
+            csv << key.first;
+        }
+        csv << endrow;
+    }
+    catch (const exception &ex)
+    {
+        qDebug() << "Exception was thrown: " << ex.what();
+    }
+
+    std::cout <<"DeltaMain: " << finaltime[0];
+
+    for (double time = 1; time < finaltime[1] + 1 - finaltime[0]; time = time + finaltime[0])
+    {
+        qDebug() << "################## TIME = " << time << " ##################\n";
+
+        // executing all automatas instructions and checking for possible transitions
+        for (int j = 0; j < v.size(); j++)
+        {
+            v[j].checkForChanges();
+            // cout << "\nAutoma " << v[j].getName() << " ,Nodo attuale: " << v[j].getCurrentNode().getName() << "\n";
+        }
+
+        // refreshing AutomataVariables
+        s.refreshVariables();
+
+        qDebug() << "\nVariables Map: \n";
+        printMap(*v[0].getAutomataVariables());
+        try
+        {
+#ifdef WINDOWS
+            csvfile csv("../export.csv", false);
+#else
+            csvfile csv("../export.csv", false);
+#endif
+            csv << time; //timestamp
+            for (auto const &key : s.getAutomataDependence())
+            {
+
+                // if the variable has not already been assigned then i print 0
+                if ((*(v[0].getAutomataVariables())).find(key.first) == (*(v[0].getAutomataVariables())).end())
+                {
+                    csv << 0;
+                }
+                else
+                {
+                    csv << *(*(v[0].getAutomataVariables()))[key.first];
+                }
+            }
+
+            csv << endrow;
+        }
+        catch (const exception &ex)
+        {
+            qDebug() << "Exception was thrown: " << ex.what();
+        }
+
+        //this_thread::sleep_for(chrono::milliseconds(0));
+        istanti++;
+        qDebug() << "\n\n";
+    }
+
+    qDebug() << "Total Istanti: " << istanti;
+    qDebug() << "\nCi ha messo " << time(NULL) - start << " secondi";
 }
 

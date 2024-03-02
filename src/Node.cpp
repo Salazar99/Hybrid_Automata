@@ -227,7 +227,7 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
                 cauchy[aux[0]] = newCauchy;
                 ode_solver_values.push_back(*cauchy[aux[0]]);
             }
-            *value = ode_solver(s, *cauchy[aux[0]], time, delta, finaltime, sharedVariables);
+            *value = ode_solver(s, *cauchy[aux[0]], time, finaltime[0], finaltime[1], sharedVariables);
             // DEBUG_COMMENT("New Value X: " << *value << "\n");
             tempVariables[aux[0]] = *(value);
             // sharedVariables[aux[0]] = value;

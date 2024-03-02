@@ -88,7 +88,7 @@
          <double>10000000.000000000000000</double>
         </property>
        </widget>
-       <widget class="QSpinBox" name="spinBox">
+       <widget class="QSpinBox" name="finalTimeSpinBox">
         <property name="geometry">
          <rect>
           <x>370</x>
@@ -107,7 +107,7 @@
          <number>1000</number>
         </property>
        </widget>
-       <widget class="QDoubleSpinBox" name="doubleSpinBox">
+       <widget class="QDoubleSpinBox" name="deltaSpinBox">
         <property name="geometry">
          <rect>
           <x>370</x>
@@ -150,6 +150,19 @@
         </property>
         <property name="text">
          <string>Delta</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="jsonButton">
+        <property name="geometry">
+         <rect>
+          <x>300</x>
+          <y>180</y>
+          <width>80</width>
+          <height>24</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>JSON</string>
         </property>
        </widget>
       </widget>
