@@ -10,6 +10,7 @@
 #include <QApplication>
 #include <QGuiApplication>
 #include <QScreen>
+#include <QMessageBox>
 
 
 #include "../include/UtilsJson.h"
@@ -132,6 +133,8 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
             CircleItem *circleItem = new CircleItem(newEllipse, textLabel);
             circleItem->setFlag(QGraphicsItem::ItemIsMovable);
             circleItem->setFlag(QGraphicsItem::ItemIsSelectable);
+            if(circles.isEmpty())
+                circleItem->startNode = true;
             circles.append(circleItem);
             scene -> addItem(circleItem);
             qDebug() << "Position of the new circle: " << newEllipse->sceneBoundingRect().center();
@@ -177,6 +180,9 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                     scene->selectedItems().clear();
                 }
                 return true; // Consume the event
+            }
+            else if(keyEvent->key() == Qt::Key_Escape){
+                scene->clearSelection();
             }
         }
     }
@@ -473,6 +479,7 @@ void MainWindow::deleteSelectedItems()
 void MainWindow::on_updateButton_clicked()
 {
     QList<QGraphicsItem*> selectedItems = scene->selectedItems();
+    bool error = false;
     if (selectedItems.size() == 1){
         if (isCircleSelected){
             CircleItem *selectedCircle = dynamic_cast<CircleItem*>(selectedItems[0]);
@@ -480,10 +487,16 @@ void MainWindow::on_updateButton_clicked()
             if (ellipse->sceneBoundingRect().center() == selectedCircle1->sceneBoundingRect().center()){
                 for (int i = 0; i < circles.size(); i++){
                     if (circles[i] == selectedCircle){
+                        if(ui->valueLabel->text().count(";") != ui->valueLabel->text().count("=") || ui->valueLabel->text().count(";") == 0){
+                            QMessageBox::information(nullptr, "Warning", "Typo in current intructions");
+                            error = true;
+                            break;
+                        }
                         circles[i]->textItem->setPlainText(ui->valueLabel->text());
                         circles[i]->name = ui->nameLabel->text();
                         circles[i]->description = ui->descriptionLabel->text();
                         circles[i]->startNode = ui->startCheckBox->isChecked();
+                        selectedCircle->setSelected(false);
                         qDebug() << circles[i]->startNode << "\n";
                     }else{
                         if (ui->startCheckBox->isChecked())
@@ -494,15 +507,25 @@ void MainWindow::on_updateButton_clicked()
         }else{
             for (int i = 0; i<drawnArrows.size(); i++){
                 if (drawnArrows[i] == selectedArrow){
+                    if(!(ui->valueLabel->text().startsWith("(") && ui->valueLabel->text().endsWith(")") &&
+                        (ui->valueLabel->text().count("(") == ui->valueLabel->text().count(")")))){
+                        QMessageBox::information(nullptr, "Warning", "Typo in current conditions");
+                        error = true;
+                        break;
+                    }
                     drawnArrows[i]->textItem->setPlainText(ui->valueLabel->text());
                 }
             }
         }
     }
-    ui->valueLabel->setText("");
-    ui->nameLabel->setText("");
-    ui->descriptionLabel->setText("");
-    ui->startCheckBox->setChecked(false);
+    if(!error){
+        ui->valueLabel->setText("");
+        ui->nameLabel->setText("");
+        ui->descriptionLabel->setText("");
+        ui->startCheckBox->setChecked(false);
+        scene->clearSelection();
+    }
+
     qDebug() << "UPDATE\n";
 }
 
