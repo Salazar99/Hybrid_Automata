@@ -13,6 +13,7 @@
 
 #include "../include/mainwindow.h"
 #include <QApplication>
+#include <QStyleFactory>
 
 #ifdef DEBUG_MODE
 #define DEBUG_COMMENT(comment) std::cout << "[DEBUG] " << comment << std::endl;
@@ -111,8 +112,17 @@ int main(int argc, char *argv[])
     cout << "Total Istanti: " << istanti;
     cout << "\nCi ha messo " << time(NULL) - start << " secondi";*/
 
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
+
+    app.setStyle(QStyleFactory::create("Fusion"));
+    app.setStyleSheet("QApplication { "
+                      "   palette: QPalette(Dark); "
+                      "   background-color: #333333; "
+                      "   color: #F0F0F0; "
+                      "}");
+
     MainWindow w;
     w.show();
-    return a.exec();
+
+    return app.exec();
 }

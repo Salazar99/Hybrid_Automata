@@ -28,8 +28,16 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->tabWidget->setTabText(0, "Main");
     ui->tabWidget->setTabText(1, "Designer");
+    posUpdateButton.append(ui->updateButton->pos().x());
+    posUpdateButton.append(ui->updateButton->pos().y());
     scene = new QGraphicsScene(this);
     ui->graphicsView->setScene(scene);
+
+    QColor colorBackgroundGrid(171, 171, 171);
+    QBrush brush(colorBackgroundGrid, Qt::CrossPattern);
+    ui->graphicsView->scene()->setBackgroundBrush(brush);
+
+
     timer = new QTimer(this);
     // addEllipse(x,y,w,h,pen,brush)
     // movable text
@@ -59,8 +67,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     qDebug() << "GraphicsView: " << newWidth*0.799 << ", " << newHeight*0.935 << "\n";
 
-    ui->graphicsView->setFixedSize(newWidth*0.799, newHeight*0.935);
+    ui->graphicsView->setFixedSize(screenWidth, screenHeight);
 
+    hideDesignerInput();
 
 }
 
@@ -118,12 +127,13 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
             if (mouseEvent->button() != Qt::LeftButton)return true;
             QPointF scenePos = ui->graphicsView->mapToScene(mouseEvent->pos());
-            QBrush greenBrush(Qt::green);
+            QColor color(77, 77, 77);
+            QBrush brush(color);
             QPen outlinePen(Qt::black);
             outlinePen.setWidth(2);
             QGraphicsEllipseItem *newEllipse = new QGraphicsEllipseItem(scenePos.x(), scenePos.y(), 80, 80);
             newEllipse->setPen(outlinePen);
-            newEllipse->setBrush(greenBrush);
+            newEllipse->setBrush(brush);
             /*newEllipse->setFlag(QGraphicsItem::ItemIsMovable);
             newEllipse->setFlag(QGraphicsItem::ItemIsSelectable);*/
             QGraphicsTextItem *textLabel = new QGraphicsTextItem("default");
@@ -142,12 +152,14 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
             /*newEllipse->setFlag(QGraphicsItem::ItemIsMovable);
             newEllipse->setFlag(QGraphicsItem::ItemIsSelectable);*/
             qDebug() << "Mouse pressed at scenePos:" << scenePos.x() << ", " << scenePos.y() << "\n";
+            hideDesignerInput();
             return true; // Consume the event
         }
         else if (event->type() == QEvent::KeyPress) {
             QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
             if (keyEvent->key() == Qt::Key_Delete || keyEvent->key() == Qt::Key_Backspace) {
                 deleteSelectedItems();
+                hideDesignerInput();
                 return true; // Consume the event
             }else if(keyEvent->key() == Qt::Key_K){
                 if (selectedCircle1 && selectedCircle2 && scene->selectedItems().size()==2 && checkSelected()) {
@@ -183,6 +195,18 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
             }
             else if(keyEvent->key() == Qt::Key_Escape){
                 scene->clearSelection();
+                hideDesignerInput();
+            }
+            else if(keyEvent->key() == Qt::Key_P){
+                if(dragMode)
+                    ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
+                else
+                    ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
+                dragMode = !dragMode;
+                if(dragMode)
+                    showDesignerInput(0);
+                else
+                    hideDesignerInput();
             }
         }
     }
@@ -208,6 +232,7 @@ void MainWindow::handleSelectionChanged(){
         ui->nameLabel->setText("");
         ui->descriptionLabel->setText("");
         ui->startCheckBox->setChecked(false);
+        hideDesignerInput();
     }
 
     if (selectedItems.size() == 1){
@@ -226,6 +251,9 @@ void MainWindow::handleSelectionChanged(){
 
             selectedCircle1 = qgraphicsitem_cast<QGraphicsEllipseItem*>(selectedCircle->ellipse);
 
+            showDesignerInput(0);
+
+
         }else{
             ui->startCheckBox->setChecked(false);
             ui->nameLabel->setText("");
@@ -233,6 +261,9 @@ void MainWindow::handleSelectionChanged(){
             isCircleSelected = false;
             selectedArrow = dynamic_cast<ArrowItem*>(selectedItems[0]);
             ui->valueLabel->setText(selectedArrow->textItem->toPlainText());
+
+            showDesignerInput(1);
+
         }
     }
 
@@ -251,9 +282,14 @@ void MainWindow::handleSelectionChanged(){
             std::cout << "Position of second: " << selectedCircle2->sceneBoundingRect().center().x() << ", " << selectedCircle2->sceneBoundingRect().center().y() << "\n";
         }
         ascendingSelection = true;
+        ascendingSelection = false;
+        hideDesignerInput();
     }
 
-    if(selectedItems.size() >= 3)ascendingSelection = false;
+    if(selectedItems.size() >= 3){
+        ascendingSelection = false;
+        hideDesignerInput();
+    }
 
 }
 
@@ -628,6 +664,42 @@ std::string replaceCommasWithPeriods(const std::string& input) {
     return result;
 }
 
+void MainWindow::hideDesignerInput(){
+    ui->valueLabel->setVisible(false);
+    ui->istruction->setVisible(false);
+    ui->name->setVisible(false);
+    ui->nameLabel->setVisible(false);
+    ui->description->setVisible(false);
+    ui->descriptionLabel->setVisible(false);
+    ui->startCheckBox->setVisible(false);
+    ui->updateButton->setVisible(false);
+}
+
+void MainWindow::showDesignerInput(int mode){
+    if(mode == 0){//modalità cerchio
+        ui->valueLabel->setVisible(true);
+        ui->istruction->setVisible(true);
+        ui->name->setVisible(true);
+        ui->nameLabel->setVisible(true);
+        ui->description->setVisible(true);
+        ui->descriptionLabel->setVisible(true);
+        ui->startCheckBox->setVisible(true);
+        ui->updateButton->setVisible(true);
+        ui->updateButton->move(posUpdateButton[0],posUpdateButton[1]);
+    }
+    else{
+        ui->valueLabel->setVisible(true);
+        ui->istruction->setVisible(true);
+        ui->name->setVisible(false);
+        ui->nameLabel->setVisible(false);
+        ui->description->setVisible(false);
+        ui->descriptionLabel->setVisible(false);
+        ui->startCheckBox->setVisible(false);
+        ui->updateButton->setVisible(true);
+        ui->updateButton->move(60,ui->nameLabel->pos().y());
+    }
+}
+
 void MainWindow::on_jsonButton_clicked()
 {
     json systemData;
@@ -800,4 +872,6 @@ void MainWindow::on_jsonButton_clicked()
     qDebug() << "Total Istanti: " << istanti;
     qDebug() << "\nCi ha messo " << time(NULL) - start << " secondi";
 }
+
+
 

@@ -24,7 +24,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="Main">
        <property name="sizePolicy">
@@ -62,14 +62,14 @@
        <widget class="QPushButton" name="updtateVariable">
         <property name="geometry">
          <rect>
-          <x>230</x>
+          <x>240</x>
           <y>40</y>
-          <width>31</width>
+          <width>41</width>
           <height>21</height>
          </rect>
         </property>
         <property name="text">
-         <string>ok</string>
+         <string>update</string>
         </property>
        </widget>
        <widget class="QDoubleSpinBox" name="variableValue">
@@ -77,7 +77,7 @@
          <rect>
           <x>180</x>
           <y>40</y>
-          <width>41</width>
+          <width>51</width>
           <height>22</height>
          </rect>
         </property>
@@ -155,14 +155,14 @@
        <widget class="QPushButton" name="jsonButton">
         <property name="geometry">
          <rect>
-          <x>300</x>
-          <y>180</y>
+          <x>320</x>
+          <y>200</y>
           <width>80</width>
           <height>24</height>
          </rect>
         </property>
         <property name="text">
-         <string>JSON</string>
+         <string>RUN</string>
         </property>
        </widget>
       </widget>
@@ -204,7 +204,7 @@
             </size>
            </property>
            <property name="styleSheet">
-            <string notr="true">background-color: rgb(144, 225, 255);</string>
+            <string notr="true"/>
            </property>
            <widget class="QPushButton" name="updateButton">
             <property name="geometry">
@@ -216,7 +216,7 @@
              </rect>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(0, 0, 0, 255), stop:0.33 rgba(0, 0, 0, 255), stop:0.34 rgba(255, 30, 30, 255), stop:0.66 rgba(255, 0, 0, 255), stop:0.67 rgba(255, 255, 0, 255), stop:1 rgba(255, 255, 0, 255));</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>UPDATE</string>
@@ -232,7 +232,7 @@
              </rect>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color: rgb(255, 0, 4);</string>
+             <string notr="true"/>
             </property>
            </widget>
            <widget class="QLineEdit" name="nameLabel">
@@ -245,7 +245,7 @@
              </rect>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color: rgb(38, 0, 255);</string>
+             <string notr="true"/>
             </property>
            </widget>
            <widget class="QLineEdit" name="descriptionLabel">
@@ -258,7 +258,7 @@
              </rect>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color: rgb(0, 255, 72);</string>
+             <string notr="true"/>
             </property>
            </widget>
            <widget class="QCheckBox" name="startCheckBox">
@@ -271,13 +271,13 @@
              </rect>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color: rgb(255, 98, 226);</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>Set as Starter</string>
             </property>
            </widget>
-           <widget class="QLabel" name="label">
+           <widget class="QLabel" name="istruction">
             <property name="geometry">
              <rect>
               <x>10</x>
@@ -287,7 +287,7 @@
              </rect>
             </property>
             <property name="styleSheet">
-             <string notr="true">color: rgb(0, 0, 0);</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>Instructions/Condition</string>
@@ -296,7 +296,7 @@
              <set>Qt::AlignCenter</set>
             </property>
            </widget>
-           <widget class="QLabel" name="label_2">
+           <widget class="QLabel" name="name">
             <property name="geometry">
              <rect>
               <x>50</x>
@@ -306,7 +306,7 @@
              </rect>
             </property>
             <property name="styleSheet">
-             <string notr="true">color: rgb(0, 0, 0);</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>Node Name</string>
@@ -315,7 +315,7 @@
              <set>Qt::AlignCenter</set>
             </property>
            </widget>
-           <widget class="QLabel" name="label_3">
+           <widget class="QLabel" name="description">
             <property name="geometry">
              <rect>
               <x>20</x>
@@ -325,13 +325,41 @@
              </rect>
             </property>
             <property name="styleSheet">
-             <string notr="true">color: rgb(0, 0, 0);</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>Node Description</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+           <widget class="QTextEdit" name="textEdit">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>450</y>
+              <width>201</width>
+              <height>141</height>
+             </rect>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+            <property name="html">
+             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+hr { height: 1px; border-width: 0; }
+li.unchecked::marker { content: &quot;\2610&quot;; }
+li.checked::marker { content: &quot;\2612&quot;; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;COMANDS&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;K -&amp;gt; make arrow&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;ESC -&amp;gt; deselect all&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;P -&amp;gt; enable/disable Pan Mode&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;CTR + RX CLICK MOUSE -&amp;gt; select items&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;RX CLICK MUOSE -&amp;gt; spawn circle/arrow&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </widget>
@@ -345,7 +373,7 @@
             </sizepolicy>
            </property>
            <property name="styleSheet">
-            <string notr="true">background-color: rgb(255, 225, 226);</string>
+            <string notr="true"/>
            </property>
            <widget class="QGraphicsView" name="graphicsView">
             <property name="enabled">
@@ -366,7 +394,7 @@
              </sizepolicy>
             </property>
             <property name="styleSheet">
-             <string notr="true"/>
+             <string notr="true">background-color: rgb(255, 233, 222);</string>
             </property>
            </widget>
           </widget>

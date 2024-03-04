@@ -15,9 +15,10 @@ public:
     QPainterPath shape() const override;
     bool isMyStartOrEnd(QGraphicsEllipseItem* check);
     bool operator==(const ArrowItem& other) const;
+    void handleClicked();
     QGraphicsItem *startItem;
     QGraphicsItem *endItem;
-
+    QPointF controlPoint;
     QList<QPointF> points;
     QGraphicsTextItem *textItem;
 

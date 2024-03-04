@@ -46,12 +46,16 @@ private:
     ArrowItem * selectedArrow;
     int finalTime;
     double delta;
+    QList<int> posUpdateButton;
     bool isCircleSelected = false;
     bool ascendingSelection=true;
+    bool dragMode = false;
     void deleteSelectedItems();
     void handleSelectionChanged();
     void handleRefresh();
     bool checkSelected();
+    void hideDesignerInput();
+    void showDesignerInput(int mode);
 protected:
     bool eventFilter(QObject *watched, QEvent *event); // Declare eventFilter function
 
