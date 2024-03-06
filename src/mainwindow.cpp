@@ -210,7 +210,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                     hideDesignerInput();
             }
             else if(keyEvent->key() == Qt::Key_C){ //clear all
-
+                scene->clearSelection();
                 QMessageBox msgBox;
                 msgBox.setIcon(QMessageBox::Warning);
                 msgBox.setWindowTitle("Attention!");
