@@ -754,6 +754,9 @@ void MainWindow::on_jsonButton_clicked()
     globalData["delta"] = replaceCommasWithPeriods(tempAux);
     globalData["finaltime"] = ui->finalTimeSpinBox->text().toStdString();
     bool foundError = false;
+    if(circles.empty()){
+        foundError = true;
+    }
     QMap<QString, QString>::const_iterator checkVariablesValues;
     for (checkVariablesValues = variablesValues.constBegin(); checkVariablesValues != variablesValues.constEnd(); ++checkVariablesValues) {
         if (checkVariablesValues.value().toStdString() == "NaN"){
@@ -763,7 +766,10 @@ void MainWindow::on_jsonButton_clicked()
             foundError = true;
         }
     }
-    if (foundError)return;
+    if (foundError){
+        QMessageBox::information(nullptr, "Warning", "Check your system, something went wrong");
+        return;
+    }
 
     for (int i = 0; i<circles.size(); i++){
 
