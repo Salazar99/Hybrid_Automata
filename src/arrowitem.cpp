@@ -31,7 +31,17 @@ QRectF ArrowItem::calculateArrowRect() const
 void ArrowItem::updateTextPosition()
 {
     // Adjust the offset as needed
-    textItem->setPos(controlPoint);
+    //textItem->setPos(controlPoint);
+    QPointF startHomemade(startItem->sceneBoundingRect().center().x(), startItem->sceneBoundingRect().center().y());
+    QPointF endHomemade(endItem->sceneBoundingRect().center().x(), endItem->sceneBoundingRect().center().y());
+    qreal angle = atan2(startHomemade.y() - endHomemade.y(), startHomemade.x() - endHomemade.x()) + 0.5;
+    qreal angle_start = atan2(endHomemade.y() - startHomemade.y(), endHomemade.x() - startHomemade.x()) - 0.5;
+    qreal endItemRadius = qMin(endItem->boundingRect().width(), endItem->boundingRect().height()) / 2.0;
+    QPointF stopLine = endHomemade + QPointF(endItemRadius*cos(angle),endItemRadius*sin(angle));
+    QPointF startLine = startHomemade + QPointF(endItemRadius*cos(angle_start),endItemRadius*sin(angle_start));
+    QPointF arrowCenter = (startLine + stopLine) / 2;
+    QPointF textOffset(0.5, 0.5); // Adjust the offset as needed
+    textItem->setPos(arrowCenter + textOffset);
 
 }
 
@@ -102,53 +112,46 @@ void ArrowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     QPointF stopLine = endHomemade + QPointF(endItemRadius*cos(angle),endItemRadius*sin(angle));
     QPointF startLine = startHomemade + QPointF(endItemRadius*cos(angle_start),endItemRadius*sin(angle_start));
 
-    QPointF arrowP1 = QPointF(stopLine.x()+ 10*cos(angle-0.5),stopLine.y()+10*sin(angle-0.5));
-    QPointF arrowP2 = QPointF(stopLine.x()+ 10*cos(angle+0.5),stopLine.y()+10*sin(angle+0.5));
+    /*QPointF arrowP1 = QPointF(stopLine.x()+ 10*cos(angle-0.5),stopLine.y()+10*sin(angle-0.5));  previous with curves
+    QPointF arrowP2 = QPointF(stopLine.x()+ 10*cos(angle+0.5),stopLine.y()+10*sin(angle+0.5));*/
+    QPointF arrowP1 = QPointF(stopLine.x()+ 10*cos(angle),stopLine.y()+10*sin(angle));
+    QPointF arrowP2 = QPointF(stopLine.x()+ 10*cos(angle-1),stopLine.y()+10*sin(angle-1));
 
     controlPoint = QPointF();
     // Calcolo del punto di controllo per la curva
     if(abs(startLine.x()-stopLine.x())<80){
         if(startLine.y()-stopLine.y()<0){
             controlPoint = QPointF(((startLine.x() + stopLine.x())/2)+80, ((startLine.y()+stopLine.y())/2));
-            qDebug() << "suca5";
         }
         else{
             controlPoint = QPointF(((startLine.x() + stopLine.x())/2)-80, ((startLine.y()+stopLine.y())/2));
-
-            qDebug() << "suca4";
         }
     }
     else if(abs(startLine.y()-stopLine.y())<80){
         if(startLine.x()-stopLine.x()<0){
 
             controlPoint = QPointF((startLine.x() + stopLine.x())/2, ((startLine.y()+stopLine.y())/2)-80);
-            qDebug() << "suca3";
         }
         else{
             controlPoint = QPointF((startLine.x() + stopLine.x())/2,((startLine.y()+stopLine.y())/2)+80);
-            qDebug() << "suca2";
         }
     }
     else{
         if(startLine.y()-stopLine.y()<0){
             if(startLine.x()-stopLine.x()<0){
                 controlPoint = QPointF(((startLine.x() + stopLine.x())/2)+80, ((startLine.y()+stopLine.y())/2)-40);
-                qDebug() << "suca";
                 adjustText = true;
             }
             else{
                 controlPoint = QPointF(((startLine.x() + stopLine.x())/2)+40, ((startLine.y()+stopLine.y())/2)+40);
-                qDebug() << "suca7";
             }
         }
         else{
             if(startLine.x()-stopLine.x()<0){
                 controlPoint = QPointF(((startLine.x() + stopLine.x())/2)-40, ((startLine.y()+stopLine.y())/2)-40);
-                qDebug() << "suca1";
             }
             else{
                 controlPoint = QPointF(((startLine.x() + stopLine.x())/2)-80, ((startLine.y()+stopLine.y())/2)+40);
-                qDebug() << "suca6";
                 adjustText = true;
             }
         }
@@ -163,7 +166,7 @@ void ArrowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
     // Calcoliamo i punti intermedi lungo la curva
     points.clear();
-    int numPoints = 20;  // Numero di punti intermedi per la curva
+    int numPoints = 1;  // Numero di punti intermedi per la curva
     for (int i = 0; i <= numPoints; ++i) {
         qreal t = qreal(i) / qreal(numPoints);
         qreal mt = 1.0 - t;

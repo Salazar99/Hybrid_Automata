@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
     scene = new QGraphicsScene(this);
     ui->graphicsView->setScene(scene);
 
-    QColor colorBackgroundGrid(171, 171, 171);
+    QColor colorBackgroundGrid(200, 200, 200);
     QBrush brush(colorBackgroundGrid, Qt::CrossPattern);
     ui->graphicsView->scene()->setBackgroundBrush(brush);
 
@@ -62,12 +62,12 @@ MainWindow::MainWindow(QWidget *parent) :
     //rightWidgetWidth+leftWidgetWidth : newWidth =
 
     this->setFixedSize(newWidth,newHeight);
-
+    ui->deltaSpinBox->setMinimum(0.00001);
     // Impostare le dimensioni del QGraphicsView
 
     qDebug() << "GraphicsView: " << newWidth*0.799 << ", " << newHeight*0.935 << "\n";
 
-    ui->graphicsView->setFixedSize(screenWidth, screenHeight);
+    ui->graphicsView->setFixedSize(newWidth*0.817, newHeight*0.935);
 
     hideDesignerInput();
 
@@ -208,6 +208,19 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 else
                     hideDesignerInput();
             }
+            else if(keyEvent->key() == Qt::Key_C){ //clear all
+                arrows.clear();
+                for (int i = 0; i < drawnArrows.size(); i++){
+                    delete drawnArrows[i];
+                }
+                drawnArrows.clear();
+                for (int i = 0; i < circles.size(); i++){
+                    delete circles[i];
+                }
+                circles.clear();
+
+                hideDesignerInput();
+            }
         }
     }
     return QMainWindow::eventFilter(watched, event);
@@ -222,7 +235,18 @@ void MainWindow::handleSelectionChanged(){
     c
 
     */
+    QColor color(77, 77, 77);
+    QBrush brush(color);
+    for (int i = 0; i < circles.size(); i++){
 
+        circles[i]->ellipse->setBrush(brush);
+    }
+    for (int i = 0; i < selectedItems.size(); i++){
+        if (selectedItems[i]->type() == CIRCLEITEM_TYPE){
+            CircleItem *selectedCircle = dynamic_cast<CircleItem*>(selectedItems[i]);
+            selectedCircle->ellipse->setBrush(QBrush(Qt::cyan));
+        }
+    }
     if (selectedItems.size() == 0){
         selectedCircle1 = nullptr;
         selectedCircle2 = nullptr;
@@ -715,6 +739,17 @@ void MainWindow::on_jsonButton_clicked()
     string tempAux = ui->deltaSpinBox->text().toStdString();
     globalData["delta"] = replaceCommasWithPeriods(tempAux);
     globalData["finaltime"] = ui->finalTimeSpinBox->text().toStdString();
+    bool foundError = false;
+    QMap<QString, QString>::const_iterator checkVariablesValues;
+    for (checkVariablesValues = variablesValues.constBegin(); checkVariablesValues != variablesValues.constEnd(); ++checkVariablesValues) {
+        if (checkVariablesValues.value().toStdString() == "NaN"){
+            std::string error = "You can't run the system because the variable '" + checkVariablesValues.key().toStdString() + "' hasn't a initial value!";
+            QString qError = QString::fromStdString(error); // Convert std::string to QString
+            QMessageBox::information(nullptr, "Warning", qError);
+            foundError = true;
+        }
+    }
+    if (foundError)return;
 
     for (int i = 0; i<circles.size(); i++){
 
