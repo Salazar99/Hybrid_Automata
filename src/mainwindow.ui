@@ -119,14 +119,17 @@
         <property name="buttonSymbols">
          <enum>QAbstractSpinBox::NoButtons</enum>
         </property>
+        <property name="decimals">
+         <number>4</number>
+        </property>
         <property name="minimum">
          <double>0.000000000000000</double>
         </property>
         <property name="maximum">
-         <double>100.000000000000000</double>
+         <double>1000.000000000000000</double>
         </property>
         <property name="value">
-         <double>2.000000000000000</double>
+         <double>0.010000000000000</double>
         </property>
        </widget>
        <widget class="QLabel" name="label_4">
@@ -293,7 +296,7 @@
              <string notr="true"/>
             </property>
             <property name="text">
-             <string>Instructions/Condition</string>
+             <string>Instructions</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>

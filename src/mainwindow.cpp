@@ -62,7 +62,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //rightWidgetWidth+leftWidgetWidth : newWidth =
 
     this->setFixedSize(newWidth,newHeight);
-    ui->deltaSpinBox->setMinimum(0.00001);
+    ui->deltaSpinBox->setMinimum(0.0001);
     // Impostare le dimensioni del QGraphicsView
 
     qDebug() << "GraphicsView: " << newWidth*0.799 << ", " << newHeight*0.935 << "\n";
@@ -203,23 +203,35 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 else
                     ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
                 dragMode = !dragMode;
-                if(dragMode)
+                QList<QGraphicsItem*> selectedItems = scene->selectedItems();
+                if(dragMode && selectedItems.size()==1)
                     showDesignerInput(0);
                 else
                     hideDesignerInput();
             }
             else if(keyEvent->key() == Qt::Key_C){ //clear all
-                arrows.clear();
-                for (int i = 0; i < drawnArrows.size(); i++){
-                    delete drawnArrows[i];
-                }
-                drawnArrows.clear();
-                for (int i = 0; i < circles.size(); i++){
-                    delete circles[i];
-                }
-                circles.clear();
 
-                hideDesignerInput();
+                QMessageBox msgBox;
+                msgBox.setIcon(QMessageBox::Warning);
+                msgBox.setWindowTitle("Attention!");
+                msgBox.setText("Do you want to delete all?");
+                msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+                msgBox.setDefaultButton(QMessageBox::Yes);
+
+                int reply = msgBox.exec();
+
+                if (reply == QMessageBox::Yes) {
+                    arrows.clear();
+                    for (int i = 0; i < drawnArrows.size(); i++){
+                        delete drawnArrows[i];
+                    }
+                    drawnArrows.clear();
+                    for (int i = 0; i < circles.size(); i++){
+                        delete circles[i];
+                    }
+                    circles.clear();
+                    hideDesignerInput();
+                }
             }
         }
     }
@@ -703,6 +715,7 @@ void MainWindow::showDesignerInput(int mode){
     if(mode == 0){//modalità cerchio
         ui->valueLabel->setVisible(true);
         ui->istruction->setVisible(true);
+        ui->istruction->setText("Istructions");
         ui->name->setVisible(true);
         ui->nameLabel->setVisible(true);
         ui->description->setVisible(true);
@@ -714,6 +727,7 @@ void MainWindow::showDesignerInput(int mode){
     else{
         ui->valueLabel->setVisible(true);
         ui->istruction->setVisible(true);
+        ui->istruction->setText("Conditions");
         ui->name->setVisible(false);
         ui->nameLabel->setVisible(false);
         ui->description->setVisible(false);

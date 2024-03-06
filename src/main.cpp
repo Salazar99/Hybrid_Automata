@@ -122,6 +122,7 @@ int main(int argc, char *argv[])
                       "}");
 
     MainWindow w;
+    w.setWindowTitle("CHASE");
     w.show();
 
     return app.exec();
