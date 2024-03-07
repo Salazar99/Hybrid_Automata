@@ -2,7 +2,6 @@
 #define MAINWINDOW_H
 
 
-#include "../include/global_variables.h"
 #include <QMainWindow>
 #include <QPainter>
 #include <QFrame>

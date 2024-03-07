@@ -56,10 +56,12 @@ private:
     string instructions;                                                            /*all the instructions inside the node*/
     vector<double> ode_solver_values;
     vector<double> ode_solver_times;
+    double delta;
+    double numSeconds;
 
 public:
     Node();
-    Node(string name, string description, string instructions, bool firstVisit);
+    Node(string name, string description, string instructions, bool firstVisit, double delta, double numSeconds);
     string getName();
     void setName(string name);
     string getDescription();
@@ -134,7 +136,9 @@ private:
     unordered_map<string, double> tempVariables;
 
 public:
-    System(vector<Automata> automata, unordered_map<string, string> &AutomataDependence, unordered_map<string, double *> &automataVariables, unordered_map<string, double> &tempVariables);
+    double delta;
+    double numSeconds;
+    System(vector<Automata> automata, unordered_map<string, string> &AutomataDependence, unordered_map<string, double *> &automataVariables, unordered_map<string, double> &tempVariables, double delta, double numSeconds);
     vector<Automata> getAutomata();
     unordered_map<string, string> getAutomataDependence();
     void refreshVariables();

@@ -10,7 +10,7 @@
 /// @brief constructor
 /// @param automata the Automata of the System
 /// @param VariablesDependence automata-variables dependence of the system
-System::System(vector<Automata> automata, unordered_map<string, string> &AutomataDependence, unordered_map<string, double *> &automataVariables, unordered_map<string, double> &tempVariables)
+System::System(vector<Automata> automata, unordered_map<string, string> &AutomataDependence, unordered_map<string, double *> &automataVariables, unordered_map<string, double> &tempVariables, double delta, double numSeconds)
 {
     this->automata = automata;
     this->AutomataDependence = AutomataDependence;
@@ -21,6 +21,8 @@ System::System(vector<Automata> automata, unordered_map<string, string> &Automat
         this->automata[j].setAutomataVariables(this->automataVariables);
         this->automata[j].setTempVariables(this->tempVariables);
     }
+    this->delta = delta;
+    this->numSeconds = numSeconds;
 }
 
 /// @brief return the Automata of the System

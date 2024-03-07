@@ -1,5 +1,4 @@
 #include "../include/Objects.h"
-#include "../include/global_variables.h"
 #include "../include/tools.h"
 #include <iostream>
 #include <sstream>
@@ -22,12 +21,14 @@ Node::Node()
 /// @brief constructor
 /// @param name the name of the node
 /// @param description the description of the node
-Node::Node(string name, string description, string instructions, bool firstVisit)
+Node::Node(string name, string description, string instructions, bool firstVisit, double delta, double numSeconds)
 {
     this->name = name;
     this->description = description;
     this->instructions = instructions;
     this->firstVisit = firstVisit;
+    this->delta = delta;
+    this->numSeconds = numSeconds;
 }
 
 /// @brief returns the name of the node
@@ -227,7 +228,7 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
                 cauchy[aux[0]] = newCauchy;
                 ode_solver_values.push_back(*cauchy[aux[0]]);
             }
-            *value = ode_solver(s, *cauchy[aux[0]], time, finaltime[0], finaltime[1], sharedVariables);
+            *value = ode_solver(s, *cauchy[aux[0]], time, delta, numSeconds, sharedVariables);
             // DEBUG_COMMENT("New Value X: " << *value << "\n");
             tempVariables[aux[0]] = *(value);
             // sharedVariables[aux[0]] = value;

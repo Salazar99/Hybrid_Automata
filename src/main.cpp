@@ -1,4 +1,3 @@
-#include "../include/global_variables.h"
 #include "../include/UtilsJson.h"
 #include "../include/tinyexpr.h"
 #include "../include/tools.h"

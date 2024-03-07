@@ -14,7 +14,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 # Add the executable, specifying the source file(s).
 add_executable(main src/main.cpp src/Automata.cpp src/Transition.cpp src/Node.cpp src/ScrapingJson.cpp src/tinyexpr.c src/System.cpp src/tools.cpp
-    src/mainwindow.cpp src/mainwindow.ui include/global_variables.h include/mainwindow.h include/csvfile.h include/json.hpp include/Objects.h include/tinyexpr.h
+    src/mainwindow.cpp src/mainwindow.ui  include/mainwindow.h include/csvfile.h include/json.hpp include/Objects.h include/tinyexpr.h
     include/tools.h include/UtilsJson.h
     include/arrowitem.h
     src/arrowitem.cpp

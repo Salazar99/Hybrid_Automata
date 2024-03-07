@@ -1,4 +1,3 @@
-#include "../include/global_variables.h"
 #include "../include/mainwindow.h"
 #include "../include/arrowitem.h"
 #include "../include/json.hpp"
@@ -872,9 +871,9 @@ void MainWindow::on_jsonButton_clicked()
         qDebug() << "Exception was thrown: " << ex.what();
     }
 
-    std::cout <<"DeltaMain: " << finaltime[0];
+    std::cout <<"DeltaMain: " << s.delta;
 
-    for (double time = 1; time < finaltime[1] + 1 - finaltime[0]; time = time + finaltime[0])
+    for (double time = 1; time < s.numSeconds + 1 - s.delta; time = time + s.delta)
     {
         qDebug() << "################## TIME = " << time << " ##################\n";
 

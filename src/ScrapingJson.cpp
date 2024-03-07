@@ -1,10 +1,10 @@
 #include "../include/UtilsJson.h"
 #include "../include/json.hpp"
-#include "../include/global_variables.h"
 #include "../include/tinyexpr.h"
 #include "../include/tools.h"
 #include <string>
 #include <iostream>
+
 
 #ifdef DEBUG_MODE
 #define DEBUG_COMMENT(comment) std::cout << "[DEBUG] " << comment << std::endl;
@@ -18,8 +18,6 @@ using json = nlohmann::json;
 /// @brief creates all the automatas
 /// @return the automatas
 
-double delta;
-double *finaltime = nullptr;
 
 System UtilsJson::ScrapingJson(string c)
 {
@@ -35,13 +33,13 @@ System UtilsJson::ScrapingJson(string c)
     int store = 0;
 
     // set global variables
-    finaltime = new double[2];
     string h_string = data["system"]["global"]["delta"];
-    delta = stod(h_string);
-    finaltime[0] = delta;
-    std::cout <<"DeltaScraping: " << delta;
+    replace(h_string.begin(), h_string.end(), '.', ',');
+    double system_delta = stod(h_string);
+    //std::cout <<"DeltaScraping: " << delta;
     string tfinal_string = data["system"]["global"]["finaltime"];
-    finaltime[1] = stod(tfinal_string);
+    replace(tfinal_string.begin(), tfinal_string.end(), '.', ',');
+    double system_numSeconds = stod(tfinal_string);
 
 
     // find all the automata in settings.json
@@ -53,7 +51,7 @@ System UtilsJson::ScrapingJson(string c)
         // find all the nodes for each automata
         for (json node : automata["node"])
         {
-            Node n(node["name"], node["description"], node["instructions"], (node["flag"] == "start") ? true : false);
+            Node n(node["name"], node["description"], node["instructions"], (node["flag"] == "start") ? true : false , system_delta, system_numSeconds);
             arrNodes.push_back(n);
             if (node["flag"] == "start")
             {
@@ -121,5 +119,5 @@ System UtilsJson::ScrapingJson(string c)
         arrNodes.clear();
     }
     unordered_map<string, double> tempVariables;
-    return System(arrAutomata, automataDependence, variables, tempVariables);
+    return System(arrAutomata, automataDependence, variables, tempVariables, system_delta, system_numSeconds);
 }
