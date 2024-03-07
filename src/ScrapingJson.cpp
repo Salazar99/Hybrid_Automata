@@ -34,11 +34,23 @@ System UtilsJson::ScrapingJson(string c)
 
     // set global variables
     string h_string = data["system"]["global"]["delta"];
+
+#ifdef WINDOWS
+    ;
+#else
     replace(h_string.begin(), h_string.end(), '.', ',');
+#endif
+
     double system_delta = stod(h_string);
     //std::cout <<"DeltaScraping: " << delta;
     string tfinal_string = data["system"]["global"]["finaltime"];
+
+#ifdef WINDOWS
+    ;
+#else
     replace(tfinal_string.begin(), tfinal_string.end(), '.', ',');
+#endif
+
     double system_numSeconds = stod(tfinal_string);
 
 

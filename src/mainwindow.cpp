@@ -10,8 +10,7 @@
 #include <QGuiApplication>
 #include <QScreen>
 #include <QMessageBox>
-
-
+#include <QRandomGenerator>
 #include "../include/UtilsJson.h"
 #include "../include/tinyexpr.h"
 #include "../include/tools.h"
@@ -83,6 +82,21 @@ void printCircles(QList<CircleItem*> list){
     }
 }
 
+
+QColor blendColors(const QColor& baseColor, const QColor& overlayColor, qreal overlayOpacity)
+{
+    // Calcoliamo l'opacità combinata
+    qreal alpha = overlayColor.alphaF() * overlayOpacity;
+
+    // Calcoliamo i componenti RGBA combinati
+    int red = baseColor.red() * (1 - alpha) + overlayColor.red() * alpha;
+    int green = baseColor.green() * (1 - alpha) + overlayColor.green() * alpha;
+    int blue = baseColor.blue() * (1 - alpha) + overlayColor.blue() * alpha;
+
+    // Restituiamo il colore combinato
+    return QColor(red, green, blue);
+}
+
 void MainWindow::handleRefresh(){
     ui->graphicsView->update();
     /*qDebug() << "\n";
@@ -123,11 +137,12 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 {
     if (watched == ui->graphicsView) {
         if (event->type() == QEvent::MouseButtonPress) {
+            if (automatas.size() == 0)return true;
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
             if (mouseEvent->button() != Qt::LeftButton)return true;
             QPointF scenePos = ui->graphicsView->mapToScene(mouseEvent->pos());
             QColor color(77, 77, 77);
-            QBrush brush(color);
+            QBrush brush(automataColors[ui->automatasList->currentText()]);
             QPen outlinePen(Qt::black);
             outlinePen.setWidth(2);
             QGraphicsEllipseItem *newEllipse = new QGraphicsEllipseItem(scenePos.x(), scenePos.y(), 80, 80);
@@ -139,10 +154,15 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
             textLabel->setDefaultTextColor(Qt::white);
             textLabel->setFont(QFont("Arial", 10));
             textLabel->setPos(scenePos.x() + 10, scenePos.y() + 10);
-            CircleItem *circleItem = new CircleItem(newEllipse, textLabel);
+            CircleItem *circleItem = new CircleItem(newEllipse, textLabel, ui->automatasList->currentText());
+            ellipseMap[newEllipse] = circleItem;
             circleItem->setFlag(QGraphicsItem::ItemIsMovable);
             circleItem->setFlag(QGraphicsItem::ItemIsSelectable);
-            if(circles.isEmpty())
+            bool found = false;
+            for (int i = 0; i < circles.size(); i++){
+                if (circles[i]->automata == ui->automatasList->currentText())found = true;
+            }
+            if(!found)
                 circleItem->startNode = true;
             circles.append(circleItem);
             scene -> addItem(circleItem);
@@ -154,6 +174,19 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
             hideDesignerInput();
             return true; // Consume the event
         }
+        else if(event->type() == QEvent::Wheel) {
+            qDebug("ciao");
+            QWheelEvent *wheelEvent = static_cast<QWheelEvent*>(event);
+            if (wheelEvent->modifiers() & Qt::ControlModifier) {
+                if (wheelEvent->angleDelta().y() > 0) {
+
+                    ui->graphicsView->scale(1.1, 1.1);
+                } else {
+                    ui->graphicsView->scale(0.9, 0.9);
+                }
+                return true;
+            }
+        }
         else if (event->type() == QEvent::KeyPress) {
             QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
             if (keyEvent->key() == Qt::Key_Delete || keyEvent->key() == Qt::Key_Backspace) {
@@ -162,6 +195,8 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 return true; // Consume the event
             }else if(keyEvent->key() == Qt::Key_K){
                 if (selectedCircle1 && selectedCircle2 && scene->selectedItems().size()==2 && checkSelected()) {
+                    if (ellipseMap[selectedCircle1]->automata != ellipseMap[selectedCircle2]->automata )
+                        return true;
                     std::cout << "Disegnami Seh\n";
                     /*ArrowItem *arrow = new ArrowItem(selectedCircle1, selectedCircle2);
                     arrow->setFlag(QGraphicsItem::ItemIsSelectable);*/
@@ -221,6 +256,10 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 
                 if (reply == QMessageBox::Yes) {
                     arrows.clear();
+                    ellipseMap.clear();
+                    automataColors.clear();
+                    automatas.clear();
+                    ui->automatasList->clear();
                     for (int i = 0; i < drawnArrows.size(); i++){
                         delete drawnArrows[i];
                     }
@@ -246,16 +285,18 @@ void MainWindow::handleSelectionChanged(){
     c
 
     */
-    QColor color(77, 77, 77);
-    QBrush brush(color);
-    for (int i = 0; i < circles.size(); i++){
 
+
+    for (int i = 0; i < circles.size(); i++){
+        QBrush brush(automataColors[circles[i]->automata]);
         circles[i]->ellipse->setBrush(brush);
     }
     for (int i = 0; i < selectedItems.size(); i++){
         if (selectedItems[i]->type() == CIRCLEITEM_TYPE){
             CircleItem *selectedCircle = dynamic_cast<CircleItem*>(selectedItems[i]);
-            selectedCircle->ellipse->setBrush(QBrush(Qt::cyan));
+            QColor shadowColor(0, 0, 0, 128); // Black color with 50% alpha
+            QColor combinedColor = blendColors(automataColors[selectedCircle->automata], shadowColor, 0.6); // 50% opacity
+            selectedCircle->ellipse->setBrush(QBrush(combinedColor));
         }
     }
     if (selectedItems.size() == 0){
@@ -531,6 +572,25 @@ void MainWindow::deleteSelectedItems()
         for (int i = arrowsToRemove.size() - 1; i >= 0; i--) {
             drawnArrows.removeAt(arrowsToRemove[i]);
         }
+        ellipseMap.remove(temp);
+        int countCirclesAutomata = 0;
+        for (int i = 0; i<circles.size(); i++){
+            if (circles[i]->automata == selectedCircle->automata)countCirclesAutomata++;
+        }
+        if (countCirclesAutomata<2){
+            automataColors.remove(selectedCircle->automata);
+            int pos;
+            for (int x = 0; x < automatas.size(); x++)
+            {
+                if (automatas[x]==selectedCircle->automata){
+                    pos = x;
+                }
+            }
+            automatas.remove(pos);
+            ui->automatasList->clear();
+            ui->automatasList->addItems(automatas);
+
+        }
 
         /*Elimino il cerchio dalla lista dei cerchi*/
         index = -1;
@@ -570,7 +630,7 @@ void MainWindow::on_updateButton_clicked()
                         selectedCircle->setSelected(false);
                         qDebug() << circles[i]->startNode << "\n";
                     }else{
-                        if (ui->startCheckBox->isChecked())
+                        if (ui->startCheckBox->isChecked() && circles[i]->automata == selectedCircle->automata)
                             circles[i]->startNode = false;
                     }
                 }
@@ -769,8 +829,59 @@ void MainWindow::on_jsonButton_clicked()
         QMessageBox::information(nullptr, "Warning", "Check your system, something went wrong");
         return;
     }
+    transitionsArray.clear();
+    for (int x = 0; x < automatas.size(); x++){
+        for (int i = 0; i < circles.size(); i++){
+            if (circles[i]->automata == automatas[x]){
+                json nodeData;
+                nodeData["name"] = circles[i]->name.toStdString();
+                nodeData["description"] = circles[i]->description.toStdString();
+                nodeData["instructions"] = circles[i]->textItem->toPlainText().toStdString();
+                if (circles[i]->startNode)
+                    nodeData["flag"] = "start";
+                else
+                    nodeData["flag"] = "none";
+                QList<QGraphicsEllipseItem*> destinations = arrows[circles[i]->ellipse];
+                for (int j = 0; j<destinations.size(); j++){
+                    for (int x = 0; x<circles.size(); x++){
+                        if (circles[x]->ellipse->sceneBoundingRect().center() == destinations[j]->sceneBoundingRect().center()){
+                            transitionData["to"] = circles[x]->name.toStdString();
+                            break;
+                        }
+                    }
 
-    for (int i = 0; i<circles.size(); i++){
+                    for (int x = 0; x<drawnArrows.size(); x++){
+                        if (drawnArrows[x]->startItem->sceneBoundingRect().center() == circles[i]->ellipse->sceneBoundingRect().center() &&
+                            drawnArrows[x]->endItem->sceneBoundingRect().center() == destinations[j]->sceneBoundingRect().center()){
+                            transitionData["condition"] = drawnArrows[x]->textItem->toPlainText().toStdString();
+                            break;
+                        }
+                    }
+                    transitionsArray.push_back(transitionData);
+                }
+                nodeData["transitions"] = transitionsArray;
+                nodeArray.push_back(nodeData);
+                transitionsArray.clear();
+            }
+        }
+        variablesArray.clear();
+        if (x == 0){
+            QMap<QString, QString>::const_iterator it;
+            for (it = variablesValues.constBegin(); it != variablesValues.constEnd(); ++it) {
+                json variableData;
+                variableData["name"] = it.key().toStdString();
+                variableData["value"] = it.value().toStdString();
+                variablesArray.push_back(variableData);
+            }
+        }
+        automatonData["name"] = automatas[x].toStdString();
+        automatonData["node"] = nodeArray;
+        automatonData["variables"] = variablesArray;
+        automataArray.push_back(automatonData);
+        nodeArray.clear();
+    }
+
+    /*for (int i = 0; i<circles.size(); i++){
 
         json nodeData;
         nodeData["name"] = circles[i]->name.toStdString();
@@ -802,20 +913,7 @@ void MainWindow::on_jsonButton_clicked()
         nodeArray.push_back(nodeData);
         transitionsArray.clear();
 
-    }
-
-    QMap<QString, QString>::const_iterator it;
-    for (it = variablesValues.constBegin(); it != variablesValues.constEnd(); ++it) {
-        json variableData;
-        variableData["name"] = it.key().toStdString();
-        variableData["value"] = it.value().toStdString();
-        variablesArray.push_back(variableData);
-    }
-
-    automatonData["name"] = "Thermostat";
-    automatonData["node"] = nodeArray;
-    automatonData["variables"] = variablesArray;
-    automataArray.push_back(automatonData);
+    }*/
     json test;
     systemData["global"] = globalData;
     systemData["automata"] = automataArray;
@@ -922,10 +1020,87 @@ void MainWindow::on_jsonButton_clicked()
         istanti++;
         qDebug() << "\n\n";
     }
-
     qDebug() << "Total Istanti: " << istanti;
     qDebug() << "\nCi ha messo " << time(NULL) - start << " secondi";
 }
 
 
+
+void MainWindow::on_addAutoma_clicked()
+{
+    QList<QColor> colors;
+    colors << QColor(Qt::cyan)
+              << QColor(Qt::magenta)
+              << QColor(Qt::red)
+              << QColor(Qt::darkRed)
+              << QColor(Qt::darkCyan)
+              << QColor(Qt::darkMagenta)
+              << QColor(Qt::yellow)
+              << QColor(Qt::blue)
+              << QColor(Qt::gray)
+              << QColor(Qt::darkGray);
+    bool found = true;
+    QColor randomColor;
+    while(true){
+        // Generate a random index within the range of the list
+        int randomIndex = QRandomGenerator::global()->bounded(colors.size());
+
+        // Retrieve the color at the random index
+        randomColor = colors[randomIndex];
+        QMap<QString, QColor>::const_iterator it;
+        for (it = automataColors.constBegin(); it != automataColors.constEnd(); ++it) {
+            if (it.value() == randomColor){
+                found = false;
+            }
+        }
+        if (found)break;
+        found = true;
+    }
+
+    QString newAutomata = ui->automataName->text();
+    automataColors[newAutomata] = randomColor;
+    automatas.append(newAutomata);
+    ui->automatasList->clear();
+    ui->automatasList->addItems(automatas);
+    ui->automataName->clear();
+
+}
+
+
+void MainWindow::on_debugButton_clicked()
+{
+    qDebug() << "Circles: ";
+    for (int i=0; i<circles.size(); i++) {
+        qDebug() << *circles[i];
+    }
+
+    qDebug() << "Automatas: ";
+    for (int i=0; i<automatas.size(); i++) {
+        qDebug() << automatas[i];
+    }
+
+    qDebug() << "Automatas Colors: ";
+    QMap<QString, QColor>::const_iterator it2;
+    for (it2 = automataColors.constBegin(); it2 != automataColors.constEnd(); ++it2) {
+        qDebug() << "Automata: " <<it2.key() << " Colore: " << it2.value();
+    }
+
+
+    qDebug() << "EllipseMap: ";
+    QMap<QGraphicsEllipseItem*, CircleItem*>::const_iterator it;
+    for (it = ellipseMap.constBegin(); it != ellipseMap.constEnd(); ++it) {
+        qDebug() << "Ellisse: " << (*it.key()).sceneBoundingRect().center() << " Cerchio: " << *it.value();
+    }
+
+    qDebug() << "Arrows: ";
+    QMap<QGraphicsEllipseItem*, QList<QGraphicsEllipseItem*>>::const_iterator it3;
+    for (it3 = arrows.constBegin(); it3 != arrows.constEnd(); ++it3) {
+        qDebug() << "Ellisse : " <<ellipseMap[it3.key()];
+        for (int i = 0; i<it3.value().size(); i++){
+            qDebug() << "   destination: " << it3.value()[i]->sceneBoundingRect().center();
+        }
+    }
+
+
+}
 

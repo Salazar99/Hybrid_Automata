@@ -85,7 +85,7 @@ void ArrowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    qDebug() << "Stiamo paintando\n";
+    //qDebug() << "Stiamo paintando\n";
 
     if (!startItem || !endItem){
         qDebug() << "Qualcuno Ã¨ null!\n";
@@ -93,7 +93,7 @@ void ArrowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     }
     bool adjustText = false;
     bool isSelected = option->state & QStyle::State_Selected;
-    qDebug() << "Paint: " << startItem->sceneBoundingRect().center() << ", " << endItem->sceneBoundingRect().center();
+    //qDebug() << "Paint: " << startItem->sceneBoundingRect().center() << ", " << endItem->sceneBoundingRect().center();
     QPen pen(isSelected ? Qt::red : Qt::black);
     pen.setWidth(2);
     QPointF startHomemade(startItem->sceneBoundingRect().center().x(), startItem->sceneBoundingRect().center().y());

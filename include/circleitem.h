@@ -12,7 +12,7 @@
 
 class CircleItem : public QGraphicsItemGroup{
 public:
-    CircleItem(QGraphicsEllipseItem* ellipse, QGraphicsTextItem *textItem) {
+    CircleItem(QGraphicsEllipseItem* ellipse, QGraphicsTextItem *textItem, QString automata) {
         // Retrieve properties from the ellipse
 
         addToGroup(ellipse);
@@ -26,6 +26,7 @@ public:
         name = "default name";
         description = "default description";
         startNode = false;
+        this->automata = automata;
 
     }
 
@@ -57,6 +58,7 @@ public:
     QGraphicsTextItem* textItem;
     QString name;
     QString description;
+    QString automata;
     bool startNode;
 
 };

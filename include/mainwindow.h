@@ -39,10 +39,13 @@ private:
     QTimer *timer;
     QMap<QGraphicsEllipseItem*, QList<QGraphicsEllipseItem*>> arrows;
     QMap<QString, QString> variablesValues;
+    QMap<QGraphicsEllipseItem*, CircleItem*> ellipseMap;
+    QMap<QString, QColor> automataColors;
     QList<QString> actualVariables;
     QList<ArrowItem*> drawnArrows;
     QLineEdit *valueLabel;
     ArrowItem * selectedArrow;
+    QList<QString> automatas;
     int finalTime;
     double delta;
     QList<int> posUpdateButton;
@@ -63,6 +66,8 @@ private slots:
     void on_tabWidget_currentChanged(int index);
     void on_updtateVariable_clicked();
     void on_jsonButton_clicked();
+    void on_addAutoma_clicked();
+    void on_debugButton_clicked();
 };
 
 #endif // MAINWINDOW_H
