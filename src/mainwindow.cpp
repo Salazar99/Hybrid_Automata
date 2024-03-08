@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     posUpdateButton.append(ui->updateButton->pos().y());
     scene = new QGraphicsScene(this);
     ui->graphicsView->setScene(scene);
-
+    ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
     QColor colorBackgroundGrid(200, 200, 200);
     QBrush brush(colorBackgroundGrid, Qt::CrossPattern);
     ui->graphicsView->scene()->setBackgroundBrush(brush);
@@ -139,7 +139,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
         if (event->type() == QEvent::MouseButtonPress) {
             if (automatas.size() == 0)return true;
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-            if (mouseEvent->button() != Qt::LeftButton)return true;
+            if (mouseEvent->button() != Qt::RightButton)return true;
             QPointF scenePos = ui->graphicsView->mapToScene(mouseEvent->pos());
             QColor color(77, 77, 77);
             QBrush brush(automataColors[ui->automatasList->currentText()]);
@@ -231,18 +231,6 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 scene->clearSelection();
                 hideDesignerInput();
             }
-            else if(keyEvent->key() == Qt::Key_P){
-                if(dragMode)
-                    ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
-                else
-                    ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
-                dragMode = !dragMode;
-                QList<QGraphicsItem*> selectedItems = scene->selectedItems();
-                if(dragMode && selectedItems.size()==1)
-                    showDesignerInput(0);
-                else
-                    hideDesignerInput();
-            }
             else if(keyEvent->key() == Qt::Key_C){ //clear all
                 scene->clearSelection();
                 QMessageBox msgBox;
@@ -315,6 +303,7 @@ void MainWindow::handleSelectionChanged(){
         if (selectedItems[0]->type() == CIRCLEITEM_TYPE){
             isCircleSelected = true;
             CircleItem *selectedCircle = dynamic_cast<CircleItem*>(selectedItems[0]);
+            ui->automatasList->setCurrentIndex(automatas.indexOf(selectedCircle->automata));
             if (selectedCircle == nullptr)qDebug() << "null\n";
             ui->valueLabel->setText(selectedCircle->textItem->toPlainText());
             ui->nameLabel->setText(selectedCircle->name);
@@ -611,6 +600,7 @@ void MainWindow::on_updateButton_clicked()
 {
     QList<QGraphicsItem*> selectedItems = scene->selectedItems();
     bool error = false;
+    int pos = 0;
     if (selectedItems.size() == 1){
         if (isCircleSelected){
             CircleItem *selectedCircle = dynamic_cast<CircleItem*>(selectedItems[0]);
@@ -627,13 +617,15 @@ void MainWindow::on_updateButton_clicked()
                         circles[i]->name = ui->nameLabel->text();
                         circles[i]->description = ui->descriptionLabel->text();
                         circles[i]->startNode = ui->startCheckBox->isChecked();
-                        selectedCircle->setSelected(false);
                         qDebug() << circles[i]->startNode << "\n";
-                    }else{
-                        if (ui->startCheckBox->isChecked() && circles[i]->automata == selectedCircle->automata)
-                            circles[i]->startNode = false;
+                        pos = i;
                     }
                 }
+                for(int j = 0; j < circles.size(); j++){
+                    if (ui->startCheckBox->isChecked() && circles[j]->automata == selectedCircle->automata && j!=pos)
+                        circles[j]->startNode = false;
+                }
+                selectedCircle->setSelected(false);
             }
         }else{
             for (int i = 0; i<drawnArrows.size(); i++){
@@ -815,6 +807,26 @@ void MainWindow::on_jsonButton_clicked()
     bool foundError = false;
     if(circles.empty()){
         foundError = true;
+    }
+    int count = 0;
+    for(int i=0; i<automatas.size(); i++){
+        for(int j=0; j<circles.size(); j++){
+            if(circles[j]->automata == automatas[i]){
+                if(circles[j]->startNode){
+                    count++;
+                }
+            }
+        }
+        if(count == 0){
+            QMessageBox::information(nullptr, "Error", "No Start found in " + automatas[i]);
+            return;
+        }
+        else if(count >1){
+            QMessageBox::information(nullptr, "Error", "Multiple start nodes found in " + automatas[i]);
+            return;
+        }
+
+        count = 0;
     }
     QMap<QString, QString>::const_iterator checkVariablesValues;
     for (checkVariablesValues = variablesValues.constBegin(); checkVariablesValues != variablesValues.constEnd(); ++checkVariablesValues) {
@@ -1028,6 +1040,18 @@ void MainWindow::on_jsonButton_clicked()
 
 void MainWindow::on_addAutoma_clicked()
 {
+    if(automatas.size() == 10){
+        QMessageBox::information(nullptr, "Information", "Maximum number of automatas reached");
+        return;
+    }
+    if(ui->automataName->text().isEmpty()){
+        QMessageBox::information(nullptr, "Information", "Please insert a name for the automa");
+        return;
+    }
+    if(automatas.contains(ui->automataName->text())){
+        QMessageBox::information(nullptr, "Information", "An automata with this name already exist");
+        return;
+    }
     QList<QColor> colors;
     colors << QColor(Qt::cyan)
               << QColor(Qt::magenta)
