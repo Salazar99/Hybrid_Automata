@@ -34,6 +34,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QColor colorBackgroundGrid(200, 200, 200);
     QBrush brush(colorBackgroundGrid, Qt::CrossPattern);
     ui->graphicsView->scene()->setBackgroundBrush(brush);
+    ui->graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 
     timer = new QTimer(this);
@@ -766,7 +768,7 @@ void MainWindow::showDesignerInput(int mode){
     if(mode == 0){//modalità cerchio
         ui->valueLabel->setVisible(true);
         ui->istruction->setVisible(true);
-        ui->istruction->setText("Istructions");
+        ui->istruction->setText("Instructions");
         ui->name->setVisible(true);
         ui->nameLabel->setVisible(true);
         ui->description->setVisible(true);
@@ -804,6 +806,12 @@ void MainWindow::on_jsonButton_clicked()
     string tempAux = ui->deltaSpinBox->text().toStdString();
     globalData["delta"] = replaceCommasWithPeriods(tempAux);
     globalData["finaltime"] = ui->finalTimeSpinBox->text().toStdString();
+
+    if(actualVariables.isEmpty()){
+        QMessageBox::information(nullptr, "Error", "No variables in the system");
+        return;
+    }
+
     bool foundError = false;
     if(circles.empty()){
         foundError = true;
@@ -1059,10 +1067,11 @@ void MainWindow::on_addAutoma_clicked()
               << QColor(Qt::darkRed)
               << QColor(Qt::darkCyan)
               << QColor(Qt::darkMagenta)
-              << QColor(Qt::yellow)
-              << QColor(Qt::blue)
+              << QColor(255,117,20)
+              << QColor(0,102,204)
               << QColor(Qt::gray)
-              << QColor(Qt::darkGray);
+              << QColor(0, 255, 0);
+
     bool found = true;
     QColor randomColor;
     while(true){

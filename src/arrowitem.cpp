@@ -74,6 +74,8 @@ QPainterPath ArrowItem::shape() const
 {
 
     QRectF boundingRect = textItem->mapToParent(textItem->boundingRect()).boundingRect();
+    qreal padding = 5.0; // Adjust padding as needed
+    boundingRect.adjust(-padding, -padding, padding, padding);
     QPainterPath path;
     path.addRect(boundingRect);
     return path;
