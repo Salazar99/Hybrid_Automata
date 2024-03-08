@@ -12,10 +12,9 @@
 #include <QMessageBox>
 #include <QRandomGenerator>
 #include "../include/UtilsJson.h"
-#include "../include/tinyexpr.h"
 #include "../include/tools.h"
-
 #include "../include/csvfile.h"
+#include <QKeyEvent>
 
 using json = nlohmann::json;
 
@@ -143,7 +142,6 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
             if (mouseEvent->button() != Qt::RightButton)return true;
             QPointF scenePos = ui->graphicsView->mapToScene(mouseEvent->pos());
-            QColor color(77, 77, 77);
             QBrush brush(automataColors[ui->automatasList->currentText()]);
             QPen outlinePen(Qt::black);
             outlinePen.setWidth(2);
@@ -234,37 +232,51 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 hideDesignerInput();
             }
             else if(keyEvent->key() == Qt::Key_C){ //clear all
-                scene->clearSelection();
-                QMessageBox msgBox;
-                msgBox.setIcon(QMessageBox::Warning);
-                msgBox.setWindowTitle("Attention!");
-                msgBox.setText("Do you want to delete all?");
-                msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-                msgBox.setDefaultButton(QMessageBox::Yes);
-
-                int reply = msgBox.exec();
-
-                if (reply == QMessageBox::Yes) {
-                    arrows.clear();
-                    ellipseMap.clear();
-                    automataColors.clear();
-                    automatas.clear();
-                    ui->automatasList->clear();
-                    for (int i = 0; i < drawnArrows.size(); i++){
-                        delete drawnArrows[i];
-                    }
-                    drawnArrows.clear();
-                    for (int i = 0; i < circles.size(); i++){
-                        delete circles[i];
-                    }
-                    circles.clear();
-                    hideDesignerInput();
-                }
+                clearAll(0);
             }
         }
     }
     return QMainWindow::eventFilter(watched, event);
 }
+
+
+void MainWindow::clearAll(int mode){
+
+    scene->clearSelection();
+    QMessageBox msgBox;
+    int reply = -1;
+
+    if(mode == 0){
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setWindowTitle("Attention!");
+        msgBox.setText("Do you want to delete all?");
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        msgBox.setDefaultButton(QMessageBox::Yes);
+        reply = msgBox.exec();
+    }
+
+    if (reply == QMessageBox::Yes || mode == 1) {
+        arrows.clear();
+        ellipseMap.clear();
+        automataColors.clear();
+        automatas.clear();
+        ui->automatasList->clear();
+        for (int i = 0; i < drawnArrows.size(); i++){
+            delete drawnArrows[i];
+        }
+        drawnArrows.clear();
+        for (int i = 0; i < circles.size(); i++){
+            delete circles[i];
+        }
+        circles.clear();
+        variablesValues.clear();
+        actualVariables.clear();
+        hideDesignerInput();
+    }
+}
+
+
+
 
 void MainWindow::handleSelectionChanged(){
     // Get selected items
@@ -616,6 +628,14 @@ void MainWindow::on_updateButton_clicked()
                             break;
                         }
                         circles[i]->textItem->setPlainText(ui->valueLabel->text());
+                        for(int j=0; j<circles.size(); j++){
+                            if(circles[j]->automata == circles[i]->automata && i!=j){
+                                if(circles[j]->name == ui->nameLabel->text()){
+                                    QMessageBox::information(nullptr, "Warning", "A node with this name already exists");
+                                    return;
+                                }
+                            }
+                        }
                         circles[i]->name = ui->nameLabel->text();
                         circles[i]->description = ui->descriptionLabel->text();
                         circles[i]->startNode = ui->startCheckBox->isChecked();
@@ -655,7 +675,7 @@ void MainWindow::on_updateButton_clicked()
 }
 
 bool isNumeric(const QString& str) {
-    QRegularExpression regex("[+-]?[0-9]+(\.[0-9]+)?");
+    QRegularExpression regex("[+-]?[0-9]+(\\.[0-9]+)?");
     return str.contains(regex);
 }
 
@@ -668,7 +688,7 @@ void MainWindow::on_tabWidget_currentChanged(int index)
     //variablesValues
     if(index == 1)
         return;
-    qDebug() << "ciao";
+    //qDebug() << "ciao";
     QList<QString> separator;
     separator << "+" << "-" << "*" << "/" << "'" << ";" << "(" << ")" << "[" << "]" << "=";
     QList<QString> functions;
@@ -857,6 +877,8 @@ void MainWindow::on_jsonButton_clicked()
                 nodeData["name"] = circles[i]->name.toStdString();
                 nodeData["description"] = circles[i]->description.toStdString();
                 nodeData["instructions"] = circles[i]->textItem->toPlainText().toStdString();
+                nodeData["x"] = circles[i]->ellipse->sceneBoundingRect().center().x();
+                nodeData["y"] = circles[i]->ellipse->sceneBoundingRect().center().y();
                 if (circles[i]->startNode)
                     nodeData["flag"] = "start";
                 else
@@ -1135,5 +1157,150 @@ void MainWindow::on_debugButton_clicked()
     }
 
 
+}
+
+
+void MainWindow::on_loadData_clicked()
+{
+    clearAll(1);
+    QString filePath = QFileDialog::getOpenFileName(this, tr("Seleziona un file JSON"), QDir::currentPath(), tr("File JSON (*.json)"));
+
+    if (filePath.isEmpty()) return;
+
+    std::ifstream f(filePath.toStdString());
+    json data = json::parse(f);
+
+    string h_string = data["system"]["global"]["delta"];
+
+#ifdef WINDOWS
+    ;
+#else
+    replace(h_string.begin(), h_string.end(), '.', ',');
+#endif
+
+    double system_delta = stod(h_string);
+
+    ui->deltaSpinBox->setValue(system_delta);
+
+    h_string = data["system"]["global"]["finaltime"];
+
+#ifdef WINDOWS
+    ;
+#else
+    replace(h_string.begin(), h_string.end(), '.', ',');
+#endif
+
+    double system_finaltime = stod(h_string);
+
+    ui->finalTimeSpinBox->setValue(system_finaltime);
+
+    QList<QColor> colors;
+    colors << QColor(Qt::cyan)
+           << QColor(Qt::magenta)
+           << QColor(Qt::red)
+           << QColor(Qt::darkRed)
+           << QColor(Qt::darkCyan)
+           << QColor(Qt::darkMagenta)
+           << QColor(255,117,20)
+           << QColor(0,102,204)
+           << QColor(Qt::gray)
+           << QColor(0, 255, 0);
+
+    // find all the automata in settings.json
+    for (json automata : data["system"]["automata"]){
+        automatas.append(QString::fromStdString(automata["name"]));
+        bool found = true;
+        QColor randomColor;
+        while(true){
+            // Generate a random index within the range of the list
+            int randomIndex = QRandomGenerator::global()->bounded(colors.size());
+
+            // Retrieve the color at the random index
+            randomColor = colors[randomIndex];
+            QMap<QString, QColor>::const_iterator it;
+            for (it = automataColors.constBegin(); it != automataColors.constEnd(); ++it) {
+                if (it.value() == randomColor){
+                    found = false;
+                }
+            }
+            if (found)break;
+            found = true;
+        }
+        automataColors[QString::fromStdString(automata["name"])] = randomColor;
+    }
+    ui->automatasList->addItems(automatas);
+    QMap<QString, QGraphicsEllipseItem*> mappetta;
+    for (json automata : data["system"]["automata"]){
+        for (json node : automata["node"])
+        {
+            QPointF point(node["x"],node["y"]);
+            QBrush brush(automataColors[QString::fromStdString(automata["name"])]);
+            QPen outlinePen(Qt::black);
+            outlinePen.setWidth(2);
+            QGraphicsEllipseItem *newEllipse = new QGraphicsEllipseItem(point.x(), point.y(), 80, 80);
+            newEllipse->setPen(outlinePen);
+            newEllipse->setBrush(brush);
+            string temp = node["instructions"];
+            QGraphicsTextItem *textLabel = new QGraphicsTextItem(temp.c_str());
+            textLabel->setDefaultTextColor(Qt::white);
+            textLabel->setFont(QFont("Arial", 10));
+            textLabel->setPos(point.x() + 10, point.y() + 10);
+            CircleItem *circleItem = new CircleItem(newEllipse, textLabel, QString::fromStdString(automata["name"]));
+            ellipseMap[newEllipse] = circleItem;
+            circleItem->setFlag(QGraphicsItem::ItemIsMovable);
+            circleItem->setFlag(QGraphicsItem::ItemIsSelectable);
+            circleItem->description = QString::fromStdString(node["description"]);
+            circleItem->name = QString::fromStdString(node["name"]);
+            mappetta[circleItem->name+"~"+(circleItem->automata)] = newEllipse;
+            temp = node["flag"];
+
+            if(temp == "start"){
+                circleItem->startNode = true;
+            }
+            else{
+                circleItem->startNode = false;
+            }
+
+            circles.append(circleItem);
+            scene -> addItem(circleItem);
+            hideDesignerInput();
+        }
+    }
+
+    for (json automata : data["system"]["automata"]){
+        for (json node : automata["node"])
+        {
+            for(json transition : node["transitions"]){
+                ArrowItem* arrow;
+                if (arrows.contains(mappetta[QString::fromStdString(node["name"])+"~"+(QString::fromStdString(automata["name"]))])){
+                    QList<QGraphicsEllipseItem*> dest = arrows[mappetta[QString::fromStdString(node["name"])+"~"+(QString::fromStdString(automata["name"]))]];
+                    if (!dest.contains(mappetta[QString::fromStdString(transition["to"])+"~"+(QString::fromStdString(automata["name"]))])){
+                        arrow = new ArrowItem(mappetta[QString::fromStdString(node["name"])+"~"+(QString::fromStdString(automata["name"]))], mappetta[QString::fromStdString(transition["to"])+"~"+(QString::fromStdString(automata["name"]))]);
+                        arrow->setFlag(QGraphicsItem::ItemIsSelectable);
+                        arrow->textItem->setPlainText(QString::fromStdString(transition["condition"]));
+                        scene->addItem(arrow);
+                        drawnArrows.append(arrow);
+                        arrows[mappetta[QString::fromStdString(node["name"])+"~"+(QString::fromStdString(automata["name"]))]].append(mappetta[QString::fromStdString(transition["to"])+"~"+(QString::fromStdString(automata["name"]))]);
+                    }
+                }else{
+                    arrow = new ArrowItem(mappetta[QString::fromStdString(node["name"])+"~"+(QString::fromStdString(automata["name"]))], mappetta[QString::fromStdString(transition["to"])+"~"+(QString::fromStdString(automata["name"]))]);
+                    arrow->setFlag(QGraphicsItem::ItemIsSelectable);
+                    arrow->textItem->setPlainText(QString::fromStdString(transition["condition"]));
+                    scene->addItem(arrow);
+                    drawnArrows.append(arrow);
+                    arrows.insert(mappetta[QString::fromStdString(node["name"])+"~"+(QString::fromStdString(automata["name"]))], QList<QGraphicsEllipseItem*>());
+                    arrows[mappetta[QString::fromStdString(node["name"])+"~"+(QString::fromStdString(automata["name"]))]].append(mappetta[QString::fromStdString(transition["to"])+"~"+(QString::fromStdString(automata["name"]))]);
+                }
+
+            }
+        }
+        for(json variables : automata["variables"]){
+            variablesValues[QString::fromStdString(variables["name"])] = QString::fromStdString(variables["value"]);
+            actualVariables.append(QString::fromStdString(variables["name"]));
+        }
+    }
+
+
+    ui->tabWidget->setCurrentIndex(1);
 }
 

@@ -58,6 +58,7 @@ private:
     bool checkSelected();
     void hideDesignerInput();
     void showDesignerInput(int mode);
+    void clearAll(int mode);
 protected:
     bool eventFilter(QObject *watched, QEvent *event); // Declare eventFilter function
 
@@ -68,6 +69,7 @@ private slots:
     void on_jsonButton_clicked();
     void on_addAutoma_clicked();
     void on_debugButton_clicked();
+    void on_loadData_clicked();
 };
 
 #endif // MAINWINDOW_H
