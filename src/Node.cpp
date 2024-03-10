@@ -241,6 +241,12 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
         // check if the instruction is a simple assignment
         if (aux[1].find("+") == string::npos && aux[1].find("-") == string::npos && aux[1].find("*") == string::npos && aux[1].find("/") == string::npos)
         {
+
+#ifdef WINDOWS
+            ;
+#else
+            replace(aux[1].begin(), aux[1].end(), '.', ',');
+#endif
             value = new double;
             *value = stod(aux[1]);
             tempVariables[aux[0]] = *(value);

@@ -1,4 +1,5 @@
 #include "../include/tools.h"
+#include <algorithm>
 #include <cctype>
 
 #ifdef DEBUG_MODE
@@ -61,6 +62,12 @@ string replace_var(string origin, string remove, string to_replace)
         }
         pos = origin.find(remove, pos + 1);
     }
+
+#ifdef WINDOWS
+    ;
+#else
+    replace(origin.begin(), origin.end(), '.', ',');
+#endif
 
     return origin;
 }
