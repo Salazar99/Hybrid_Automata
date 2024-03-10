@@ -15,6 +15,8 @@
 #include "../include/tools.h"
 #include "../include/csvfile.h"
 #include <QKeyEvent>
+#include <thread>
+#include "switch.h"
 
 using json = nlohmann::json;
 
@@ -70,10 +72,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     hideDesignerInput();
 
+    switchDebug = new Switch("DEBUG MODE");
+    ui->debugSpace->addWidget(switchDebug);
 }
 
 MainWindow::~MainWindow()
 {
+    clearAll(1);
     delete ui;
 }
 
@@ -100,6 +105,9 @@ QColor blendColors(const QColor& baseColor, const QColor& overlayColor, qreal ov
 
 void MainWindow::handleRefresh(){
     ui->graphicsView->update();
+
+
+
     /*qDebug() << "\n";
     printCircles(circles);
 
@@ -137,12 +145,13 @@ bool MainWindow::checkSelected(){
 bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 {
     if (watched == ui->graphicsView) {
-        if (event->type() == QEvent::MouseButtonPress) {
+        if (event->type() == QEvent::MouseButtonPress && !runningStatus) {
             if (automatas.size() == 0)return true;
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
             if (mouseEvent->button() != Qt::RightButton)return true;
             QPointF scenePos = ui->graphicsView->mapToScene(mouseEvent->pos());
             QBrush brush(automataColors[ui->automatasList->currentText()]);
+
             QPen outlinePen(Qt::black);
             outlinePen.setWidth(2);
             QGraphicsEllipseItem *newEllipse = new QGraphicsEllipseItem(scenePos.x(), scenePos.y(), 80, 80);
@@ -187,7 +196,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 return true;
             }
         }
-        else if (event->type() == QEvent::KeyPress) {
+        else if (event->type() == QEvent::KeyPress && !runningStatus) {
             QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
             if (keyEvent->key() == Qt::Key_Delete || keyEvent->key() == Qt::Key_Backspace) {
                 deleteSelectedItems();
@@ -481,19 +490,6 @@ void MainWindow::deleteSelectedItems()
                 }
             }
             if (index!=-1){
-                /*int aux = -1;
-                for (int j = 0; j<selectedItems.size(); j++){
-                    if(selectedItems[j] == nullptr)continue;
-
-                    if(dynamic_cast<ArrowItem*>(selectedItems[j]) != nullptr){
-                        ArrowItem* temp = static_cast<ArrowItem*>(selectedItems[j]);
-                        if (temp->startItem->sceneBoundingRect().center() == drawnArrows[index]->startItem->sceneBoundingRect().center() && temp->endItem->sceneBoundingRect().center() == drawnArrows[index]->endItem->sceneBoundingRect().center()){
-                            aux = j;
-                        }
-                    }
-                }
-                if (aux!=-1)selectedItems[aux] = nullptr;*/
-
                 delete drawnArrows[index];
                 drawnArrows.removeAt(index);
             }
@@ -554,21 +550,6 @@ void MainWindow::deleteSelectedItems()
 
         // Delete the items in reverse order
         for (int i = arrowsToRemove.size() - 1; i >= 0; i--) {
-            /*index = -1;
-            for (int j = 0; j<selectedItems.size(); j++){
-
-                if(selectedItems[j] == nullptr)continue;
-
-                if(dynamic_cast<ArrowItem*>(selectedItems[j]) != nullptr){
-                    ArrowItem* temp = static_cast<ArrowItem*>(selectedItems[j]);
-                    if (temp->startItem->sceneBoundingRect().center() == drawnArrows[arrowsToRemove[i]]->startItem->sceneBoundingRect().center() && temp->endItem->sceneBoundingRect().center() == drawnArrows[arrowsToRemove[i]]->endItem->sceneBoundingRect().center()){
-                        index = j;
-                    }
-                }
-            }
-            if (index!=-1){
-                selectedItems[index] = nullptr;
-            }*/
             delete drawnArrows[arrowsToRemove[i]];
         }
         // Remove the items from the drawnArrows list in reverse order
@@ -784,6 +765,26 @@ void MainWindow::hideDesignerInput(){
     ui->updateButton->setVisible(false);
 }
 
+void MainWindow::setEditStatus(bool mode){
+    ui->valueLabel->setEnabled(mode);
+    ui->nameLabel->setEnabled(mode);
+    ui->descriptionLabel->setEnabled(mode);
+    ui->startCheckBox->setEnabled(mode);
+    ui->updateButton->setEnabled(mode);
+    ui->automataName->setEnabled(mode);
+    ui->addAutoma->setEnabled(mode);
+    ui->selectVariable->setEnabled(mode);
+    ui->variableValue->setEnabled(mode);
+    ui->updtateVariable->setEnabled(mode);
+    ui->finalTimeSpinBox->setEnabled(mode);
+    ui->deltaSpinBox->setEnabled(mode);
+    ui->jsonButton->setEnabled(mode);
+    switchDebug->setEnabled(mode);
+    ui->loadData->setEnabled(mode);
+    ui->saveData->setEnabled(mode);
+
+}
+
 void MainWindow::showDesignerInput(int mode){
     if(mode == 0){//modalità cerchio
         ui->valueLabel->setVisible(true);
@@ -811,8 +812,7 @@ void MainWindow::showDesignerInput(int mode){
     }
 }
 
-void MainWindow::on_jsonButton_clicked()
-{
+void MainWindow::runIt(int mode, string path){
     json systemData;
     json globalData;
     json automataArray;
@@ -823,52 +823,19 @@ void MainWindow::on_jsonButton_clicked()
     json variablesArray;
     json variableData;
 
+    std::vector<Automata> v;
+    QMap<std::string,QGraphicsEllipseItem*> mappetta;
+
+    int debugMode = switchDebug->isChecked()  ? 1 : 0;
+    if(debugMode) //switch to design page
+        ui->tabWidget->setCurrentIndex(1);
+
     string tempAux = ui->deltaSpinBox->text().toStdString();
     globalData["delta"] = replaceCommasWithPeriods(tempAux);
     globalData["finaltime"] = ui->finalTimeSpinBox->text().toStdString();
 
-    if(actualVariables.isEmpty()){
-        QMessageBox::information(nullptr, "Error", "No variables in the system");
-        return;
-    }
 
-    bool foundError = false;
-    if(circles.empty()){
-        foundError = true;
-    }
-    int count = 0;
-    for(int i=0; i<automatas.size(); i++){
-        for(int j=0; j<circles.size(); j++){
-            if(circles[j]->automata == automatas[i]){
-                if(circles[j]->startNode){
-                    count++;
-                }
-            }
-        }
-        if(count == 0){
-            QMessageBox::information(nullptr, "Error", "No Start found in " + automatas[i]);
-            return;
-        }
-        else if(count >1){
-            QMessageBox::information(nullptr, "Error", "Multiple start nodes found in " + automatas[i]);
-            return;
-        }
 
-        count = 0;
-    }
-    QMap<QString, QString>::const_iterator checkVariablesValues;
-    for (checkVariablesValues = variablesValues.constBegin(); checkVariablesValues != variablesValues.constEnd(); ++checkVariablesValues) {
-        if (checkVariablesValues.value().toStdString() == "NaN"){
-            std::string error = "You can't run the system because the variable '" + checkVariablesValues.key().toStdString() + "' hasn't a initial value!";
-            QString qError = QString::fromStdString(error); // Convert std::string to QString
-            QMessageBox::information(nullptr, "Warning", qError);
-            foundError = true;
-        }
-    }
-    if (foundError){
-        QMessageBox::information(nullptr, "Warning", "Check your system, something went wrong");
-        return;
-    }
     transitionsArray.clear();
     for (int x = 0; x < automatas.size(); x++){
         for (int i = 0; i < circles.size(); i++){
@@ -963,11 +930,8 @@ void MainWindow::on_jsonButton_clicked()
     std::string jsonData = test.dump(4);
     qDebug() << jsonData;
 
-#ifdef WINDOWS
-    std::ofstream outFile("../output.json");
-#else
-    std::ofstream outFile("../output.json");
-#endif
+    std::ofstream outFile(path);
+
     if (outFile.is_open()) {
         outFile << jsonData;
         outFile.close();
@@ -976,20 +940,42 @@ void MainWindow::on_jsonButton_clicked()
         qDebug() << "Error: Unable to open output file\n";
     }
 
+    if(mode){ //savataggio e basta
+        return;
+    }
 
     long start = time(NULL);
     UtilsJson j;
-#ifdef WINDOWS
-    System s = j.ScrapingJson("..//output.json");
-#else
-    System s = j.ScrapingJson("../output.json");
-#endif
-    vector<Automata> v = s.getAutomata();
+
+    System s = j.ScrapingJson(path);
+
+    v = s.getAutomata();
     std::cout << s;
+
+
+
+    if(true){
+        for(int i=0;i<v.size();i++){
+            vector<Node> vettoreNodi = v[i].getNodes();
+            for(int j = 0;j<vettoreNodi.size();j++){
+                for(int z=0;z<circles.size();z++){
+                    if(circles[z]->automata.toStdString() == v[i].getName() && vettoreNodi[j].getName()==circles[z]->name.toStdString()){
+                        mappetta[vettoreNodi[j].getName()+"~"+v[i].getName()] = circles[z]->ellipse;
+                    }
+                }
+            }
+        }
+    }
 
     int istanti = 0;
 
     //DEBUG_COMMENT("Questo è un commento di debug" << istanti << " \n\n\n");
+    QList<double> trasparenze;
+    for (double i = 0.0; i < 2.0; i+= 0.005)
+        trasparenze.append(i);
+    for (double i = 2; i > 0; i-= 0.005)
+        trasparenze.append(i);
+    int ct;
 
     try
     {
@@ -998,7 +984,7 @@ void MainWindow::on_jsonButton_clicked()
 #else
         csvfile csv("../export.csv", true);
 #endif
-    // throws exceptions!
+        // throws exceptions!
         csv << "TIMES";
         for (auto const &key : s.getAutomataDependence())
         {
@@ -1013,9 +999,9 @@ void MainWindow::on_jsonButton_clicked()
 
     std::cout <<"DeltaMain: " << s.delta;
 
-    for (double time = 1; time < s.numSeconds + 1 - s.delta; time = time + s.delta)
+    for (double currenTime = 1; currenTime < s.numSeconds + 1 - s.delta; currenTime = currenTime + s.delta)
     {
-        qDebug() << "################## TIME = " << time << " ##################\n";
+        qDebug() << "################## TIME = " << currenTime << " ##################\n";
 
         // executing all automatas instructions and checking for possible transitions
         for (int j = 0; j < v.size(); j++)
@@ -1027,6 +1013,34 @@ void MainWindow::on_jsonButton_clicked()
         // refreshing AutomataVariables
         s.refreshVariables();
 
+        QList<string> attuali;
+        if(true){
+            QColor shadowColor(0, 0, 0, 128); // Black color with 50% alpha
+            //colorando cerchi
+            for(int z = 0; z<circles.size(); z++){
+                if(!attuali.contains(circles[z]->name.toStdString())){ //evito di pulire i nodi attuali
+                    QPen outlinePen(Qt::black);
+                    outlinePen.setWidth(2);
+                    circles[z]->ellipse->setBrush(QBrush(automataColors[circles[z]->automata]));
+                    circles[z]->ellipse->setPen(outlinePen);
+                }
+            }
+            attuali.clear();
+
+            for (int j = 0; j < v.size(); j++)
+            {
+                if(true){
+                    QPen outlinePen(QColor(204,255,0));
+                    outlinePen.setWidth(3);
+                    QColor combinedColor = blendColors(automataColors[QString::fromStdString(v[j].getName())], shadowColor, trasparenze[ct%trasparenze.size()]); //
+                    mappetta[v[j].getCurrentNode().getName()+"~"+v[j].getName()]->setBrush(QBrush(combinedColor));
+                    //mappetta[v[j].getCurrentNode().getName()+"~"+v[j].getName()]->setPen(outlinePen);
+                    ct++;
+                }
+                attuali.append(v[j].getCurrentNode().getName());
+            }
+        }
+
         qDebug() << "\nVariables Map: \n";
         printMap(*v[0].getAutomataVariables());
         try
@@ -1036,7 +1050,7 @@ void MainWindow::on_jsonButton_clicked()
 #else
             csvfile csv("../export.csv", false);
 #endif
-            csv << time; //timestamp
+            csv << currenTime; //timestamp
             for (auto const &key : s.getAutomataDependence())
             {
 
@@ -1064,6 +1078,74 @@ void MainWindow::on_jsonButton_clicked()
     }
     qDebug() << "Total Istanti: " << istanti;
     qDebug() << "\nCi ha messo " << time(NULL) - start << " secondi";
+
+    for(int z = 0; z<circles.size(); z++){
+        QPen outlinePen(Qt::black);
+        outlinePen.setWidth(2);
+        circles[z]->ellipse->setBrush(QBrush(automataColors[circles[z]->automata]));
+        circles[z]->ellipse->setPen(outlinePen);
+    }
+
+    setEditStatus(true);
+    runningStatus = false;
+}
+
+void MainWindow::on_jsonButton_clicked() {
+
+    string path;
+#ifdef WINDOWS
+    path = "..//output.json";
+#else
+    path = "../output.json";
+#endif
+
+    if(actualVariables.isEmpty()){
+        QMessageBox::information(nullptr, "Error", "No variables in the system");
+        return;
+    }
+
+    bool foundError = false;
+    if(circles.empty()){
+        foundError = true;
+    }
+    int count = 0;
+    for(int i=0; i<automatas.size(); i++){
+        for(int j=0; j<circles.size(); j++){
+            if(circles[j]->automata == automatas[i]){
+                if(circles[j]->startNode){
+                    count++;
+                }
+            }
+        }
+        if(count == 0){
+            QMessageBox::information(nullptr, "Error", "No Start found in " + automatas[i]);
+            return;
+        }
+        else if(count >1){
+            QMessageBox::information(nullptr, "Error", "Multiple start nodes found in " + automatas[i]);
+            return;
+        }
+
+        count = 0;
+    }
+    QMap<QString, QString>::const_iterator checkVariablesValues;
+    for (checkVariablesValues = variablesValues.constBegin(); checkVariablesValues != variablesValues.constEnd(); ++checkVariablesValues) {
+        if (checkVariablesValues.value().toStdString() == "NaN"){
+            std::string error = "You can't run the system because the variable '" + checkVariablesValues.key().toStdString() + "' hasn't a initial value!";
+            QString qError = QString::fromStdString(error); // Convert std::string to QString
+            QMessageBox::information(nullptr, "Warning", qError);
+            foundError = true;
+        }
+    }
+    if (foundError){
+        QMessageBox::information(nullptr, "Warning", "Check your system, something went wrong");
+        return;
+    }
+
+    setEditStatus(false);
+    runningStatus = true;
+    std::thread thread_obj(&MainWindow::runIt, this,0,path);
+    thread_obj.detach(); // Permette al thread di eseguire in background
 }
 
 
@@ -1235,7 +1317,7 @@ void MainWindow::on_loadData_clicked()
         {
             QPointF point(node["x"],node["y"]);
             QBrush brush(automataColors[QString::fromStdString(automata["name"])]);
-            QPen outlinePen(Qt::black);
+            QPen outlinePen(QColor(0, 0, 0));
             outlinePen.setWidth(2);
             QGraphicsEllipseItem *newEllipse = new QGraphicsEllipseItem(point.x(), point.y(), 80, 80);
             newEllipse->setPen(outlinePen);
@@ -1302,5 +1384,30 @@ void MainWindow::on_loadData_clicked()
 
 
     ui->tabWidget->setCurrentIndex(1);
+}
+
+void MainWindow::on_listVariables_itemDoubleClicked(QListWidgetItem *item)
+{
+    QString testo = item->text().split('=')[0];
+    int index = actualVariables.indexOf(item->text());
+    ui->selectVariable->setCurrentIndex(actualVariables.indexOf(item->text().split('=')[0]));
+}
+
+
+void MainWindow::on_selectVariable_currentIndexChanged(int index)
+{
+    ui->listVariables->setCurrentRow(index);
+}
+
+
+void MainWindow::on_saveData_clicked()
+{
+    QString filePath = QFileDialog::getSaveFileName(this, tr("Salva il file JSON"), QDir::currentPath(), tr("File JSON (*.json)"));
+
+    if (filePath.isEmpty()) {
+        qDebug() << "File selezionato per il salvataggio: " << filePath;
+        return;
+    }
+    runIt(1,filePath.toStdString());
 }
 

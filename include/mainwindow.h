@@ -15,9 +15,16 @@
 #include <QMouseEvent> // Include the necessary header for QMouseEvent
 #include "../include/circleitem.h"
 #include "../include/arrowitem.h"
+#include "qlistwidget.h"
+#include <QVBoxLayout>
+
+
+
 namespace Ui {
 class MainWindow;
 }
+
+class Switch; //forward declaration
 
 class MainWindow : public QMainWindow
 {
@@ -45,6 +52,7 @@ private:
     QList<ArrowItem*> drawnArrows;
     QLineEdit *valueLabel;
     ArrowItem * selectedArrow;
+    Switch* switchDebug;
     QList<QString> automatas;
     int finalTime;
     double delta;
@@ -52,13 +60,17 @@ private:
     bool isCircleSelected = false;
     bool ascendingSelection=true;
     bool dragMode = false;
+    bool runningStatus = false;
     void deleteSelectedItems();
     void handleSelectionChanged();
+    void runIt(int mode, std::string path);
     void handleRefresh();
     bool checkSelected();
     void hideDesignerInput();
+    void setEditStatus(bool mode);
     void showDesignerInput(int mode);
     void clearAll(int mode);
+    QVBoxLayout *debugSpaceLayout;
 protected:
     bool eventFilter(QObject *watched, QEvent *event); // Declare eventFilter function
 
@@ -70,6 +82,9 @@ private slots:
     void on_addAutoma_clicked();
     void on_debugButton_clicked();
     void on_loadData_clicked();
+    void on_listVariables_itemDoubleClicked(QListWidgetItem *item);
+    void on_selectVariable_currentIndexChanged(int index);
+    void on_saveData_clicked();
 };
 
 #endif // MAINWINDOW_H

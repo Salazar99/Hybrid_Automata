@@ -19,6 +19,11 @@ add_executable(main src/main.cpp src/Automata.cpp src/Transition.cpp src/Node.cp
     include/arrowitem.h
     src/arrowitem.cpp
     include/circleitem.h
+    include/style.h
+    include/switch.h
+    src/switch.cpp
+
+
 
 )
 
