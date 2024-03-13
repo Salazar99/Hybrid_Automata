@@ -62,12 +62,13 @@ string replace_var(string origin, string remove, string to_replace)
         }
         pos = origin.find(remove, pos + 1);
     }
-
+     setlocale(LC_ALL, "C");
+/*
 #ifdef WINDOWS
     ;
 #else
     replace(origin.begin(), origin.end(), '.', ',');
 #endif
-
+*/
     return origin;
 }

@@ -1251,27 +1251,27 @@ void MainWindow::on_loadData_clicked()
 
     std::ifstream f(filePath.toStdString());
     json data = json::parse(f);
-
+     setlocale(LC_ALL, "C");
     string h_string = data["system"]["global"]["delta"];
-
+/*
 #ifdef WINDOWS
     ;
 #else
     replace(h_string.begin(), h_string.end(), '.', ',');
 #endif
-
+*/
     double system_delta = stod(h_string);
 
     ui->deltaSpinBox->setValue(system_delta);
 
     h_string = data["system"]["global"]["finaltime"];
 
-#ifdef WINDOWS
+/*#ifdef WINDOWS
     ;
 #else
     replace(h_string.begin(), h_string.end(), '.', ',');
 #endif
-
+*/
     double system_finaltime = stod(h_string);
 
     ui->finalTimeSpinBox->setValue(system_finaltime);
