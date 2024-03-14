@@ -22,7 +22,8 @@ using json = nlohmann::json;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    semaphore(0)
 {
     ui->setupUi(this);
     ui->tabWidget->setTabText(0, "Main");
@@ -74,6 +75,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     switchDebug = new Switch("DEBUG MODE");
     ui->debugSpace->addWidget(switchDebug);
+
+    //boolean value for the stop button
+    stop = new bool (false);
+    pause = new bool (false);
 }
 
 MainWindow::~MainWindow()
@@ -822,13 +827,17 @@ void MainWindow::runIt(int mode, string path){
     json transitionData;
     json variablesArray;
     json variableData;
+    *stop = false;
+    *pause = false;
 
     std::vector<Automata> v;
     QMap<std::string,QGraphicsEllipseItem*> mappetta;
 
     int debugMode = switchDebug->isChecked()  ? 1 : 0;
-    if(debugMode) //switch to design page
+    if(debugMode){ //switch to design page
         ui->tabWidget->setCurrentIndex(1);
+        *pause = true;
+    }
 
     string tempAux = ui->deltaSpinBox->text().toStdString();
     globalData["delta"] = replaceCommasWithPeriods(tempAux);
@@ -1002,7 +1011,10 @@ void MainWindow::runIt(int mode, string path){
     for (double currenTime = 1; currenTime < s.numSeconds + 1 - s.delta; currenTime = currenTime + s.delta)
     {
         qDebug() << "################## TIME = " << currenTime << " ##################\n";
-
+        if(*stop)
+            break;
+        if(*pause)
+            semaphore.acquire();
         // executing all automatas instructions and checking for possible transitions
         for (int j = 0; j < v.size(); j++)
         {
@@ -1032,8 +1044,12 @@ void MainWindow::runIt(int mode, string path){
                 if(true){
                     QPen outlinePen(QColor(204,255,0));
                     outlinePen.setWidth(3);
-                    QColor combinedColor = blendColors(automataColors[QString::fromStdString(v[j].getName())], shadowColor, trasparenze[ct%trasparenze.size()]); //
-                    mappetta[v[j].getCurrentNode().getName()+"~"+v[j].getName()]->setBrush(QBrush(combinedColor));
+                    //QColor combinedColor = blendColors(automataColors[QString::fromStdString(v[j].getName())], shadowColor, trasparenze[ct%trasparenze.size()]); //
+                    QBrush tempbrush(QColor(Qt::red));
+                    string temps = v[j].getCurrentNode().getName();
+                    string temps2 = temps + "~";
+                    string temps3 = temps2 + v[j].getName();
+                    mappetta[temps3]->setBrush(tempbrush);
                     //mappetta[v[j].getCurrentNode().getName()+"~"+v[j].getName()]->setPen(outlinePen);
                     ct++;
                 }
@@ -1409,5 +1425,46 @@ void MainWindow::on_saveData_clicked()
         return;
     }
     runIt(1,filePath.toStdString());
+}
+
+
+void MainWindow::on_pauseButton_clicked()
+{
+    if(ui->pauseButton->text() == "pause"){
+        *pause = true;
+        ui->pauseButton->setText("resume");
+    }
+    else{
+        semaphore.release();
+        *pause = false;
+        ui->pauseButton->setText("pause");
+    }
+
+
+}
+
+void MainWindow::on_stopButton_clicked()
+{
+    *stop = true;
+}
+
+void MainWindow::runDebuggingSteps(){
+    QString number = ui->moreSteps->text();
+    bool ciao;
+    for(int i=0; i<number.toInt(&ciao); i++){
+        semaphore.release();
+    }
+}
+
+void MainWindow::on_runForButton_clicked()
+{
+    std::thread thread_obj(&MainWindow::runDebuggingSteps, this);
+    thread_obj.detach(); // Permette al thread di eseguire in background
+}
+
+
+void MainWindow::on_stepButton_clicked()
+{
+    semaphore.release();
 }
 

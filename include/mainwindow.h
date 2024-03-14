@@ -1,6 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
+#define MAXVALUE 1000000
 
 #include <QMainWindow>
 #include <QPainter>
@@ -17,6 +17,7 @@
 #include "../include/arrowitem.h"
 #include "qlistwidget.h"
 #include <QVBoxLayout>
+#include <semaphore>
 
 
 
@@ -70,7 +71,11 @@ private:
     void setEditStatus(bool mode);
     void showDesignerInput(int mode);
     void clearAll(int mode);
+    void runDebuggingSteps();
     QVBoxLayout *debugSpaceLayout;
+    bool *stop;
+    bool *pause;
+    std::counting_semaphore<MAXVALUE> semaphore;
 protected:
     bool eventFilter(QObject *watched, QEvent *event); // Declare eventFilter function
 
@@ -85,6 +90,10 @@ private slots:
     void on_listVariables_itemDoubleClicked(QListWidgetItem *item);
     void on_selectVariable_currentIndexChanged(int index);
     void on_saveData_clicked();
+    void on_pauseButton_clicked();
+    void on_stopButton_clicked();
+    void on_runForButton_clicked();
+    void on_stepButton_clicked();
 };
 
 #endif // MAINWINDOW_H
