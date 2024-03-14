@@ -17,7 +17,7 @@
 #include "../include/arrowitem.h"
 #include "qlistwidget.h"
 #include <QVBoxLayout>
-#include <semaphore>
+#include <semaphore.h>
 
 
 
@@ -75,7 +75,7 @@ private:
     QVBoxLayout *debugSpaceLayout;
     bool *stop;
     bool *pause;
-    std::counting_semaphore<MAXVALUE> semaphore;
+    sem_t semaforo;
 protected:
     bool eventFilter(QObject *watched, QEvent *event); // Declare eventFilter function
 

@@ -22,9 +22,10 @@ using json = nlohmann::json;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    semaphore(0)
+    ui(new Ui::MainWindow)
+
 {
+    sem_init(&semaforo, 0, 0);
     ui->setupUi(this);
     ui->tabWidget->setTabText(0, "Main");
     ui->tabWidget->setTabText(1, "Designer");
@@ -1014,7 +1015,7 @@ void MainWindow::runIt(int mode, string path){
         if(*stop)
             break;
         if(*pause)
-            semaphore.acquire();
+            sem_wait(&semaforo);
         // executing all automatas instructions and checking for possible transitions
         for (int j = 0; j < v.size(); j++)
         {
@@ -1435,7 +1436,7 @@ void MainWindow::on_pauseButton_clicked()
         ui->pauseButton->setText("resume");
     }
     else{
-        semaphore.release();
+        sem_post(&semaforo);
         *pause = false;
         ui->pauseButton->setText("pause");
     }
@@ -1452,7 +1453,7 @@ void MainWindow::runDebuggingSteps(){
     QString number = ui->moreSteps->text();
     bool ciao;
     for(int i=0; i<number.toInt(&ciao); i++){
-        semaphore.release();
+        sem_post(&semaforo);
     }
 }
 
@@ -1465,6 +1466,6 @@ void MainWindow::on_runForButton_clicked()
 
 void MainWindow::on_stepButton_clicked()
 {
-    semaphore.release();
+    sem_post(&semaforo);
 }
 
