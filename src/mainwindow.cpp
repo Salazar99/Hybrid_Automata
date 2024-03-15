@@ -42,11 +42,15 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->graphicsView->scene()->setBackgroundBrush(brush);
     ui->graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui->graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
     ui->frameDebug->hide();
 
+    ui->stopButton->hide();
+    ui->pauseButton->hide();
+
     ui->frameDebug->setStyleSheet("border: none;");
-    ui->stepButton->setStyleSheet("background-color: #355E3B;border-radius: 2px;margin: 4px 2px;border: 1px solid black;height:20px;");
-    ui->runForButton->setStyleSheet("background-color: #355E3B;border-radius: 2px;margin: 4px 2px;border: 1px solid black;height:20px;");
+    //QString hoverStyle = "background-color: #FF0000;";
+    ui->frameDebug->hide();
 
 
     //DEBUG_COMMENT("Questo è un commento di debug" << istanti << " \n\n\n");
@@ -77,6 +81,7 @@ MainWindow::MainWindow(QWidget *parent) :
     int newWidth = screenWidth *0.8;
     int newHeight = screenHeight * 0.8;
 
+
     qDebug() << "New Values: " << newWidth << ", " << newHeight << "\n";
     //rightWidgetWidth+leftWidgetWidth : newWidth =
 
@@ -85,7 +90,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Impostare le dimensioni del QGraphicsView
 
     qDebug() << "GraphicsView: " << newWidth*0.799 << ", " << newHeight*0.935 << "\n";
-
+    ui->frameDataOp->move(newHeight,newWidth);
     ui->graphicsView->setFixedSize(newWidth*0.817, newHeight*0.935);
     hideDesignerInput();
 
@@ -99,7 +104,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    clearAll(1);
+    *stop = true;
+    sem_post(&semaforo);
+    clearAll(1); //attenzione perchè prima d fare questa si dovrebbe fare un mutex con il secondo thread
     delete ui;
 }
 
@@ -128,8 +135,19 @@ void MainWindow::handleRefresh(){
     ui->graphicsView->update();
     QColor shadowColor(0, 0, 0, 128);
     QColor combinedColor;
+
+    if(goalStep==istanti){
+        ui->runForButton->setEnabled(true);
+        ui->stepButton->setEnabled(true);
+        ui->runForButton->setEnabled(true);
+        ui->moreSteps->setEnabled(true);
+    }
+
     if(runningStatus){
-        ui->currentStep->setText(QString::fromStdString(std::to_string(istanti) + "/" + std::to_string(static_cast<int>(finalTime/delta))));
+        if(switchDebug->isChecked())
+            ui->currentStep->setText(QString::fromStdString(std::to_string(istanti) + "/" + std::to_string(static_cast<int>(finalTime/delta))));
+        else
+            ui->currentStep->setText(QString::fromStdString("STEP: "+std::to_string(istanti) + "/" + std::to_string(static_cast<int>(finalTime/delta))));
         //colorando cerchi
         for(int z = 0; z<circles.size(); z++){
             QPen outlinePen(Qt::black);
@@ -353,6 +371,7 @@ void MainWindow::handleSelectionChanged(){
         }
     }
     if (selectedItems.size() == 0){
+        ui->automatasList->setCurrentIndex(-1);
         selectedCircle1 = nullptr;
         selectedCircle2 = nullptr;
         ascendingSelection = true;
@@ -808,6 +827,9 @@ void MainWindow::hideDesignerInput(){
 }
 
 void MainWindow::setEditStatus(bool mode){
+    ui->loadData->setVisible(mode);
+    ui->saveData->setVisible(mode);
+    ui->automatasList->setEnabled(mode);
     ui->valueLabel->setEnabled(mode);
     ui->nameLabel->setEnabled(mode);
     ui->descriptionLabel->setEnabled(mode);
@@ -1133,10 +1155,18 @@ void MainWindow::runIt(int mode, string path){
         circles[z]->ellipse->setPen(outlinePen);
     }
 
+    ui->stopButton->hide();
+    ui->pauseButton->hide();
+
     setEditStatus(true);
     runningStatus = false;
     ui->frameDebug->hide();
     ui->commands->show();
+
+    ui->runForButton->setEnabled(true);
+    ui->stepButton->setEnabled(true);
+    ui->runForButton->setEnabled(true);
+    ui->moreSteps->setEnabled(true);
 }
 
 void MainWindow::on_jsonButton_clicked() {
@@ -1206,6 +1236,19 @@ void MainWindow::on_jsonButton_clicked() {
     std::thread thread_obj(&MainWindow::runIt, this,0,path);
     //thread_obj.join();
     thread_obj.detach(); // Permette al thread di eseguire in background
+    if(!switchDebug->isChecked()){
+        ui->stopButton->show();
+        ui->pauseButton->show();
+        ui->stepButton->hide();
+        ui->runForButton->hide();
+        ui->moreSteps->hide();
+    }
+    else{
+        ui->stopButton->show();
+        ui->stepButton->show();
+        ui->runForButton->show();
+        ui->moreSteps->show();
+    }
 }
 
 
@@ -1413,6 +1456,7 @@ void MainWindow::on_listVariables_itemDoubleClicked(QListWidgetItem *item)
     QString testo = item->text().split('=')[0];
     int index = actualVariables.indexOf(item->text());
     ui->selectVariable->setCurrentIndex(actualVariables.indexOf(item->text().split('=')[0]));
+    ui->variableValue->setValue(ui->listVariables->currentItem()->text().split('=')[1].toDouble());
 }
 
 
@@ -1436,14 +1480,16 @@ void MainWindow::on_saveData_clicked()
 
 void MainWindow::on_pauseButton_clicked()
 {
-    if(ui->pauseButton->text() == "pause"){
+    if(ui->pauseButton->text() == "PAUSE"){
         *pause = true;
-        ui->pauseButton->setText("resume");
+        ui->pauseButton->setText("RESUME");
+        //ui->stopButton->setEnabled(false);
     }
     else{
         sem_post(&semaforo);
         *pause = false;
-        ui->pauseButton->setText("pause");
+        ui->pauseButton->setText("PAUSE");
+        ui->stopButton->setEnabled(true);
     }
 
 
@@ -1452,6 +1498,7 @@ void MainWindow::on_pauseButton_clicked()
 void MainWindow::on_stopButton_clicked()
 {
     *stop = true;
+    sem_post(&semaforo);
 }
 
 void MainWindow::runDebuggingSteps(int steps){
@@ -1470,9 +1517,15 @@ void MainWindow::on_runForButton_clicked()
     0.01
     50
     51-0.01-0.01)-currentTime
-
     */
+
     int left = (((finalTime + 1)-currentTime)/delta)+1;
+    ui->moreSteps->setValue(std::min(steps, left-1));
+    goalStep = istanti + steps;
+    ui->runForButton->setEnabled(false);
+    ui->stepButton->setEnabled(false);
+    ui->runForButton->setEnabled(false);
+    ui->moreSteps->setEnabled(false);
     qDebug() << "Numero di step rimanenti: " << left;
     std::thread thread_obj(&MainWindow::runDebuggingSteps, this, std::min(steps, left));
     thread_obj.detach(); // Permette al thread di eseguire in background
@@ -1483,4 +1536,5 @@ void MainWindow::on_stepButton_clicked()
 {
     sem_post(&semaforo);
 }
+
 

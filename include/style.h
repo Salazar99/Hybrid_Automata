@@ -53,6 +53,7 @@ struct Switch {
         disabledTextOpacity{ 0.26 },
         thumbBrushAnimation{ Animation(Type::Linear, 150) },
         trackBrushAnimation{ Animation(Type::Linear, 150) },
+        font{ "Segoe UI", 9, QFont::Bold }, // Font aggiunto qui
         thumbPosAniamtion{ Animation(Type::InOutQuad, 150) } {
 
     }

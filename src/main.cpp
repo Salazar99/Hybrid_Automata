@@ -118,7 +118,10 @@ int main(int argc, char *argv[])
                       "   palette: QPalette(Dark); "
                       "   background-color: #333333; "
                       "   color: #F0F0F0; "
+                      "   font-family: 'Arial', sans-serif;"
+                      "   font-size: 10pt;"
                       "}");
+
 
     MainWindow w;
     w.setWindowTitle("CHAOS");

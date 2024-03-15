@@ -84,6 +84,7 @@ private:
     QMap<std::string,QGraphicsEllipseItem*> tempMap;
     QList<double> trasparenze;
     int ct;
+    int goalStep;
     int istanti;
 
 protected:
