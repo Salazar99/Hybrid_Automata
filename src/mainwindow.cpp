@@ -17,6 +17,8 @@
 #include <QKeyEvent>
 #include <thread>
 #include "switch.h"
+#include <algorithm>
+
 
 using json = nlohmann::json;
 
@@ -127,6 +129,7 @@ void MainWindow::handleRefresh(){
     QColor shadowColor(0, 0, 0, 128);
     QColor combinedColor;
     if(runningStatus){
+        ui->currentStep->setText(QString::fromStdString(std::to_string(istanti) + "/" + std::to_string(static_cast<int>(finalTime/delta))));
         //colorando cerchi
         for(int z = 0; z<circles.size(); z++){
             QPen outlinePen(Qt::black);
@@ -990,7 +993,8 @@ void MainWindow::runIt(int mode, string path){
     UtilsJson j;
 
     System s = j.ScrapingJson(path);
-
+    finalTime = s.numSeconds;
+    delta = s.delta;
     v = s.getAutomata();
     runningStatus = true;
     std::cout << s;
@@ -1010,7 +1014,7 @@ void MainWindow::runIt(int mode, string path){
         }
     }
 
-    int istanti = 0;
+    istanti = 0;
 
 
 
@@ -1035,8 +1039,7 @@ void MainWindow::runIt(int mode, string path){
     }
 
     std::cout <<"DeltaMain: " << s.delta;
-
-    for (currentTime = 1; currentTime < s.numSeconds + 1 - s.delta; currentTime = currentTime + s.delta)
+    for (currentTime = 1; currentTime < s.numSeconds + 1 + 0.000001 - s.delta; currentTime = currentTime + s.delta)
     {
         qDebug() << "################## TIME = " << currentTime << " ##################\n";
         if(*stop)
@@ -1198,6 +1201,8 @@ void MainWindow::on_jsonButton_clicked() {
 
     ui->frameDebug->show();
     ui->commands->hide();
+    sem_destroy(&semaforo);
+    sem_init(&semaforo, 0, 0);
     std::thread thread_obj(&MainWindow::runIt, this,0,path);
     //thread_obj.join();
     thread_obj.detach(); // Permette al thread di eseguire in background
@@ -1449,17 +1454,27 @@ void MainWindow::on_stopButton_clicked()
     *stop = true;
 }
 
-void MainWindow::runDebuggingSteps(){
-    QString number = ui->moreSteps->text();
-    bool ciao;
-    for(int i=0; i<number.toInt(&ciao); i++){
+void MainWindow::runDebuggingSteps(int steps){
+
+    for(int i=0; i<steps; i++){
         sem_post(&semaforo);
     }
 }
 
 void MainWindow::on_runForButton_clicked()
 {
-    std::thread thread_obj(&MainWindow::runDebuggingSteps, this);
+    QString number = ui->moreSteps->text();
+    bool ciao;
+    int steps = number.toInt(&ciao);
+    /*
+    0.01
+    50
+    51-0.01-0.01)-currentTime
+
+    */
+    int left = (((finalTime + 1)-currentTime)/delta)+1;
+    qDebug() << "Numero di step rimanenti: " << left;
+    std::thread thread_obj(&MainWindow::runDebuggingSteps, this, std::min(steps, left));
     thread_obj.detach(); // Permette al thread di eseguire in background
 }
 

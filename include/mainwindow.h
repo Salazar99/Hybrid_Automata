@@ -73,7 +73,7 @@ private:
     void setEditStatus(bool mode);
     void showDesignerInput(int mode);
     void clearAll(int mode);
-    void runDebuggingSteps();
+    void runDebuggingSteps(int steps);
     QVBoxLayout *debugSpaceLayout;
     bool *stop;
     bool *pause;
@@ -84,6 +84,7 @@ private:
     QMap<std::string,QGraphicsEllipseItem*> tempMap;
     QList<double> trasparenze;
     int ct;
+    int istanti;
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event); // Declare eventFilter function
