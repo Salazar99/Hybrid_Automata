@@ -82,6 +82,8 @@ private:
     int _count;
     double currentTime;
     QMap<std::string,QGraphicsEllipseItem*> tempMap;
+    QList<double> trasparenze;
+    int ct;
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event); // Declare eventFilter function
@@ -92,7 +94,6 @@ private slots:
     void on_updtateVariable_clicked();
     void on_jsonButton_clicked();
     void on_addAutoma_clicked();
-    void on_debugButton_clicked();
     void on_loadData_clicked();
     void on_listVariables_itemDoubleClicked(QListWidgetItem *item);
     void on_selectVariable_currentIndexChanged(int index);

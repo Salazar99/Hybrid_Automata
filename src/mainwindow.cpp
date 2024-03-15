@@ -40,9 +40,23 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->graphicsView->scene()->setBackgroundBrush(brush);
     ui->graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui->graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->frameDebug->hide();
+
+    ui->frameDebug->setStyleSheet("border: none;");
+    ui->stepButton->setStyleSheet("background-color: #355E3B;border-radius: 2px;margin: 4px 2px;border: 1px solid black;height:20px;");
+    ui->runForButton->setStyleSheet("background-color: #355E3B;border-radius: 2px;margin: 4px 2px;border: 1px solid black;height:20px;");
 
 
+    //DEBUG_COMMENT("Questo è un commento di debug" << istanti << " \n\n\n");
+    for (double i = 0.1; i < 1.2; i+= 0.05)
+        trasparenze.append(i);
+    for (double i = 1.2; i > 0; i-= 0.05)
+        trasparenze.append(i);
+    ct = 0;
+
+    qDebug() << trasparenze;
     timer = new QTimer(this);
+
     // addEllipse(x,y,w,h,pen,brush)
     // movable text
     ui->graphicsView->installEventFilter(this);
@@ -62,7 +76,6 @@ MainWindow::MainWindow(QWidget *parent) :
     int newHeight = screenHeight * 0.8;
 
     qDebug() << "New Values: " << newWidth << ", " << newHeight << "\n";
-
     //rightWidgetWidth+leftWidgetWidth : newWidth =
 
     this->setFixedSize(newWidth,newHeight);
@@ -72,7 +85,6 @@ MainWindow::MainWindow(QWidget *parent) :
     qDebug() << "GraphicsView: " << newWidth*0.799 << ", " << newHeight*0.935 << "\n";
 
     ui->graphicsView->setFixedSize(newWidth*0.817, newHeight*0.935);
-
     hideDesignerInput();
 
     switchDebug = new Switch("DEBUG MODE");
@@ -112,9 +124,9 @@ QColor blendColors(const QColor& baseColor, const QColor& overlayColor, qreal ov
 
 void MainWindow::handleRefresh(){
     ui->graphicsView->update();
-
+    QColor shadowColor(0, 0, 0, 128);
+    QColor combinedColor;
     if(runningStatus){
-
         //colorando cerchi
         for(int z = 0; z<circles.size(); z++){
             QPen outlinePen(Qt::black);
@@ -123,9 +135,16 @@ void MainWindow::handleRefresh(){
             circles[z]->ellipse->setPen(outlinePen);
         }
         for(int i=0; i< v.size(); i++){
-            tempMap[v[i].getCurrentNodeName()+"~"+v[i].getName()]->setBrush(QBrush(QColor(Qt::red)));
+            if(switchDebug->isChecked() && false)//serve per dopo, mancano altri controlli
+            {
+                tempMap[v[i].getCurrentNodeName()+"~"+v[i].getName()]->setBrush(QBrush(QColor(Qt::red)));
+            }
+            else{
+                combinedColor =  blendColors(automataColors[QString::fromStdString(v[i].getName())], shadowColor, trasparenze[ct%trasparenze.size()]);
+                tempMap[v[i].getCurrentNodeName()+"~"+v[i].getName()]->setBrush(QBrush(combinedColor));
+            }
         }
-        _count++;
+        ct++;
     }
 
     /*qDebug() << "\n";
@@ -993,13 +1012,7 @@ void MainWindow::runIt(int mode, string path){
 
     int istanti = 0;
 
-    //DEBUG_COMMENT("Questo è un commento di debug" << istanti << " \n\n\n");
-    QList<double> trasparenze;
-    for (double i = 0.0; i < 2.0; i+= 0.005)
-        trasparenze.append(i);
-    for (double i = 2; i > 0; i-= 0.005)
-        trasparenze.append(i);
-    int ct;
+
 
     try
     {
@@ -1119,7 +1132,8 @@ void MainWindow::runIt(int mode, string path){
 
     setEditStatus(true);
     runningStatus = false;
-    qDebug() << "here " << _count;
+    ui->frameDebug->hide();
+    ui->commands->show();
 }
 
 void MainWindow::on_jsonButton_clicked() {
@@ -1182,10 +1196,8 @@ void MainWindow::on_jsonButton_clicked() {
         tempMap[t.toStdString()] = circles[k]->ellipse;
     }
 
-
-
-
-
+    ui->frameDebug->show();
+    ui->commands->hide();
     std::thread thread_obj(&MainWindow::runIt, this,0,path);
     //thread_obj.join();
     thread_obj.detach(); // Permette al thread di eseguire in background
@@ -1243,44 +1255,6 @@ void MainWindow::on_addAutoma_clicked()
     ui->automatasList->clear();
     ui->automatasList->addItems(automatas);
     ui->automataName->clear();
-
-}
-
-
-void MainWindow::on_debugButton_clicked()
-{
-    qDebug() << "Circles: ";
-    for (int i=0; i<circles.size(); i++) {
-        qDebug() << *circles[i];
-    }
-
-    qDebug() << "Automatas: ";
-    for (int i=0; i<automatas.size(); i++) {
-        qDebug() << automatas[i];
-    }
-
-    qDebug() << "Automatas Colors: ";
-    QMap<QString, QColor>::const_iterator it2;
-    for (it2 = automataColors.constBegin(); it2 != automataColors.constEnd(); ++it2) {
-        qDebug() << "Automata: " <<it2.key() << " Colore: " << it2.value();
-    }
-
-
-    qDebug() << "EllipseMap: ";
-    QMap<QGraphicsEllipseItem*, CircleItem*>::const_iterator it;
-    for (it = ellipseMap.constBegin(); it != ellipseMap.constEnd(); ++it) {
-        qDebug() << "Ellisse: " << (*it.key()).sceneBoundingRect().center() << " Cerchio: " << *it.value();
-    }
-
-    qDebug() << "Arrows: ";
-    QMap<QGraphicsEllipseItem*, QList<QGraphicsEllipseItem*>>::const_iterator it3;
-    for (it3 = arrows.constBegin(); it3 != arrows.constEnd(); ++it3) {
-        qDebug() << "Ellisse : " <<ellipseMap[it3.key()];
-        for (int i = 0; i<it3.value().size(); i++){
-            qDebug() << "   destination: " << it3.value()[i]->sceneBoundingRect().center();
-        }
-    }
-
 
 }
 
