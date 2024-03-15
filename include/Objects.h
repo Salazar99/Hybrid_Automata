@@ -124,6 +124,7 @@ public:
     string getName();
     friend ostream &operator<<(ostream &os, Automata &obj);
     string getInstructions();
+    string getCurrentNodeName();
 };
 
 /// @brief class that represents one System

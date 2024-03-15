@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 {
     sem_init(&semaforo, 0, 0);
+    _count = 0;
     ui->setupUi(this);
     ui->tabWidget->setTabText(0, "Main");
     ui->tabWidget->setTabText(1, "Designer");
@@ -112,7 +113,20 @@ QColor blendColors(const QColor& baseColor, const QColor& overlayColor, qreal ov
 void MainWindow::handleRefresh(){
     ui->graphicsView->update();
 
+    if(runningStatus){
 
+        //colorando cerchi
+        for(int z = 0; z<circles.size(); z++){
+            QPen outlinePen(Qt::black);
+            outlinePen.setWidth(2);
+            circles[z]->ellipse->setBrush(QBrush(automataColors[circles[z]->automata]));
+            circles[z]->ellipse->setPen(outlinePen);
+        }
+        for(int i=0; i< v.size(); i++){
+            tempMap[v[i].getCurrentNodeName()+"~"+v[i].getName()]->setBrush(QBrush(QColor(Qt::red)));
+        }
+        _count++;
+    }
 
     /*qDebug() << "\n";
     printCircles(circles);
@@ -831,7 +845,6 @@ void MainWindow::runIt(int mode, string path){
     *stop = false;
     *pause = false;
 
-    std::vector<Automata> v;
     QMap<std::string,QGraphicsEllipseItem*> mappetta;
 
     int debugMode = switchDebug->isChecked()  ? 1 : 0;
@@ -960,6 +973,7 @@ void MainWindow::runIt(int mode, string path){
     System s = j.ScrapingJson(path);
 
     v = s.getAutomata();
+    runningStatus = true;
     std::cout << s;
 
 
@@ -1009,9 +1023,9 @@ void MainWindow::runIt(int mode, string path){
 
     std::cout <<"DeltaMain: " << s.delta;
 
-    for (double currenTime = 1; currenTime < s.numSeconds + 1 - s.delta; currenTime = currenTime + s.delta)
+    for (currentTime = 1; currentTime < s.numSeconds + 1 - s.delta; currentTime = currentTime + s.delta)
     {
-        qDebug() << "################## TIME = " << currenTime << " ##################\n";
+        qDebug() << "################## TIME = " << currentTime << " ##################\n";
         if(*stop)
             break;
         if(*pause)
@@ -1027,7 +1041,7 @@ void MainWindow::runIt(int mode, string path){
         s.refreshVariables();
 
         QList<string> attuali;
-        if(true){
+        if(false){
             QColor shadowColor(0, 0, 0, 128); // Black color with 50% alpha
             //colorando cerchi
             for(int z = 0; z<circles.size(); z++){
@@ -1047,14 +1061,14 @@ void MainWindow::runIt(int mode, string path){
                     outlinePen.setWidth(3);
                     //QColor combinedColor = blendColors(automataColors[QString::fromStdString(v[j].getName())], shadowColor, trasparenze[ct%trasparenze.size()]); //
                     QBrush tempbrush(QColor(Qt::red));
-                    string temps = v[j].getCurrentNode().getName();
+                    string temps = v[j].getCurrentNodeName();
                     string temps2 = temps + "~";
                     string temps3 = temps2 + v[j].getName();
-                    mappetta[temps3]->setBrush(tempbrush);
+                    mappetta[temps3]->setBrush(QBrush(QColor(Qt::red)));
                     //mappetta[v[j].getCurrentNode().getName()+"~"+v[j].getName()]->setPen(outlinePen);
                     ct++;
                 }
-                attuali.append(v[j].getCurrentNode().getName());
+                attuali.append(v[j].getCurrentNodeName());
             }
         }
 
@@ -1067,7 +1081,7 @@ void MainWindow::runIt(int mode, string path){
 #else
             csvfile csv("../export.csv", false);
 #endif
-            csv << currenTime; //timestamp
+            csv << currentTime; //timestamp
             for (auto const &key : s.getAutomataDependence())
             {
 
@@ -1105,6 +1119,7 @@ void MainWindow::runIt(int mode, string path){
 
     setEditStatus(true);
     runningStatus = false;
+    qDebug() << "here " << _count;
 }
 
 void MainWindow::on_jsonButton_clicked() {
@@ -1160,8 +1175,19 @@ void MainWindow::on_jsonButton_clicked() {
     }
 
     setEditStatus(false);
-    runningStatus = true;
+    tempMap.clear();
+
+    for(int k = 0; k<circles.size();k++){
+        QString t = circles[k]->name+"~"+(circles[k]->automata);
+        tempMap[t.toStdString()] = circles[k]->ellipse;
+    }
+
+
+
+
+
     std::thread thread_obj(&MainWindow::runIt, this,0,path);
+    //thread_obj.join();
     thread_obj.detach(); // Permette al thread di eseguire in background
 }
 

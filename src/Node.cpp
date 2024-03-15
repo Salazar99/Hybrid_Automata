@@ -232,6 +232,7 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
             // DEBUG_COMMENT("New Value X: " << *value << "\n");
             tempVariables[aux[0]] = *(value);
             // sharedVariables[aux[0]] = value;
+            delete(value);
             continue;
         }
 
@@ -252,6 +253,7 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
             value = new double;
             *value = stod(aux[1]);
             tempVariables[aux[0]] = *(value);
+            delete(value);
             // sharedVariables[aux[0]] = value;
         }
         else
@@ -271,6 +273,7 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
             value = new double;
             *value = te_interp(aux[1].c_str(), 0); // solve the instruction
             tempVariables[aux[0]] = *(value);
+            delete(value);
             // sharedVariables[aux[0]] = value;       // insert or assign the value
         }
     }

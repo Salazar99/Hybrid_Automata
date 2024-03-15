@@ -189,6 +189,12 @@ bool Automata::checkForChanges()
     return 1;
 }
 
+string Automata::getCurrentNodeName()
+{
+    return this->currentNode.getName();
+}
+
+
 /// @brief to string
 ostream &operator<<(ostream &os, Automata &obj)
 {

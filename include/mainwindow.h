@@ -25,6 +25,8 @@ namespace Ui {
 class MainWindow;
 }
 
+class Automata;
+
 class Switch; //forward declaration
 
 class MainWindow : public QMainWindow
@@ -76,6 +78,11 @@ private:
     bool *stop;
     bool *pause;
     sem_t semaforo;
+    std::vector<Automata> v;
+    int _count;
+    double currentTime;
+    QMap<std::string,QGraphicsEllipseItem*> tempMap;
+
 protected:
     bool eventFilter(QObject *watched, QEvent *event); // Declare eventFilter function
 
