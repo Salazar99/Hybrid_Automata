@@ -1231,6 +1231,7 @@ void MainWindow::on_jsonButton_clicked() {
 
     ui->frameDebug->show();
     ui->commands->hide();
+    ui->pauseButton->setText("PAUSE");
     sem_destroy(&semaforo);
     sem_init(&semaforo, 0, 0);
     std::thread thread_obj(&MainWindow::runIt, this,0,path);
