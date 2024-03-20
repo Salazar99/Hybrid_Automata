@@ -51,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->frameDebug->setStyleSheet("border: none;");
     //QString hoverStyle = "background-color: #FF0000;";
     ui->frameDebug->hide();
+    ui->horizontalSpacer_2->changeSize(10,20);
 
 
     //DEBUG_COMMENT("Questo è un commento di debug" << istanti << " \n\n\n");
@@ -1232,6 +1233,7 @@ void MainWindow::on_jsonButton_clicked() {
     ui->frameDebug->show();
     ui->commands->hide();
     ui->pauseButton->setText("PAUSE");
+    ui->moreSteps->setValue(0);
     sem_destroy(&semaforo);
     sem_init(&semaforo, 0, 0);
     std::thread thread_obj(&MainWindow::runIt, this,0,path);
