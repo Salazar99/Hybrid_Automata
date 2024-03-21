@@ -207,7 +207,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 {
     if (watched == ui->graphicsView) {
         if (event->type() == QEvent::MouseButtonPress && !runningStatus) {
-            if (automatas.size() == 0)return true;
+            if (automatas.size() == 0 || ui->automatasList->currentText().isEmpty())return true;
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
             if (mouseEvent->button() != Qt::RightButton)return true;
             QPointF scenePos = ui->graphicsView->mapToScene(mouseEvent->pos());

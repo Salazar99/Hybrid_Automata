@@ -126,6 +126,7 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.setWindowTitle("CHAOS");
     w.show();
+    w.setWindowIcon(QIcon());
 
     return app.exec();
 }
