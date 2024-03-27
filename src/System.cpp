@@ -66,6 +66,14 @@ void System::refreshVariables()
     tempVariables.clear();
 }
 
+unordered_map<string, double> System::getVariables(){
+    unordered_map<string, double> temp;
+    for (const auto& pair : this->automataVariables) {
+        temp[pair.first] = *(pair.second);
+    }
+    return temp;
+}
+
 /// @brief to string
 ostream &operator<<(ostream &os, System &obj)
 {

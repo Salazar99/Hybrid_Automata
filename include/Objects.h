@@ -142,6 +142,7 @@ public:
     System(vector<Automata> automata, unordered_map<string, string> &AutomataDependence, unordered_map<string, double *> &automataVariables, unordered_map<string, double> &tempVariables, double delta, double numSeconds);
     vector<Automata> getAutomata();
     unordered_map<string, string> getAutomataDependence();
+    unordered_map<string, double> getVariables();
     void refreshVariables();
     friend ostream &operator<<(ostream &os, System &obj);
 };

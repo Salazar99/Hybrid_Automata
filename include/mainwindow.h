@@ -18,7 +18,8 @@
 #include "qlistwidget.h"
 #include <QVBoxLayout>
 #include <semaphore.h>
-
+#include <string>
+#include <unordered_map>
 
 
 namespace Ui {
@@ -86,7 +87,7 @@ private:
     int ct;
     int goalStep;
     int istanti;
-
+    std::unordered_map<std::string, double> updateVariables;
 protected:
     bool eventFilter(QObject *watched, QEvent *event); // Declare eventFilter function
 

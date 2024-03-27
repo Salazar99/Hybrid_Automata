@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>895</width>
-    <height>639</height>
+    <width>1182</width>
+    <height>906</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -29,7 +29,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="Main">
        <property name="sizePolicy">
@@ -861,6 +861,16 @@ border-radius: 2px;margin: 4px 2px;border: 1px solid black;</string>
             </property>
             <property name="text">
              <string>+</string>
+            </property>
+           </widget>
+           <widget class="QListWidget" name="showVariables">
+            <property name="geometry">
+             <rect>
+              <x>20</x>
+              <y>560</y>
+              <width>181</width>
+              <height>192</height>
+             </rect>
             </property>
            </widget>
           </widget>

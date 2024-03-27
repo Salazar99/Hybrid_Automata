@@ -47,7 +47,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->stopButton->hide();
     ui->pauseButton->hide();
-
+    ui->showVariables->hide();
     ui->frameDebug->setStyleSheet("border: none;");
     //QString hoverStyle = "background-color: #FF0000;";
     ui->frameDebug->hide();
@@ -165,6 +165,12 @@ void MainWindow::handleRefresh(){
                 combinedColor =  blendColors(automataColors[QString::fromStdString(v[i].getName())], shadowColor, trasparenze[ct%trasparenze.size()]);
                 tempMap[v[i].getCurrentNodeName()+"~"+v[i].getName()]->setBrush(QBrush(combinedColor));
             }
+        }
+        string temp;
+        ui->showVariables->clear();
+        for (const auto& pair : updateVariables) {
+            temp = pair.first + "=" + std::to_string(pair.second);
+            ui->showVariables->addItem(QString::fromStdString(temp));
         }
         ct++;
     }
@@ -897,7 +903,7 @@ void MainWindow::runIt(int mode, string path){
         ui->tabWidget->setCurrentIndex(1);
         *pause = true;
     }
-
+    ui->showVariables->setVisible(true);
     string tempAux = ui->deltaSpinBox->text().toStdString();
     globalData["delta"] = replaceCommasWithPeriods(tempAux);
     globalData["finaltime"] = ui->finalTimeSpinBox->text().toStdString();
@@ -1060,11 +1066,14 @@ void MainWindow::runIt(int mode, string path){
     {
         qDebug() << "Exception was thrown: " << ex.what();
     }
-
+    updateVariables.clear();
+    for (const auto& pair : s.getVariables()) {
+        updateVariables.insert(pair);
+    }
     std::cout <<"DeltaMain: " << s.delta;
     for (currentTime = 1; currentTime < s.numSeconds + 1 + 0.000001 - s.delta; currentTime = currentTime + s.delta)
     {
-        qDebug() << "################## TIME = " << currentTime << " ##################\n";
+        //qDebug() << "################## TIME = " << currentTime << " ##################\n";
         if(*stop)
             break;
         if(*pause)
@@ -1078,6 +1087,10 @@ void MainWindow::runIt(int mode, string path){
 
         // refreshing AutomataVariables
         s.refreshVariables();
+        updateVariables.clear();
+        for (const auto& pair : s.getVariables()) {
+            updateVariables.insert(pair);
+        }
 
         QList<string> attuali;
         if(false){
@@ -1111,8 +1124,8 @@ void MainWindow::runIt(int mode, string path){
             }
         }
 
-        qDebug() << "\nVariables Map: \n";
-        printMap(*v[0].getAutomataVariables());
+        //qDebug() << "\nVariables Map: \n";
+        //printMap(*v[0].getAutomataVariables());
         try
         {
 #ifdef WINDOWS
@@ -1144,7 +1157,7 @@ void MainWindow::runIt(int mode, string path){
 
         //this_thread::sleep_for(chrono::milliseconds(0));
         istanti++;
-        qDebug() << "\n\n";
+        //qDebug() << "\n\n";
     }
     qDebug() << "Total Istanti: " << istanti;
     qDebug() << "\nCi ha messo " << time(NULL) - start << " secondi";
@@ -1163,7 +1176,7 @@ void MainWindow::runIt(int mode, string path){
     runningStatus = false;
     ui->frameDebug->hide();
     ui->commands->show();
-
+    ui->showVariables->hide();
     ui->runForButton->setEnabled(true);
     ui->stepButton->setEnabled(true);
     ui->runForButton->setEnabled(true);
@@ -1502,6 +1515,7 @@ void MainWindow::on_stopButton_clicked()
 {
     *stop = true;
     sem_post(&semaforo);
+    ui->showVariables->hide();
 }
 
 void MainWindow::runDebuggingSteps(int steps){
