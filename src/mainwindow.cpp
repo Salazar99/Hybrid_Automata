@@ -1087,9 +1087,9 @@ void MainWindow::runIt(int mode, string path){
 
         // refreshing AutomataVariables
         s.refreshVariables();
-        updateVariables.clear();
+        //updateVariables.clear();
         for (const auto& pair : s.getVariables()) {
-            updateVariables.insert(pair);
+            updateVariables[pair.first] = pair.second;
         }
 
         QList<string> attuali;
