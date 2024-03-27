@@ -78,6 +78,7 @@ private:
     QVBoxLayout *debugSpaceLayout;
     bool *stop;
     bool *pause;
+    QString inputFile = "void";
     sem_t semaforo;
     std::vector<Automata> v;
     int _count;
@@ -105,6 +106,8 @@ private slots:
     void on_stopButton_clicked();
     void on_runForButton_clicked();
     void on_stepButton_clicked();
+    void on_inputFileButton_clicked();
+    void on_discardInput_clicked();
 };
 
 #endif // MAINWINDOW_H

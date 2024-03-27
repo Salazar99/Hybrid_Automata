@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     ui->frameDebug->hide();
-
+    ui->discardInput->hide();
     ui->stopButton->hide();
     ui->pauseButton->hide();
     ui->showVariables->hide();
@@ -91,7 +91,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Impostare le dimensioni del QGraphicsView
 
     qDebug() << "GraphicsView: " << newWidth*0.799 << ", " << newHeight*0.935 << "\n";
-    ui->frameDataOp->move(newHeight,newWidth);
+    //ui->frameDataOp->move(newHeight,newWidth);
     ui->graphicsView->setFixedSize(newWidth*0.817, newHeight*0.935);
     hideDesignerInput();
 
@@ -834,8 +834,12 @@ void MainWindow::hideDesignerInput(){
 }
 
 void MainWindow::setEditStatus(bool mode){
+    QString stringa = "IMPORT INPUT FILE";
     ui->loadData->setVisible(mode);
     ui->saveData->setVisible(mode);
+    if(mode == true && ui->inputFileButton->text()!=stringa || mode == false)
+        ui->discardInput->setVisible(mode);
+    ui->inputFileButton->setVisible(mode);
     ui->automatasList->setEnabled(mode);
     ui->valueLabel->setEnabled(mode);
     ui->nameLabel->setEnabled(mode);
@@ -854,10 +858,11 @@ void MainWindow::setEditStatus(bool mode){
     ui->loadData->setEnabled(mode);
     ui->saveData->setEnabled(mode);
 
+
 }
 
 void MainWindow::showDesignerInput(int mode){
-    if(mode == 0){//modalità cerchio
+    if(mode == 0){//modalità cerchio selezionato
         ui->valueLabel->setVisible(true);
         ui->istruction->setVisible(true);
         ui->istruction->setText("Instructions");
@@ -1554,4 +1559,24 @@ void MainWindow::on_stepButton_clicked()
     sem_post(&semaforo);
 }
 
+
+
+
+
+void MainWindow::on_inputFileButton_clicked()
+{
+    QString filePath = QFileDialog::getOpenFileName(this, tr("Seleziona un file CSV"), QDir::currentPath(), tr("File CSV (*.csv)"));
+    if (filePath.isEmpty()) return;
+    std::ifstream f(filePath.toStdString());
+    ui->inputFileButton->setText(filePath.split('/').last());
+    ui->discardInput->show();
+}
+
+
+void MainWindow::on_discardInput_clicked()
+{
+    ui->discardInput->hide();
+    ui->inputFileButton->setText("IMPORT INPUT FILE");
+    inputFile = "void";
+}
 
