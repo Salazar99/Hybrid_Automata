@@ -1023,6 +1023,35 @@ void MainWindow::runIt(int mode, string path){
         return;
     }
 
+    std::vector<string> auxVar;
+    std::ifstream file(inputFile.toStdString());
+    if (inputFile != "void"){
+
+
+        if (!file.is_open()) {
+            //std::cerr << "Failed to open file: " << inputFile << std::endl;
+            return;
+        }
+
+        //times, x, a
+
+
+        std::string line;
+        if (std::getline(file, line)) {
+            std::istringstream iss(line);
+            std::vector<std::string> cells;
+            std::string cell;
+            int count = 0;
+            while (std::getline(iss, cell, ';')) {
+                auxVar.push_back(cell);
+            }
+            std::cout << std::endl;
+        } else {
+            //std::cerr << "File is empty: " << inputFile << std::endl;
+        }
+    }
+
+
     long start = time(NULL);
     UtilsJson j;
 
@@ -1076,6 +1105,8 @@ void MainWindow::runIt(int mode, string path){
         updateVariables.insert(pair);
     }
     std::cout <<"DeltaMain: " << s.delta;
+
+    unordered_map<string, double> mapVar;
     for (currentTime = 1; currentTime < s.numSeconds + 1 + 0.000001 - s.delta; currentTime = currentTime + s.delta)
     {
         //qDebug() << "################## TIME = " << currentTime << " ##################\n";
@@ -1084,6 +1115,46 @@ void MainWindow::runIt(int mode, string path){
         if(*pause)
             sem_wait(&semaforo);
         // executing all automatas instructions and checking for possible transitions
+        bool back = false;
+        std::streampos prec;
+        if (inputFile != "void"){
+            std::string line;
+            prec = file.tellg();
+            if (std::getline(file, line)) {
+                std::istringstream iss(line);
+                std::vector<std::string> cells;
+                std::string cell;
+                int count = 0;
+                setlocale(LC_ALL, "C");
+                while (std::getline(iss, cell, ';')) {
+                    if (count == 0){
+                        if (currentTime >= stod(cell)){
+                            count++;
+                            continue;
+                        }else{
+                            back = true;
+                        }
+                    }
+
+                    if (!back)mapVar[auxVar[count]] = stod(cell);
+                    count++;
+                }
+                if (back){
+                    auto pos = file.tellg();
+                    std::streampos pos2 = prec-3;
+                    file.seekg(pos2);
+                }else{
+                    for (int j = 0; j < v.size(); j++){
+                        v[j].currentNode.setFileValues(mapVar);
+                    }
+                }
+                std::cout << std::endl;
+            } else {
+                //std::cerr << "File is empty: " << inputFile << std::endl;
+            }
+
+        }
+
         for (int j = 0; j < v.size(); j++)
         {
             v[j].checkForChanges();
@@ -1566,6 +1637,7 @@ void MainWindow::on_stepButton_clicked()
 void MainWindow::on_inputFileButton_clicked()
 {
     QString filePath = QFileDialog::getOpenFileName(this, tr("Seleziona un file CSV"), QDir::currentPath(), tr("File CSV (*.csv)"));
+    inputFile = filePath;
     if (filePath.isEmpty()) return;
     std::ifstream f(filePath.toStdString());
     ui->inputFileButton->setText(filePath.split('/').last());

@@ -58,6 +58,7 @@ private:
     vector<double> ode_solver_times;
     double delta;
     double numSeconds;
+    unordered_map<string, double> fileValues;
 
 public:
     Node();
@@ -66,6 +67,7 @@ public:
     void setName(string name);
     string getDescription();
     void setDescription(string description);
+    void setFileValues(unordered_map<string, double> newValues);
     unordered_map<Transition, string, TransitionHash, TransitionEqual> getTransitions();
     vector<Transition> getTransitionKeys();
     void setTransitions(unordered_map<Transition, string, TransitionHash, TransitionEqual> &transitions);
@@ -94,7 +96,7 @@ private:
     string name;                                        /*the name of the Automata*/
     vector<Node> nodes;                                 /*all the nodes*/
     Node initialNode;                                   /*the initial node*/
-    Node currentNode;                                   /*the current node*/
+
     vector<Node> finalNodes;                            /*the final nodes*/
     unordered_map<string, double *> *automataVariables; /*hashmap that contains all the automata variables (variableName, 1.0)*/
     unordered_map<string, double> *tempVariables;
@@ -103,6 +105,7 @@ private:
     int time_inside_node;                   /*current node life timer*/
 
 public:
+    Node currentNode;                                   /*the current node*/
     Automata(string name, vector<Node> nodes, Node initialNode, vector<Node> finalNodes, unordered_map<string, double *> &automataVariables, Status status, int time_inside_node);
     vector<Node> getNodes();
     void setNodes(vector<Node> &nodes);

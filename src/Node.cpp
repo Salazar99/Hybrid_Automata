@@ -119,6 +119,12 @@ string Node::getActualInstructions()
     return this->instructions;
 }
 
+void Node::setFileValues(unordered_map<string, double> newValues){
+    for (const auto& pair : newValues) {
+        fileValues[pair.first] = pair.second;
+    }
+}
+
 /// @brief resolve a first order differential equation
 /// @param eq the equation
 /// @param cauchy initial condition
