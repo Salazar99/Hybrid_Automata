@@ -901,6 +901,8 @@ void MainWindow::runIt(int mode, string path){
     *stop = false;
     *pause = false;
 
+    setlocale(LC_ALL, "C");
+
     QMap<std::string,QGraphicsEllipseItem*> mappetta;
 
     int debugMode = switchDebug->isChecked()  ? 1 : 0;
@@ -1024,32 +1026,53 @@ void MainWindow::runIt(int mode, string path){
     }
 
     std::vector<string> auxVar;
+    std::ifstream fileTemp(inputFile.toStdString());
     std::ifstream file(inputFile.toStdString());
+    std::string tempStringa;
+    std::getline(file, tempStringa);
+    double startInputTime;
+    double deltaSim;
     if (inputFile != "void"){
 
 
-        if (!file.is_open()) {
+        if (!fileTemp.is_open()) {
             //std::cerr << "Failed to open file: " << inputFile << std::endl;
             return;
         }
 
         //times, x, a
 
-
+        char separator = ',';
         std::string line;
-        if (std::getline(file, line)) {
+        if (std::getline(fileTemp, line)) {
             std::istringstream iss(line);
             std::vector<std::string> cells;
             std::string cell;
             int count = 0;
-            while (std::getline(iss, cell, ';')) {
+            if (line.find(';')!=string::npos)
+                separator = ';';
+            while (std::getline(iss, cell, separator)) {
                 auxVar.push_back(cell);
             }
             std::cout << std::endl;
         } else {
             //std::cerr << "File is empty: " << inputFile << std::endl;
         }
+
+
+        vector<string> tempValue;
+        if (std::getline(fileTemp, line)){ //prima riga di dati
+            tempValue = split_string(line, separator);
+            startInputTime = stod(tempValue[0]);
+        }
+        if (std::getline(fileTemp, line)){ //seconda riga di dati
+            tempValue = split_string(line, separator);
+            deltaSim = stod(tempValue[0])-startInputTime;
+        }
+
+        fileTemp.close();
     }
+
 
 
     long start = time(NULL);
@@ -1106,7 +1129,16 @@ void MainWindow::runIt(int mode, string path){
     }
     std::cout <<"DeltaMain: " << s.delta;
 
+    ////////////////
+    /// \brief mapVar
+    ///
+    ///
+
+
     unordered_map<string, double> mapVar;
+    for(int i=1;i<auxVar.size();i++){ //inizializzo mappa valori a zero
+        mapVar[auxVar[i]] = 0;
+    }
     for (currentTime = 1; currentTime < s.numSeconds + 1 + 0.000001 - s.delta; currentTime = currentTime + s.delta)
     {
         //qDebug() << "################## TIME = " << currentTime << " ##################\n";
@@ -1116,43 +1148,32 @@ void MainWindow::runIt(int mode, string path){
             sem_wait(&semaforo);
         // executing all automatas instructions and checking for possible transitions
         bool back = false;
-        std::streampos prec;
         if (inputFile != "void"){
             std::string line;
-            prec = file.tellg();
-            if (std::getline(file, line)) {
-                std::istringstream iss(line);
-                std::vector<std::string> cells;
-                std::string cell;
-                int count = 0;
-                setlocale(LC_ALL, "C");
-                while (std::getline(iss, cell, ';')) {
-                    if (count == 0){
-                        if (currentTime >= stod(cell)){
+            if(currentTime + 0.000001  >= startInputTime){ //se devo leggere la next riga csv
+                if (std::getline(file, line)) {
+                    std::istringstream iss(line);
+                    std::vector<std::string> cells;
+                    std::string cell;
+                    int count = 0;
+                    startInputTime+=deltaSim;
+                    while (std::getline(iss, cell, ';')) {
+                        if (count == 0){
                             count++;
                             continue;
-                        }else{
-                            back = true;
                         }
+                        if(cell != "")
+                            mapVar[auxVar[count]] = stod(cell);
+                        count++;
                     }
-
-                    if (!back)mapVar[auxVar[count]] = stod(cell);
-                    count++;
-                }
-                if (back){
-                    auto pos = file.tellg();
-                    std::streampos pos2 = prec-3;
-                    file.seekg(pos2);
-                }else{
                     for (int j = 0; j < v.size(); j++){
                         v[j].currentNode.setFileValues(mapVar);
                     }
+                    std::cout << std::endl;
+                } else {
+                    //std::cerr << "File is empty: " << inputFile << std::endl;
                 }
-                std::cout << std::endl;
-            } else {
-                //std::cerr << "File is empty: " << inputFile << std::endl;
             }
-
         }
 
         for (int j = 0; j < v.size(); j++)

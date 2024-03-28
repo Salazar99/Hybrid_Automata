@@ -218,6 +218,10 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
         if (s.find("'") != string::npos)
         {
             aux = split_string(s, '\'');
+            if(fileValues.contains(aux[0])){
+                tempVariables[aux[0]] = fileValues[aux[0]];
+                continue;
+            }
 
             // DEBUG_COMMENT("aux[0]: " << aux[0] << "\n");
 
@@ -244,6 +248,10 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
 
         // aux[0] = leftoperand -- aux[1] = rightoperand
         aux = split_string(s, '=');
+        if(fileValues.contains(aux[0])){
+            tempVariables[aux[0]] = fileValues[aux[0]];
+            continue;
+        }
 
         // check if the instruction is a simple assignment
         if (aux[1].find("+") == string::npos && aux[1].find("-") == string::npos && aux[1].find("*") == string::npos && aux[1].find("/") == string::npos)
