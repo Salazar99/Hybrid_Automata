@@ -1032,6 +1032,7 @@ void MainWindow::runIt(int mode, string path){
     std::getline(file, tempStringa);
     double startInputTime;
     double deltaSim;
+    char separator = ',';
     if (inputFile != "void"){
 
 
@@ -1042,7 +1043,6 @@ void MainWindow::runIt(int mode, string path){
 
         //times, x, a
 
-        char separator = ',';
         std::string line;
         if (std::getline(fileTemp, line)) {
             std::istringstream iss(line);
@@ -1063,10 +1063,12 @@ void MainWindow::runIt(int mode, string path){
         vector<string> tempValue;
         if (std::getline(fileTemp, line)){ //prima riga di dati
             tempValue = split_string(line, separator);
+            setlocale(LC_ALL, "C");
             startInputTime = stod(tempValue[0]);
         }
         if (std::getline(fileTemp, line)){ //seconda riga di dati
             tempValue = split_string(line, separator);
+            setlocale(LC_ALL, "C");
             deltaSim = stod(tempValue[0])-startInputTime;
         }
 
@@ -1157,7 +1159,7 @@ void MainWindow::runIt(int mode, string path){
                     std::string cell;
                     int count = 0;
                     startInputTime+=deltaSim;
-                    while (std::getline(iss, cell, ';')) {
+                    while (std::getline(iss, cell, separator)) {
                         if (count == 0){
                             count++;
                             continue;
