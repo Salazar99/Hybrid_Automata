@@ -338,10 +338,13 @@ void MainWindow::clearAll(int mode){
         automatas.clear();
         ui->automatasList->clear();
         for (int i = 0; i < drawnArrows.size(); i++){
-            delete drawnArrows[i];
+            //delete drawnArrows[i];
+            scene->removeItem(drawnArrows[i]);
         }
         drawnArrows.clear();
         for (int i = 0; i < circles.size(); i++){
+
+            scene->removeItem(circles[i]->ellipse);
             delete circles[i];
         }
         circles.clear();
@@ -510,7 +513,13 @@ void MainWindow::deleteSelectedItems()
                 }
                 if (aux!=-1)selectedItems[aux] = nullptr;*/
 
-                delete drawnArrows[index];
+                //
+                drawnArrows[index]->textItem->setVisible(false);
+                drawnArrows[index]->setVisible(false);
+                scene->removeItem(drawnArrows[index]);
+                //delete drawnArrows[index];
+                ui->graphicsView->invalidateScene();
+                ui->graphicsView->update();
                 drawnArrows.removeAt(index);
             }
 
@@ -558,7 +567,14 @@ void MainWindow::deleteSelectedItems()
                 }
             }
             if (index!=-1){
-                delete drawnArrows[index];
+
+                drawnArrows[index]->textItem->setVisible(false);
+                drawnArrows[index]->setVisible(false);
+
+                scene->removeItem(drawnArrows[index]);
+                //delete drawnArrows[index];
+                ui->graphicsView->invalidateScene();
+                ui->graphicsView->update();
                 drawnArrows.removeAt(index);
             }
 
@@ -611,14 +627,19 @@ void MainWindow::deleteSelectedItems()
         // Iterate over the drawnArrows list in reverse order
         for (int i = 0; i < drawnArrows.size(); i++) {
             if (drawnArrows[i]->isMyStartOrEnd(temp)) {
+                drawnArrows[i]->textItem->setVisible(false);
+                drawnArrows[i]->setVisible(false);
                 scene->removeItem(drawnArrows[i]);
+                ui->graphicsView->invalidateScene();
+                ui->graphicsView->update();
                 arrowsToRemove.append(i);
             }
         }
 
         // Delete the items in reverse order
         for (int i = arrowsToRemove.size() - 1; i >= 0; i--) {
-            delete drawnArrows[arrowsToRemove[i]];
+            //scene->removeItem(drawnArrows[arrowsToRemove[i]]);
+            //delete drawnArrows[arrowsToRemove[i]];
         }
         // Remove the items from the drawnArrows list in reverse order
         for (int i = arrowsToRemove.size() - 1; i >= 0; i--) {
@@ -655,8 +676,10 @@ void MainWindow::deleteSelectedItems()
 
 
         scene->removeItem(selectedCircle);
-        delete item;
+        //delete item;
     }
+    scene->selectedItems().clear();
+    scene->clearSelection();
 }
 
 void MainWindow::on_updateButton_clicked()
