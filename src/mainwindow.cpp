@@ -1051,8 +1051,11 @@ void MainWindow::runIt(int mode, string path){
     std::vector<string> auxVar;
     std::ifstream fileTemp(inputFile.toStdString());
     std::ifstream file(inputFile.toStdString());
+    std::ifstream fileLookahead(inputFile.toStdString());
     std::string tempStringa;
     std::getline(file, tempStringa);
+    std::getline(fileLookahead, tempStringa);
+    std::getline(fileLookahead, tempStringa);
     double startInputTime;
     double deltaSim;
     char separator = ',';
@@ -1159,7 +1162,8 @@ void MainWindow::runIt(int mode, string path){
     ///
     ///
 
-
+    bool leggi = false;
+    int nextTime = 0;
     unordered_map<string, double> mapVar;
     for(int i=1;i<auxVar.size();i++){ //inizializzo mappa valori a zero
         mapVar[auxVar[i]] = 0;
@@ -1171,17 +1175,36 @@ void MainWindow::runIt(int mode, string path){
             break;
         if(*pause)
             sem_wait(&semaforo);
+
         // executing all automatas instructions and checking for possible transitions
         bool back = false;
         if (inputFile != "void"){
+
+            if(currentTime+0.000001>=startInputTime){
+                std::getline(fileLookahead, tempStringa);
+                std::istringstream iss(tempStringa);
+                std::vector<std::string> cells;
+                std::string cell;
+
+                if (std::getline(iss, cell, separator)) {
+                    if(cell != ""){
+                        startInputTime = stod(cell);
+                        leggi = true;
+                    }
+                }
+                else{
+                    leggi = true;
+                }
+            }
+
             std::string line;
-            if(currentTime + 0.000001  >= startInputTime){ //se devo leggere la next riga csv
+            if(leggi){ //se devo leggere la next riga csv
+                leggi = false;
                 if (std::getline(file, line)) {
                     std::istringstream iss(line);
                     std::vector<std::string> cells;
                     std::string cell;
                     int count = 0;
-                    startInputTime+=deltaSim;
                     while (std::getline(iss, cell, separator)) {
                         if (count == 0){
                             count++;
@@ -1191,13 +1214,13 @@ void MainWindow::runIt(int mode, string path){
                             mapVar[auxVar[count]] = stod(cell);
                         count++;
                     }
-                    for (int j = 0; j < v.size(); j++){
-                        v[j].currentNode.setFileValues(mapVar);
-                    }
                     std::cout << std::endl;
                 } else {
                     //std::cerr << "File is empty: " << inputFile << std::endl;
                 }
+            }
+            for (int j = 0; j < v.size(); j++){
+                v[j].currentNode.setFileValues(mapVar);
             }
         }
 
