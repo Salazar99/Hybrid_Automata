@@ -1,155 +1,146 @@
 {
-    "system":
-    {
-        "global":
-        {
-            "delta":"0.01",
-            "finaltime":"50"
-        },
-
-        "automata":
-        [
+    "system": {
+        "automata": [
             {
-                "name":"Tank",
-                "node":
-                [
+                "name": "Tank",
+                "node": [
                     {
-                        "name":"Tank",
-                        "description":"Water's level",
-                        "instructions":"x' = 0.3*a - 0.02*x;",
-                        "flag":"start",
-                        "transitions":
-                        [
-                        ]
+                        "description": "Water's level",
+                        "flag": "start",
+                        "instructions": "x' = 0.3*a - 0.02*x;",
+                        "name": "Tank",
+                        "transitions": null,
+                        "x": -192.0,
+                        "y": 355.0
                     }
                 ],
-                "variables":
-                [
+                "variables": [
                     {
-                        "name":"x",
-                        "value":"4"
+                        "name": "a",
+                        "value": "0"
+                    },
+                    {
+                        "name": "can_close",
+                        "value": "0"
+                    },
+                    {
+                        "name": "can_open",
+                        "value": "0"
+                    },
+                    {
+                        "name": "x",
+                        "value": "4"
                     }
                 ]
             },
             {
-                "name":"Valve",
-                "node":
-                [
+                "name": "Valve",
+                "node": [
                     {
-                        "name":"Opening",
-                        "description":"Opening valve",
-                        "instructions":"a' = 1/4;",
-                        "flag":"start",
-                        "transitions":
-                        [
+                        "description": "Opening valve",
+                        "flag": "start",
+                        "instructions": "a' = 1/4;",
+                        "name": "Opening",
+                        "transitions": [
                             {
-                                "to":"Opened",
-                                "condition":"(a>=1)"
+                                "condition": "(a>=1)",
+                                "to": "Opened"
                             },
                             {
-                                "to":"Closing",
-                                "condition":"(can_close==1)"
+                                "condition": "(can_close==1)",
+                                "to": "Closing"
                             }
-                        ]
-                    },  
-                    {
-                        "name":"Opened",
-                        "description":"Valve is open",
-                        "instructions":"a=1;",
-                        "flag":"none",
-                        "transitions":
-                        [
-                            {
-                                "to":"Closing",
-                                "condition":"(can_close==1)"
-                            }
-                        ]
+                        ],
+                        "x": -190.0,
+                        "y": 16.0
                     },
                     {
-                        "name":"Closing",
-                        "description":"Closing valve",
-                        "instructions":"a' = -1/4;",
-                        "flag":"none",
-                        "transitions":
-                        [
+                        "description": "Valve is open",
+                        "flag": "none",
+                        "instructions": "a=1;",
+                        "name": "Opened",
+                        "transitions": [
                             {
-                                "to":"Closed",
-                                "condition":"(a<=0)"
+                                "condition": "(can_close==1)",
+                                "to": "Closing"
+                            }
+                        ],
+                        "x": -176.0,
+                        "y": 184.0
+                    },
+                    {
+                        "description": "Closing valve",
+                        "flag": "none",
+                        "instructions": "a' = -1/4;",
+                        "name": "Closing",
+                        "transitions": [
+                            {
+                                "condition": "(a<=0)",
+                                "to": "Closed"
                             },
                             {
-                                "to":"Opening",
-                                "condition":"(can_open==1)"
+                                "condition": "(can_open==1)",
+                                "to": "Opening"
                             }
-
-                        ]
+                        ],
+                        "x": -511.87073434752233,
+                        "y": 185.0
                     },
                     {
-                        "name":"Closed",
-                        "description":"Valve is closed",
-                        "instructions":"a=0;",
-                        "flag":"none",
-                        "transitions":
-                        [
+                        "description": "Valve is closed",
+                        "flag": "none",
+                        "instructions": "a=0;",
+                        "name": "Closed",
+                        "transitions": [
                             {
-                                "to":"Opening",
-                                "condition":"(can_open==1)"
+                                "condition": "(can_open==1)",
+                                "to": "Opening"
                             }
-                        ]
+                        ],
+                        "x": -523.0,
+                        "y": 28.0
                     }
-
                 ],
-                "variables":
-                [
-                    {
-                        "name":"a",
-                        "value":"0"
-                    },
-                    {
-                        "name":"can_open",
-                        "value":"0"
-                    },
-                    {
-                        "name":"can_close",
-                        "value":"0"
-                    }
-                ]
+                "variables": []
             },
             {
-                "name":"Controller",
-                "node":
-                [
+                "name": "Controller",
+                "node": [
                     {
-                        "name":"Rising",
-                        "description":"Level is Rising",
-                        "instructions":"can_open=1;can_close=0;",
-                        "flag":"start",
-                        "transitions":
-                        [
+                        "description": "Level is Rising",
+                        "flag": "start",
+                        "instructions": "can_open=1;can_close=0;",
+                        "name": "Rising",
+                        "transitions": [
                             {
-                                "to":"Falling",
-                                "condition":"(x>=7.65)"
+                                "condition": "(x>=7.65)",
+                                "to": "Falling"
                             }
-                        ]
-                    },  
+                        ],
+                        "x": -964.7423902895451,
+                        "y": 3.9777751210938206
+                    },
                     {
-                        "name":"Falling",
-                        "description":"Level is Falling",
-                        "instructions":"can_close=1;can_open=0;",
-                        "flag":"none",
-                        "transitions":
-                        [
+                        "description": "Level is Falling",
+                        "flag": "none",
+                        "instructions": "can_close=1;can_open=0;",
+                        "name": "Falling",
+                        "transitions": [
                             {
-                                "to":"Rising",
-                                "condition":"(x<=5.85)"
+                                "condition": "(x<=5.85)",
+                                "to": "Rising"
                             }
-                        ]
+                        ],
+                        "x": -715.7807782274666,
+                        "y": 3.3560834798803683
                     }
                 ],
-                "variables":
-                [
-                ]
+                "variables": []
             }
-            
-        ]
+        ],
+        "global": {
+            "delta": "0.0100",
+            "finaltime": "50"
+        }
     }
 }

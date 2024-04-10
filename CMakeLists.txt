@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
+cmake_policy(SET CMP0084 OLD)
+
 
 # Setting the project name
 project(Hybrid_Automata)
@@ -9,7 +11,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 20)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+#find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 
 # Add the executable, specifying the source file(s).
