@@ -10,11 +10,17 @@ The application is a simulator designed to define a system of concurrent hybrid 
 
 ##### Prerequisites:
 
-- cmake (version 3.5)
-- make (version 4.3)
-- g++ compiler (version 12.3.0)
+- cmake (version 3.5 or newer)
+    ```sudo apt-get install cmake```
+- make (version 4.3 or newer)
+    ```sudo apt-get install make```
+- g++ compiler (version 11.0.3 or newer)
+- ninja-build (inserisci versione)
+    ```sudo apt-get install ninja-build```
+- qt (inserisci versione)
+    ```https://www.qt.io/download-qt-installer-oss?hsCtaTracking=99d9dd4f-5681-48d2-b096-470725510d34%7C074ddad0-fdef-4e53-8aa8-5e8a876d6ab4```
 
-#### Windows:
+#### Windows (to be completed):
 
 ##### Prerequisites:
 
@@ -35,16 +41,26 @@ The application is a simulator designed to define a system of concurrent hybrid 
    cd Hybrid_Automata
    ```
 
-2. **Create Build Directory and Compile**
+2. **Create and prepare Build Directory**
    ```bash
    mkdir build
    cd build
-   cmake ..
-   make
+   export CMAKE_GENERATOR=Ninja
+   export CMAKE_BUILD_TYPE=Debug
+   export QT_QMAKE_EXECUTABLE=<path-to-qt-installation-directory>/Qt/<version>/gcc_64/bin/qmake
+   export CMAKE_PREFIX_PATH=<path-to-qt-installation-directory>/Qt/<version>/gcc_64
+   export CMAKE_C_COMPILER=/usr/bin/gcc
+   export CMAKE_CXX_COMPILER=/usr/bin/x86_64-linux-gnu-g++-11
+   export CMAKE_CXX_FLAGS_INIT=-DQT_QML_DEBUG
+   cmake -S <project-directory> -B <build-directory>
+   ```
+3. **Build and Run**
+    ```bash
+   cmake --build <build-directory> --target all
    ./main
    ```
 
-### Windows
+### Windows (to be completed)
 
 1. **Clone the repository:**
 
@@ -62,58 +78,6 @@ The application is a simulator designed to define a system of concurrent hybrid 
    cd Debug
    ./main.exe
    ```
-
-## JSON Tutorial
-
-Follow the next example to define Systems in .json standard:
-
-```bash
- {
-     "system": {                                                 #everything needs to be inside the system object
-         "global": {                                             #global variables
-             "delta": "0.1",                                     #sampling interval
-             "finaltime": "5"                                    #total time
-         },
-         "automata": [                                           #inside you can define all of your automatas
-             {
-                 "name": "A",                                    #the automata's name
-                 "node": [                                       #inside you can define all the nodes
-                     {                                           #for each node
-                         "name": "Off",                          #its name
-                         "description": "x >= 18",               #its description
-                         "instructions": "x' = -0.1*x;",         #the instructions to execute (divided by ;)
-                         "flag": "start",                        #start if starting node, none otherwise
-                         "transitions": [                        #transitions to other nodes
-                             {
-                                 "to": "On",                     #the destination's name
-                                 "condition": "(x<19)"           #the condition to check (use paranthesis to delimit)
-                             }
-                         ]
-                     },
-                     {
-                         "name": "On",
-                         "description": "x <= 22",
-                         "instructions": "x' = 5-0.1*x;",
-                         "flag": "none",
-                         "transitions": [
-                             {
-                                 "to": "Off",
-                                 "condition": "(x>21)"
-                             }
-                         ]
-                     }
-                 ],
-                 "variables": [                                  #inside you need to define starting values for all the variables
-                     {
-                         "name": "x",
-                         "value": "20"
-                     }
-                 ]
-             }
-         ]
-     }
- }
-```
 
 #### Guide for Instructions
 
@@ -149,6 +113,11 @@ Some more examples:
 ```
 
 For a complete example with multiple automatas and various types of instructions and conditions you can read the [Watertanks Example](watertanks.json)
+
+#### Output
+You can find the csv output file in the main directory under the name "export.csv".
+By default you will also find a "output.json" that contains the automata you have just run, be aware at every execution both the "output.json" and "export.csv" will be overwritten.
+And for every execution you'll have to close the two files before hitting the "Run" button.
 
 ## Stack
 

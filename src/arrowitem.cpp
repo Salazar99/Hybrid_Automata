@@ -50,7 +50,6 @@ QVariant ArrowItem::itemChange(QGraphicsItem::GraphicsItemChange change, const Q
         QVariant base;
         return base;
     }
-    qDebug() << "QUAQUA\n";
     if (change == ItemPositionHasChanged) {
         // Update text position whenever the arrow item moves
         updateTextPosition();
@@ -90,7 +89,6 @@ void ArrowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
     //qDebug() << "Stiamo paintando\n";
 
     if (!startItem || !endItem){
-        qDebug() << "Qualcuno Ã¨ null!\n";
         return;
     }
     bool adjustText = false;
@@ -229,9 +227,6 @@ bool ArrowItem::isMyStartOrEnd(QGraphicsEllipseItem *check){
     if(!startItem || !endItem){
         return true;
     }
-    qDebug() << check->sceneBoundingRect().center() << "\n";
-    qDebug() << startItem->sceneBoundingRect().center() << "\n";
-    qDebug() << endItem->sceneBoundingRect().center() << "\n";
     if (check->sceneBoundingRect().center() == startItem->sceneBoundingRect().center() || check->sceneBoundingRect().center() == endItem->sceneBoundingRect().center())return true;
     return false;
 }

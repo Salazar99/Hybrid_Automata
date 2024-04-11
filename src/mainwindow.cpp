@@ -61,7 +61,6 @@ MainWindow::MainWindow(QWidget *parent) :
         trasparenze.append(i);
     ct = 0;
 
-    qDebug() << trasparenze;
     timer = new QTimer(this);
 
     // addEllipse(x,y,w,h,pen,brush)
@@ -76,21 +75,17 @@ MainWindow::MainWindow(QWidget *parent) :
     int screenWidth = screenGeometry.width();
     int screenHeight = screenGeometry.height();
 
-    qDebug() << "Screen: " << screenWidth << ", " << screenHeight << "\n";
-
     // Calcolare le nuove dimensioni al 80% dello schermo
     int newWidth = screenWidth *0.8;
     int newHeight = screenHeight * 0.8;
 
 
-    qDebug() << "New Values: " << newWidth << ", " << newHeight << "\n";
     //rightWidgetWidth+leftWidgetWidth : newWidth =
 
     this->setFixedSize(newWidth,newHeight);
     ui->deltaSpinBox->setMinimum(0.0001);
     // Impostare le dimensioni del QGraphicsView
 
-    qDebug() << "GraphicsView: " << newWidth*0.799 << ", " << newHeight*0.935 << "\n";
     //ui->frameDataOp->move(newHeight,newWidth);
     ui->graphicsView->setFixedSize(newWidth*0.817, newHeight*0.935);
     hideDesignerInput();
@@ -242,16 +237,13 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 circleItem->startNode = true;
             circles.append(circleItem);
             scene -> addItem(circleItem);
-            qDebug() << "Position of the new circle: " << newEllipse->sceneBoundingRect().center();
             //qDebug() << "Position of the new circle: " << newEllipse->pos().x() << ", " << newEllipse->pos().y() << "\n";
             /*newEllipse->setFlag(QGraphicsItem::ItemIsMovable);
             newEllipse->setFlag(QGraphicsItem::ItemIsSelectable);*/
-            qDebug() << "Mouse pressed at scenePos:" << scenePos.x() << ", " << scenePos.y() << "\n";
             hideDesignerInput();
             return true; // Consume the event
         }
         else if(event->type() == QEvent::Wheel) {
-            qDebug("ciao");
             QWheelEvent *wheelEvent = static_cast<QWheelEvent*>(event);
             if (wheelEvent->modifiers() & Qt::ControlModifier) {
                 if (wheelEvent->angleDelta().y() > 0) {
@@ -273,7 +265,6 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 if (selectedCircle1 && selectedCircle2 && scene->selectedItems().size()==2 && checkSelected()) {
                     if (ellipseMap[selectedCircle1]->automata != ellipseMap[selectedCircle2]->automata )
                         return true;
-                    std::cout << "Disegnami Seh\n";
                     /*ArrowItem *arrow = new ArrowItem(selectedCircle1, selectedCircle2);
                     arrow->setFlag(QGraphicsItem::ItemIsSelectable);*/
                     ArrowItem *arrow;
@@ -398,7 +389,7 @@ void MainWindow::handleSelectionChanged(){
             isCircleSelected = true;
             CircleItem *selectedCircle = dynamic_cast<CircleItem*>(selectedItems[0]);
             ui->automatasList->setCurrentIndex(automatas.indexOf(selectedCircle->automata));
-            if (selectedCircle == nullptr)qDebug() << "null\n";
+            if (selectedCircle == nullptr)//qDebug() << "null\n";
             ui->valueLabel->setText(selectedCircle->textItem->toPlainText());
             ui->nameLabel->setText(selectedCircle->name);
             ui->descriptionLabel->setText(selectedCircle->description);
@@ -436,9 +427,7 @@ void MainWindow::handleSelectionChanged(){
                 selectedCircle2 = qgraphicsitem_cast<QGraphicsEllipseItem*>(selectedCircleSecond->ellipse);
             else
                 selectedCircle2 = qgraphicsitem_cast<QGraphicsEllipseItem*>(selectedCircle->ellipse);
-            std::cout << "Selected\n";
-            std::cout << "Position of first: " << selectedCircle1->sceneBoundingRect().center().x() << ", " << selectedCircle1->sceneBoundingRect().center().y() << "\n";
-            std::cout << "Position of second: " << selectedCircle2->sceneBoundingRect().center().x() << ", " << selectedCircle2->sceneBoundingRect().center().y() << "\n";
+
         }
         ascendingSelection = true;
         ascendingSelection = false;
@@ -466,13 +455,11 @@ void MainWindow::deleteSelectedItems()
     // Get a list of all selected items
     QList<QGraphicsItem*> selectedItems = scene->selectedItems();
     int index = -1;
-    qDebug() << selectedItems.size()<<"\n";
     int count = 0;
     QGraphicsItem* tempItem;
     for (int i = 0; i<selectedItems.size(); i++){
         tempItem = selectedItems[i];
         if(dynamic_cast<ArrowItem*>(tempItem) != nullptr){
-            qDebug() << "Eliminando una freccia\n";
             ArrowItem* temp = static_cast<ArrowItem*>(tempItem);
 
             QGraphicsItem * inizio= temp->startItem;
@@ -535,11 +522,9 @@ void MainWindow::deleteSelectedItems()
             continue;
         }
 
-        qDebug() << item->sceneBoundingRect().center() << "\n";
 
 
         if(dynamic_cast<CircleItem*>(item) == nullptr){
-            qDebug() << "Eliminando una freccia\n";
             ArrowItem* temp = static_cast<ArrowItem*>(item);
 
             QGraphicsItem * inizio= temp->startItem;
@@ -711,7 +696,6 @@ void MainWindow::on_updateButton_clicked()
                         circles[i]->name = ui->nameLabel->text();
                         circles[i]->description = ui->descriptionLabel->text();
                         circles[i]->startNode = ui->startCheckBox->isChecked();
-                        qDebug() << circles[i]->startNode << "\n";
                         pos = i;
                     }
                 }
@@ -742,8 +726,6 @@ void MainWindow::on_updateButton_clicked()
         ui->startCheckBox->setChecked(false);
         scene->clearSelection();
     }
-
-    qDebug() << "UPDATE\n";
 }
 
 bool isNumeric(const QString& str) {
@@ -771,8 +753,6 @@ void MainWindow::on_tabWidget_currentChanged(int index)
     for (int i = 0; i < circles.size(); i++){ //ciclo i cerchi
         temp = circles[i]->textItem->toPlainText();
         tempVar.clear();
-
-        qDebug() << "temp: " << temp <<"\n" << "tempVar: " << tempVar << "\n";
         temp.erase(std::remove(temp.begin(), temp.end(), ' '), temp.end());
         for (int j = 0; j < temp.length(); j++){
             if(!separator.contains(temp[j])){
@@ -818,7 +798,6 @@ void MainWindow::on_tabWidget_currentChanged(int index)
         ui->listVariables->addItem(temp);
     }
 
-    qDebug() << variablesValues;
 
 }
 
@@ -1032,14 +1011,12 @@ void MainWindow::runIt(int mode, string path){
     systemData["automata"] = automataArray;
     test["system"] = systemData;
     std::string jsonData = test.dump(4);
-    qDebug() << jsonData;
 
     std::ofstream outFile(path);
 
     if (outFile.is_open()) {
         outFile << jsonData;
         outFile.close();
-        qDebug() << "JSON data has been written to output.json\n";
     } else {
         qDebug() << "Error: Unable to open output file\n";
     }
@@ -1080,7 +1057,6 @@ void MainWindow::runIt(int mode, string path){
             while (std::getline(iss, cell, separator)) {
                 auxVar.push_back(cell);
             }
-            std::cout << std::endl;
         } else {
             //std::cerr << "File is empty: " << inputFile << std::endl;
         }
@@ -1111,7 +1087,6 @@ void MainWindow::runIt(int mode, string path){
     delta = s.delta;
     v = s.getAutomata();
     runningStatus = true;
-    std::cout << s;
 
 
 
@@ -1155,7 +1130,6 @@ void MainWindow::runIt(int mode, string path){
     for (const auto& pair : s.getVariables()) {
         updateVariables.insert(pair);
     }
-    std::cout <<"DeltaMain: " << s.delta;
 
     ////////////////
     /// \brief mapVar
@@ -1214,7 +1188,6 @@ void MainWindow::runIt(int mode, string path){
                             mapVar[auxVar[count]] = stod(cell);
                         count++;
                     }
-                    std::cout << std::endl;
                 } else {
                     //std::cerr << "File is empty: " << inputFile << std::endl;
                 }
@@ -1304,8 +1277,6 @@ void MainWindow::runIt(int mode, string path){
         istanti++;
         //qDebug() << "\n\n";
     }
-    qDebug() << "Total Istanti: " << istanti;
-    qDebug() << "\nCi ha messo " << time(NULL) - start << " secondi";
 
     for(int z = 0; z<circles.size(); z++){
         QPen outlinePen(Qt::black);
@@ -1632,7 +1603,6 @@ void MainWindow::on_saveData_clicked()
     QString filePath = QFileDialog::getSaveFileName(this, tr("Salva il file JSON"), QDir::currentPath(), tr("File JSON (*.json)"));
 
     if (filePath.isEmpty()) {
-        qDebug() << "File selezionato per il salvataggio: " << filePath;
         return;
     }
     runIt(1,filePath.toStdString());
@@ -1688,7 +1658,6 @@ void MainWindow::on_runForButton_clicked()
     ui->stepButton->setEnabled(false);
     ui->runForButton->setEnabled(false);
     ui->moreSteps->setEnabled(false);
-    qDebug() << "Numero di step rimanenti: " << left;
     std::thread thread_obj(&MainWindow::runDebuggingSteps, this, std::min(steps, left));
     thread_obj.detach(); // Permette al thread di eseguire in background
 }
