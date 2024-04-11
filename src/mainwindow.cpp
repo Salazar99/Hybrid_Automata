@@ -1676,7 +1676,10 @@ void MainWindow::on_inputFileButton_clicked()
 {
     QString filePath = QFileDialog::getOpenFileName(this, tr("Seleziona un file CSV"), QDir::currentPath(), tr("File CSV (*.csv)"));
     inputFile = filePath;
-    if (filePath.isEmpty()) return;
+    if (filePath.isEmpty()){
+        inputFile = "void";
+        return;
+    }
     std::ifstream f(filePath.toStdString());
     ui->inputFileButton->setText(filePath.split('/').last());
     ui->discardInput->show();
