@@ -389,7 +389,7 @@ void MainWindow::handleSelectionChanged(){
             isCircleSelected = true;
             CircleItem *selectedCircle = dynamic_cast<CircleItem*>(selectedItems[0]);
             ui->automatasList->setCurrentIndex(automatas.indexOf(selectedCircle->automata));
-            if (selectedCircle == nullptr)//qDebug() << "null\n";
+            //if (selectedCircle == nullptr);//qDebug() << "null\n";
             ui->valueLabel->setText(selectedCircle->textItem->toPlainText());
             ui->nameLabel->setText(selectedCircle->name);
             ui->descriptionLabel->setText(selectedCircle->description);
