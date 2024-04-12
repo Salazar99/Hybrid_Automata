@@ -1,4 +1,4 @@
-# Still working on Project Name
+# CHAOS
 
 ## Project Overview:
 
@@ -15,9 +15,9 @@ The application is a simulator designed to define a system of concurrent hybrid 
 - make (version 4.3 or newer)
     ```sudo apt-get install make```
 - g++ compiler (version 11.0.3 or newer)
-- ninja-build (inserisci versione)
+- ninja-build
     ```sudo apt-get install ninja-build```
-- qt (inserisci versione)
+- qt (6 or superior)
     ```https://www.qt.io/download-qt-installer-oss?hsCtaTracking=99d9dd4f-5681-48d2-b096-470725510d34%7C074ddad0-fdef-4e53-8aa8-5e8a876d6ab4```
 
 #### Windows (to be completed):
@@ -49,16 +49,21 @@ The application is a simulator designed to define a system of concurrent hybrid 
    export CMAKE_BUILD_TYPE=Debug
    export QT_QMAKE_EXECUTABLE=<path-to-qt-installation-directory>/Qt/<version>/gcc_64/bin/qmake
    export CMAKE_PREFIX_PATH=<path-to-qt-installation-directory>/Qt/<version>/gcc_64
-   export CMAKE_C_COMPILER=/usr/bin/gcc
-   export CMAKE_CXX_COMPILER=/usr/bin/x86_64-linux-gnu-g++-11
+   export CMAKE_C_COMPILER=/usr/bin/gcc-11 (choose your own version)
+   export CMAKE_CXX_COMPILER=/usr/bin/x86_64-linux-gnu-g++-11 (choose your own version)
    export CMAKE_CXX_FLAGS_INIT=-DQT_QML_DEBUG
    cmake -S <project-directory> -B <build-directory>
    ```
+   In case of an error regarding the "QT6Dir" variable or the "QT6ConfigCmake" file you will need to run the following command and then try again:
+    ```
+    sudo apt-get install build-essential libgl1-mesa-dev
+    ```
 3. **Build and Run**
     ```bash
    cmake --build <build-directory> --target all
    ./main
    ```
+   
 
 ### Windows (to be completed)
 
