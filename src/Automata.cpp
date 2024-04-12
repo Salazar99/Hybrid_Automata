@@ -1,14 +1,23 @@
 #include "../include/Objects.h"
 #include <iostream>
 
+#ifdef DEBUG_MODE
+#define DEBUG_COMMENT(comment) std::cout << "[DEBUG] " << comment << std::endl;
+#else
+#define DEBUG_COMMENT(comment)
+#endif
+
 /// @brief constructor
+/// @param name the name of the automata
 /// @param nodes the nodes of the automata
 /// @param initialNodes the initial node of the automata
 /// @param finalNodes the final nodes of the automata
 /// @param automataVariables the variables of the automata
 /// @param status the curren status of the automata
-Automata::Automata(vector<Node> nodes, Node initialNode, vector<Node> finalNodes, unordered_map<string, double *> &automataVariables, Status status)
+/// @param time_inside_node timer that represents the current time inside of a node
+Automata::Automata(string name, vector<Node> nodes, Node initialNode, vector<Node> finalNodes, unordered_map<string, double *> &automataVariables, Status status, int time_inside_node)
 {
+    this->name = name;
     this->nodes = nodes;
 
     for (int i = 0; i < nodes.size(); i++)
@@ -19,8 +28,9 @@ Automata::Automata(vector<Node> nodes, Node initialNode, vector<Node> finalNodes
     this->initialNode = initialNode;
     this->currentNode = initialNode;
     this->finalNodes = finalNodes;
-    this->automataVariables = automataVariables;
+    this->automataVariables = &automataVariables;
     this->currentStatus = status;
+    this->time_inside_node = time_inside_node;
 }
 
 /// @brief return the nodes of the automata
@@ -81,7 +91,7 @@ void Automata::setFinalNodes(vector<Node> &finalNodes)
 
 /// @brief return the automata variables
 /// @return the automata variables
-unordered_map<string, double *> Automata::getAutomataVariables()
+unordered_map<string, double *> *Automata::getAutomataVariables()
 {
     return this->automataVariables;
 }
@@ -90,7 +100,14 @@ unordered_map<string, double *> Automata::getAutomataVariables()
 /// @param autoamtaVariables the new map
 void Automata::setAutomataVariables(unordered_map<string, double *> &autoamtaVariables)
 {
-    this->automataVariables = autoamtaVariables;
+    this->automataVariables = &autoamtaVariables;
+}
+
+/// @brief set the map string->double of the variables
+/// @param autoamtaVariables the new map
+void Automata::setTempVariables(unordered_map<string, double> &tempVariables)
+{
+    this->tempVariables = &tempVariables;
 }
 
 /// @brief return the current status
@@ -121,39 +138,73 @@ void Automata::setNodesNames(unordered_map<string, Node> &nodeNames)
     this->nodesNames = nodeNames;
 }
 
+/// @brief set the autonamata's name
+/// @param name pf the automata
+void Automata::setName(string name)
+{
+    this->name = name;
+}
+
+/// @brief get the autonamata's name
+/// @return the automata name
+string Automata::getName()
+{
+    return this->name;
+}
+
+/// @brief get the autonamata's name
+/// @return the automata name
+string Automata::getInstructions()
+{
+    return getCurrentNode().getActualInstructions();
+}
+
 /// @brief check if we are in the conditions to change the current node
 /// @return 1 if the current node changed, 0 otherwise
 bool Automata::checkForChanges()
 {
+    /* se si dovesse gestire la questione della prima accensione con condizioni di spostamento fin da subito
+        basta controllare il primo istante
+        if (time==1){
+            checktransition....
+        }
+        ricordati di rendere time globale
+    */
 
-    string newNode = currentNode.checkTransitions(automataVariables);
+    currentNode.executeNodeInstructions(*automataVariables, *tempVariables, time_inside_node);
+    time_inside_node++;
 
-    nodesNames[newNode].executeNodeInstructions(automataVariables);
+    string newNode = currentNode.checkTransitions(*automataVariables);
+
+    if (newNode != currentNode.getName())
+    {
+        nodesNames[newNode].setFirstVisit(true);
+        time_inside_node = 1;
+    }
 
     if (newNode == currentNode.getName())
         return 0;
 
     setCurrentNode(nodesNames[newNode]);
     return 1;
-
-    /*for (Node c : nodes)
-    {
-        if (c.getName() == newNode)
-        {
-            setCurrentNode(c);
-            return 1;
-        }
-    }*/
 }
+
+string Automata::getCurrentNodeName()
+{
+    return this->currentNode.getName();
+}
+
 
 /// @brief to string
 ostream &operator<<(ostream &os, Automata &obj)
 {
+    os << "Automata Name: " << obj.getName() << "\n\n";
     os << "Nodes: \n";
     for (Node n : obj.getNodes())
     {
         os << "- " << n << "\n";
     }
+    // os << "Instruction:" << obj.getInstructions() << "\n";
     os << "Initial Node: " << obj.getInitialNode().getName() << "\n";
     os << "Current Node: " << obj.getCurrentNode().getName() << "\n";
     os << "Final Nodes: \n";
@@ -161,6 +212,7 @@ ostream &operator<<(ostream &os, Automata &obj)
     {
         os << "- " << n.getName() << "\n";
     }
-    os << "Status: " << (obj.getCurrentStatus() == 0 ? "OFF" : (obj.getCurrentStatus() == 1 ? "RUNNING" : "PAUSE")) << "\n";
+    os << (obj.getFinalNodes().empty() ? "No final node declared\n" : "");
+    os << "Status: " << (obj.getCurrentStatus() == 0 ? "OFF" : (obj.getCurrentStatus() == 1 ? "RUNNING" : "PAUSE")) << "\n\n";
     return os;
 }

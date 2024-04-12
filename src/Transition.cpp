@@ -1,7 +1,14 @@
 #include "../include/Objects.h"
 #include <iostream>
 #include <stack>
+#include "../include/tools.h"
 #include "../include/tinyexpr.h"
+
+#ifdef DEBUG_MODE
+#define DEBUG_COMMENT(comment) std::cout << "[DEBUG] " << comment << std::endl;
+#else
+#define DEBUG_COMMENT(comment)
+#endif
 
 /// @brief constructor
 /// @param condition the condition of the transition
@@ -209,31 +216,28 @@ bool Transition::checkCondition(unordered_map<string, double *> &variables)
     string condition = getCondition();
     int pos;
 
-    cout << "\nCondizione pre-replace: " << condition << "\n";
+    DEBUG_COMMENT("\nCondizione pre-replace: " << condition << "\n");
 
     for (pair<string, double *> pair : variables)
     {
+        /*
         pos = condition.find(pair.first);
         while (pos != string::npos)
         {
             condition.replace(pos, pair.first.length(), to_string(*(pair.second)));
             pos = condition.find(pair.first);
-        }
+        }*/
+        condition = replace_var(condition, pair.first, to_string(*(pair.second)));
     }
 
-    cout << "Condizione post-replace: " << condition << "\n";
+    DEBUG_COMMENT("Condizione post-replace: " << condition << "\n");
+
     bool output = solve(preProcessing(condition));
 
-    cout << "Valutato: " << output << "\n";
+    DEBUG_COMMENT("Valutato: " << output << "\n");
 
     return output;
 }
-
-/*bool Transition::checkCondition(unordered_map<string, double *> &variables)
-{
-    return solve(preProcessing(getCondition()));
-}
-*/
 
 /// @brief to string
 ostream &operator<<(ostream &os, Transition &obj)

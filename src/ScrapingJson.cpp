@@ -1,27 +1,69 @@
 #include "../include/UtilsJson.h"
 #include "../include/json.hpp"
+#include "../include/tinyexpr.h"
+#include "../include/tools.h"
+#include <string>
 #include <iostream>
+
+
+#ifdef DEBUG_MODE
+#define DEBUG_COMMENT(comment) std::cout << "[DEBUG] " << comment << std::endl;
+#else
+#define DEBUG_COMMENT(comment)
+#endif
 
 using namespace std;
 using json = nlohmann::json;
 
-vector<Automata> UtilsJson::ScrapingJson(string c)
+/// @brief creates all the automatas
+/// @return the automatas
+
+
+System UtilsJson::ScrapingJson(string c)
 {
     std::ifstream f(c);
     json data = json::parse(f);
     vector<Automata> arrAutomata;
+    unordered_map<string, string> automataDependence;
     vector<Node> arrNodes;
     Node startNode;
     vector<Node> finalNodes;
+    unordered_map<string, double *> variables;
     int j = 0;
     int store = 0;
-    for (json automata : data["automata"])
+    setlocale(LC_ALL, "C");
+    // set global variables
+    string h_string = data["system"]["global"]["delta"];
+/*
+#ifdef WINDOWS
+    ;
+#else
+    replace(h_string.begin(), h_string.end(), '.', ',');
+#endif
+*/
+    double system_delta = stod(h_string);
+    //std::cout <<"DeltaScraping: " << delta;
+    string tfinal_string = data["system"]["global"]["finaltime"];
+/*
+#ifdef WINDOWS
+    ;
+#else
+    replace(tfinal_string.begin(), tfinal_string.end(), '.', ',');
+#endif
+*/
+    double system_numSeconds = stod(tfinal_string);
+
+
+    // find all the automata in settings.json
+    for (json automata : data["system"]["automata"])
     {
         j = 0;
         store = 0;
+
+        // find all the nodes for each automata
         for (json node : automata["node"])
         {
-            Node n(node["name"], node["description"], node["instructions"]);
+            Node n(node["name"], node["description"], node["instructions"], (node["flag"] == "start") ? true : false , system_delta, system_numSeconds);
             arrNodes.push_back(n);
             if (node["flag"] == "start")
             {
@@ -33,19 +75,35 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
                 finalNodes.push_back(n);
             }
             j++;
+
+            string tmp = node["instructions"];
+            tmp.erase(std::remove(tmp.begin(), tmp.end(), ' '), tmp.end());
+            tmp.erase(std::remove(tmp.begin(), tmp.end(), '\n'), tmp.end());
+            vector<string> distinctInstructions = split_string(tmp, ';'); // splitting at ; character
+            vector<string> aux;
+            for (string s : distinctInstructions) // loop single istructions
+            {
+                aux = split_string(s, '=');
+                if (aux[0].find('\'') == string::npos)
+                {
+                    automataDependence[aux[0]] = automata["name"];
+                }
+            }
         }
 
-        unordered_map<string, double *> variables;
+        // find all the variables for each automata
         double *y;
         for (json variable : automata["variables"])
         {
             string var = variable["value"];
-            y = new double(stod(var));
+            y = new double(te_interp(var.c_str(), 0));
             variables[variable["name"]] = y;
+            automataDependence[variable["name"]] = automata["name"];
         }
 
+        // adding transictions to nodes
         int i = -1;
-        for (Node n : arrNodes) // adding transictions to nodes
+        for (Node n : arrNodes)
         {
             i++;
             for (json node : automata["node"])
@@ -59,10 +117,6 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
                         for (Node n1 : arrNodes)
                         {
                             to = (n1.getName() != transition["to"]) ? to : n1.getName();
-                            /*if (n1.getName() == transition["to"])
-                            {
-                                to = n1;
-                            }*/
                         }
                         arrNodes[i].addTransition(transition["condition"], to);
                     }
@@ -71,9 +125,11 @@ vector<Automata> UtilsJson::ScrapingJson(string c)
         }
 
         Status status = RUNNING;
-        Automata c(arrNodes, arrNodes[store], finalNodes, variables, status);
+        Automata c(automata["name"], arrNodes, arrNodes[store], finalNodes, variables, status, 1);
         arrAutomata.push_back(c);
-        arrNodes.clear(); // empty for next automata creation
+        // empty for next automata creation
+        arrNodes.clear();
     }
-    return arrAutomata;
+    unordered_map<string, double> tempVariables;
+    return System(arrAutomata, automataDependence, variables, tempVariables, system_delta, system_numSeconds);
 }

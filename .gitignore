@@ -6,5 +6,7 @@ test.exe
 Hybrid_Automata.code-workspace
 exceptionSolver.exe
 #alde
-CMakeLists.txt
 build
+export.csv
+buildbackup/
+CMakeLists.txt.user
