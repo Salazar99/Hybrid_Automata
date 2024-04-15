@@ -221,7 +221,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
             newEllipse->setBrush(brush);
             /*newEllipse->setFlag(QGraphicsItem::ItemIsMovable);
             newEllipse->setFlag(QGraphicsItem::ItemIsSelectable);*/
-            QGraphicsTextItem *textLabel = new QGraphicsTextItem("default");
+            QGraphicsTextItem *textLabel = new QGraphicsTextItem("default Name");
             textLabel->setDefaultTextColor(Qt::white);
             textLabel->setFont(QFont("Arial", 10));
             textLabel->setPos(scenePos.x() + 10, scenePos.y() + 10);
@@ -389,8 +389,9 @@ void MainWindow::handleSelectionChanged(){
             isCircleSelected = true;
             CircleItem *selectedCircle = dynamic_cast<CircleItem*>(selectedItems[0]);
             ui->automatasList->setCurrentIndex(automatas.indexOf(selectedCircle->automata));
-            if (selectedCircle == nullptr)//qDebug() << "null\n";
-            ui->valueLabel->setText(selectedCircle->textItem->toPlainText());
+            //if (selectedCircle == nullptr);//qDebug() << "null\n";
+            //ui->valueLabel->setText(selectedCircle->textItem->toPlainText());
+            ui->valueLabel->setText(selectedCircle->instructions);
             ui->nameLabel->setText(selectedCircle->name);
             ui->descriptionLabel->setText(selectedCircle->description);
             if (selectedCircle->startNode){
@@ -684,7 +685,7 @@ void MainWindow::on_updateButton_clicked()
                             error = true;
                             break;
                         }
-                        circles[i]->textItem->setPlainText(ui->valueLabel->text());
+                        //circles[i]->textItem->setPlainText(ui->valueLabel->text());
                         for(int j=0; j<circles.size(); j++){
                             if(circles[j]->automata == circles[i]->automata && i!=j){
                                 if(circles[j]->name == ui->nameLabel->text()){
@@ -695,7 +696,9 @@ void MainWindow::on_updateButton_clicked()
                         }
                         circles[i]->name = ui->nameLabel->text();
                         circles[i]->description = ui->descriptionLabel->text();
+                        circles[i]->instructions = ui->valueLabel->text();
                         circles[i]->startNode = ui->startCheckBox->isChecked();
+                        circles[i]->textItem->setPlainText(circles[i]->name);
                         pos = i;
                     }
                 }
@@ -751,7 +754,8 @@ void MainWindow::on_tabWidget_currentChanged(int index)
     QString temp;
     QString tempVar;
     for (int i = 0; i < circles.size(); i++){ //ciclo i cerchi
-        temp = circles[i]->textItem->toPlainText();
+        //temp = circles[i]->textItem->toPlainText();
+        temp = circles[i]->instructions;
         tempVar.clear();
         temp.erase(std::remove(temp.begin(), temp.end(), ' '), temp.end());
         for (int j = 0; j < temp.length(); j++){
@@ -926,7 +930,8 @@ void MainWindow::runIt(int mode, string path){
                 json nodeData;
                 nodeData["name"] = circles[i]->name.toStdString();
                 nodeData["description"] = circles[i]->description.toStdString();
-                nodeData["instructions"] = circles[i]->textItem->toPlainText().toStdString();
+                //nodeData["instructions"] = circles[i]->textItem->toPlainText().toStdString();
+                nodeData["instructions"] = circles[i]->instructions.toStdString();
                 nodeData["x"] = circles[i]->ellipse->sceneBoundingRect().center().x();
                 nodeData["y"] = circles[i]->ellipse->sceneBoundingRect().center().y();
                 if (circles[i]->startNode)
@@ -1022,6 +1027,7 @@ void MainWindow::runIt(int mode, string path){
     }
 
     if(mode){ //savataggio e basta
+        ui->showVariables->setVisible(false);
         return;
     }
 
@@ -1441,14 +1447,17 @@ void MainWindow::on_addAutoma_clicked()
 
 void MainWindow::on_loadData_clicked()
 {
-    clearAll(1);
+
     QString filePath = QFileDialog::getOpenFileName(this, tr("Seleziona un file JSON"), QDir::currentPath(), tr("File JSON (*.json)"));
 
-    if (filePath.isEmpty()) return;
+    if (filePath.isEmpty()){
 
+        return;
+    }
+    clearAll(1);
     std::ifstream f(filePath.toStdString());
     json data = json::parse(f);
-     setlocale(LC_ALL, "C");
+    setlocale(LC_ALL, "C");
     string h_string = data["system"]["global"]["delta"];
 /*
 #ifdef WINDOWS
@@ -1519,7 +1528,7 @@ void MainWindow::on_loadData_clicked()
             QGraphicsEllipseItem *newEllipse = new QGraphicsEllipseItem(point.x(), point.y(), 80, 80);
             newEllipse->setPen(outlinePen);
             newEllipse->setBrush(brush);
-            string temp = node["instructions"];
+            string temp = node["name"];
             QGraphicsTextItem *textLabel = new QGraphicsTextItem(temp.c_str());
             textLabel->setDefaultTextColor(Qt::white);
             textLabel->setFont(QFont("Arial", 10));
@@ -1530,6 +1539,7 @@ void MainWindow::on_loadData_clicked()
             circleItem->setFlag(QGraphicsItem::ItemIsSelectable);
             circleItem->description = QString::fromStdString(node["description"]);
             circleItem->name = QString::fromStdString(node["name"]);
+            circleItem->instructions = QString::fromStdString(node["instructions"]);
             mappetta[circleItem->name+"~"+(circleItem->automata)] = newEllipse;
             temp = node["flag"];
 

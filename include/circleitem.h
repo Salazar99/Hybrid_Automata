@@ -25,6 +25,7 @@ public:
         brush = ellipse->brush();
         name = "default name";
         description = "default description";
+        instructions = "default";
         startNode = false;
         this->automata = automata;
 
@@ -57,6 +58,7 @@ public:
     QGraphicsEllipseItem* ellipse;
     QGraphicsTextItem* textItem;
     QString name;
+    QString instructions;
     QString description;
     QString automata;
     bool startNode;
