@@ -53,7 +53,8 @@ private:
     unordered_map<Transition, string, TransitionHash, TransitionEqual> transitions; /*an hashmap that contains couples that represent each edge (condition, destination) */
     unordered_map<string, double *> cauchy;                                         /*an hashmap that stores initial values for differential equations*/
     bool firstVisit;                                                                /*true if we just arrived into a node*/
-    string instructions;                                                            /*all the instructions inside the node*/
+    string instructions;    /*all the instructions inside the node*/
+    unordered_map<string, vector<double>> map_ode_solver_values;
     vector<double> ode_solver_values;
     vector<double> ode_solver_times;
     double delta;

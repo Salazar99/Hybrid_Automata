@@ -187,17 +187,20 @@ double Node::ode_solver(string eq, double cauchy, int t0, double h, double t_fin
     double new_value;
     double new_time;
 
-    aux[1] = replace_var(aux[1], var[0], to_string(ode_solver_values[t0 - 1]));
+    //aux[1] = replace_var(aux[1], var[0], to_string(ode_solver_values[t0 - 1]));
+    aux[1] = replace_var(aux[1], var[0], to_string(map_ode_solver_values[var[0]][t0 - 1]));
     aux[1] = replace_var(aux[1], "t", to_string(ode_solver_times[t0 - 1]));
     DEBUG_COMMENT("k1= " << aux[1].c_str() << "\n");
     double k1 = te_interp(aux[1].c_str(), 0);
     DEBUG_COMMENT("Operazione: " << ode_solver_values[t0 - 1] << "+" << h << "*" << k1 << "\n");
-    new_value = ode_solver_values[t0 - 1] + h * k1;
+    //new_value = ode_solver_values[t0 - 1] + h * k1;
+    new_value = map_ode_solver_values[var[0]][t0 - 1] + h * k1;
     new_time = ode_solver_times[t0 - 1] + h;
-    ode_solver_values.push_back(new_value);
+    //ode_solver_values.push_back(new_value);
+    map_ode_solver_values[var[0]].push_back(new_value);
     ode_solver_times.push_back(new_time);
 
-    return ode_solver_values[t0];
+    return map_ode_solver_values[var[0]][t0];
 }
 
 /// @brief execute all the node instructions
@@ -229,6 +232,10 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
             // DEBUG_COMMENT("First Visit: " << getFirstVisit() << "\n");
             if (firstVisit)
             {
+                auto it = map_ode_solver_values.find(aux[0]);
+                if (it != map_ode_solver_values.end()){
+                    map_ode_solver_values[aux[0]].clear();
+                }
                 ode_solver_values.clear();
                 ode_solver_times.clear();
                 ode_solver_times.push_back(0.0);
@@ -237,6 +244,7 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
                 *newCauchy = *sharedVariables[aux[0]];
                 cauchy[aux[0]] = newCauchy;
                 ode_solver_values.push_back(*cauchy[aux[0]]);
+                map_ode_solver_values[aux[0]].push_back(*cauchy[aux[0]]);
             }
             *value = ode_solver(s, *cauchy[aux[0]], time, delta, numSeconds, sharedVariables);
             // DEBUG_COMMENT("New Value X: " << *value << "\n");
