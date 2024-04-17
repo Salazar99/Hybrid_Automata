@@ -306,12 +306,12 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
 /// @brief checks if any transition is satisfied
 /// @param sharedVariables the variables of the automata
 /// @return Node (the new current node)
-string Node::checkTransitions(unordered_map<string, double *> &sharedVariables)
+string Node::checkTransitions(unordered_map<string, double *> &sharedVariables, unordered_map<string, double> &tempVariables)
 {
     DEBUG_COMMENT("CheckTransitions, name: " << getName() << ", size transitions: " << transitionKeys.size() << "\n");
     for (Transition t : getTransitionKeys())
     {
-        if (t.checkCondition(sharedVariables))
+        if (t.checkCondition(sharedVariables, tempVariables))
             return transitions[t];
     }
     return this->getName();

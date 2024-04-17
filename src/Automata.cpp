@@ -174,7 +174,7 @@ bool Automata::checkForChanges()
     currentNode.executeNodeInstructions(*automataVariables, *tempVariables, time_inside_node);
     time_inside_node++;
 
-    string newNode = currentNode.checkTransitions(*automataVariables);
+    string newNode = currentNode.checkTransitions(*automataVariables, *tempVariables);
 
     if (newNode != currentNode.getName())
     {
