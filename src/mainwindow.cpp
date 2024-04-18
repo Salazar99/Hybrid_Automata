@@ -1313,7 +1313,12 @@ void MainWindow::on_jsonButton_clicked() {
 #else
     path = "../output.json";
 #endif
-
+    for(int i=0; i<circles.size(); i++){
+        if(circles[i]->instructions == "default"){
+            QMessageBox::information(nullptr, "Error", "You need to set the instructions of all the nodes in the system");
+            return;
+        }
+    }
     if(actualVariables.isEmpty()){
         QMessageBox::information(nullptr, "Error", "No variables in the system");
         return;
