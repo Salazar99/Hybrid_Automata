@@ -108,7 +108,6 @@ bool Transition::evaluateSingleEquation(string &expression)
         double b = te_interp(right.c_str(), 0);
         return a != b;
     }
-
     // Return false for invalid expressions
     return false;
 }
@@ -220,19 +219,14 @@ bool Transition::checkCondition(unordered_map<string, double *> &variables, unor
 
     for (pair<string, double *> pair : variables)
     {
-        /*
-        pos = condition.find(pair.first);
-        while (pos != string::npos)
+        if (justModified.contains(pair.first))
         {
-            condition.replace(pos, pair.first.length(), to_string(*(pair.second)));
-            pos = condition.find(pair.first);
-        }*/
-        if (justModified.contains(pair.first)){
             condition = replace_var(condition, pair.first, to_string(justModified[pair.first]));
-        }else{
+        }
+        else
+        {
             condition = replace_var(condition, pair.first, to_string(*(pair.second)));
         }
-
     }
 
     DEBUG_COMMENT("Condizione post-replace: " << condition << "\n");
