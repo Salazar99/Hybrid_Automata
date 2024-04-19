@@ -53,6 +53,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->frameDebug->hide();
     ui->horizontalSpacer_2->changeSize(10,20);
 
+    counter_colors.resize(colors_left);
+    counter_colors.fill(1);
 
     //DEBUG_COMMENT("Questo è un commento di debug" << istanti << " \n\n\n");
     for (double i = 0.1; i < 1.2; i+= 0.05)
@@ -328,6 +330,10 @@ void MainWindow::clearAll(int mode){
         automataColors.clear();
         automatas.clear();
         ui->automatasList->clear();
+
+        counter_colors.fill(1);
+        colors_left = counter_colors.size();
+
         for (int i = 0; i < drawnArrows.size(); i++){
             //delete drawnArrows[i];
             scene->removeItem(drawnArrows[i]);
@@ -1398,10 +1404,12 @@ void MainWindow::on_jsonButton_clicked() {
 
 void MainWindow::on_addAutoma_clicked()
 {
+    /*
     if(automatas.size() == 10){
         QMessageBox::information(nullptr, "Information", "Maximum number of automatas reached");
         return;
     }
+    */
     if(ui->automataName->text().isEmpty()){
         QMessageBox::information(nullptr, "Information", "Please insert a name for the automa");
         return;
@@ -1422,23 +1430,37 @@ void MainWindow::on_addAutoma_clicked()
               << QColor(Qt::gray)
               << QColor(0, 255, 0);
 
-    bool found = true;
+    //bool found = true;
     QColor randomColor;
+
+    if(colors_left == 0){
+
+        counter_colors.fill(1);
+        colors_left = counter_colors.size();
+    }
+
     while(true){
         // Generate a random index within the range of the list
         int randomIndex = QRandomGenerator::global()->bounded(colors.size());
 
         // Retrieve the color at the random index
         randomColor = colors[randomIndex];
+        /*
         QMap<QString, QColor>::const_iterator it;
         for (it = automataColors.constBegin(); it != automataColors.constEnd(); ++it) {
             if (it.value() == randomColor){
                 found = false;
             }
         }
-        if (found)break;
-        found = true;
+        */
+        if (counter_colors[randomIndex] == 1){
+            counter_colors[randomIndex] -= 1;
+            break;
+        }
+        //found = true;
     }
+
+    colors_left -= 1;
 
     QString newAutomata = ui->automataName->text();
     automataColors[newAutomata] = randomColor;
@@ -1505,20 +1527,22 @@ void MainWindow::on_loadData_clicked()
         bool found = true;
         QColor randomColor;
         while(true){
+
+            if(colors_left == 0){
+                counter_colors.fill(1);
+                colors_left = counter_colors.size();
+            }
             // Generate a random index within the range of the list
             int randomIndex = QRandomGenerator::global()->bounded(colors.size());
 
             // Retrieve the color at the random index
             randomColor = colors[randomIndex];
-            QMap<QString, QColor>::const_iterator it;
-            for (it = automataColors.constBegin(); it != automataColors.constEnd(); ++it) {
-                if (it.value() == randomColor){
-                    found = false;
-                }
+            if (counter_colors[randomIndex] == 1){
+                counter_colors[randomIndex] -= 1;
+                break;
             }
-            if (found)break;
-            found = true;
         }
+        colors_left -= 1;
         automataColors[QString::fromStdString(automata["name"])] = randomColor;
     }
     ui->automatasList->addItems(automatas);

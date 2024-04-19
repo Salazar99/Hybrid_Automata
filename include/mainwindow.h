@@ -89,6 +89,8 @@ private:
     int goalStep;
     int istanti;
     std::unordered_map<std::string, double> updateVariables;
+    QVector<int> counter_colors;
+    int colors_left = 10;
 protected:
     bool eventFilter(QObject *watched, QEvent *event); // Declare eventFilter function
 
