@@ -17,7 +17,7 @@ class csvfile
     const std::string escape_seq_;
     const std::string special_chars_;
 public:
-    csvfile(const std::string filename, bool write, const std::string separator = ";")
+    csvfile(const std::string filename, bool write, const std::string separator = ",")
         : fs_()
         , is_first_(true)
         , separator_(separator)
@@ -60,12 +60,12 @@ public:
 
     csvfile& operator << (const char * val)
     {
-        return write(escape(val));
+        return write(val);
     }
 
     csvfile& operator << (const std::string & val)
     {
-        return write(escape(val));
+        return write(val);
     }
 
     template<typename T>

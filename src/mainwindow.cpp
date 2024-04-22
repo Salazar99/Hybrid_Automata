@@ -1202,10 +1202,10 @@ void MainWindow::runIt(int mode, string path)
         csvfile csv("../export.csv", true);
 #endif
         // throws exceptions!
-        csv << "TIMES";
+        csv << "double TIMES";
         for (auto const &key : s.getAutomataDependence())
         {
-            csv << key.first;
+            csv << "double " + key.first;
         }
         csv << endrow;
     }
@@ -1845,14 +1845,21 @@ void MainWindow::on_TraceImport_clicked(){
  void MainWindow::on_StartMining_clicked(){
     //Use CfgFile and TraceFile to mine assertions using SLAM. 
     //popen() ecc...
-    string cmdline = "./slam --conf " + CfgFile.toStdString() + " --csv " + TraceFile.toStdString(); 
+    //Thanks to ANSI colors we need to do some work 
+    string cmdline = "./slam --conf " + CfgFile.toStdString() + " --csv " + TraceFile.toStdString() + " | sed -e \'s/\x1b\[[0-9;]*[mGKHF]//g\'"; 
     FILE* stream = popen(cmdline.c_str(), "r");
+    
+    //ANSI purification
     string outslam;
     char buffer[1024];
-    while ( fgets(buffer, 1024, stream) != NULL )
+    std::regex ansiRegex("\x1B\\[[0-9;]*[mGKHF]");
+    while ( fgets(buffer, 1024, stream) != NULL ){
+        //Remove ANSI characters
+        std::regex_replace(buffer, ansiRegex, "");
         outslam.append(buffer);
+    }    
     pclose(stream);
-    //cout << endl << "output: " << endl << outslam << endl;
+    //Qt display
     ui->ShowAss->setText(outslam.c_str());
  }
  

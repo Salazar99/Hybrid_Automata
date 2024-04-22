@@ -21,6 +21,7 @@
 #include <QVBoxLayout>
 #include <semaphore.h>
 #include <string>
+#include <regex>
 #include <unordered_map>
 
 namespace Ui
