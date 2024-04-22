@@ -34,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     ui->setupUi(this);
     ui->tabWidget->setTabText(0, "Main");
     ui->tabWidget->setTabText(1, "Designer");
+    ui->tabWidget->setTabText(2, "Monitoring");
     posUpdateButton.append(ui->updateButton->pos().x());
     posUpdateButton.append(ui->updateButton->pos().y());
     scene = new QGraphicsScene(this);
@@ -1807,4 +1808,62 @@ void MainWindow::on_discardInput_clicked()
     ui->discardInput->hide();
     ui->inputFileButton->setText("IMPORT INPUT FILE");
     inputFile = "void";
+}
+
+void MainWindow::on_TraceImport_clicked(){
+    QString filePath = QFileDialog::getOpenFileName(this, tr("Seleziona un file CSV"), QDir::currentPath(), tr("File CSV (*.csv)"));
+    TraceFile = filePath;
+    if (filePath.isEmpty())
+    {
+        TraceFile = "void";
+        return;
+    }
+    std::ifstream f(filePath.toStdString());
+    ui->TraceImport->setText(filePath.split('/').last());
+    ui->discardInput->show();
+}
+
+ void MainWindow::on_ConfigImport_clicked(){
+    QString filePath = QFileDialog::getOpenFileName(this, tr("Select a configuration File"), QDir::currentPath(), tr("File xml (*.xml)"));
+    CfgFile = filePath;
+    if (filePath.isEmpty())
+    {
+        CfgFile = "void";
+        return;
+    }
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QMessageBox::warning(this, "Error", "Could not open file");
+            return;
+        }
+    QTextStream in(&file);
+    //ui->ConfigImport->setText(filePath.split('/').last());
+    //ui->discardInput->show();
+    ui->EditConfig->setPlainText(in.readAll());
+ }
+
+ void MainWindow::on_StartMining_clicked(){
+    //Use CfgFile and TraceFile to mine assertions using SLAM. 
+    //popen() ecc...
+    string cmdline = "./slam --conf " + CfgFile.toStdString() + " --csv " + TraceFile.toStdString(); 
+    FILE* stream = popen(cmdline.c_str(), "r");
+    string outslam;
+    char buffer[1024];
+    while ( fgets(buffer, 1024, stream) != NULL )
+        outslam.append(buffer);
+    pclose(stream);
+    //cout << endl << "output: " << endl << outslam << endl;
+    ui->ShowAss->setText(outslam.c_str());
+ }
+ 
+void MainWindow::on_SaveConfig_clicked() {
+    QString configText = ui->EditConfig->toPlainText();
+    QFile configFile(CfgFile);
+    if (configFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QTextStream out(&configFile);
+        out << configText;
+        configFile.close();
+    } else {
+        QMessageBox::warning(this, "Error", "Could not save configuration file");
+    }
 }

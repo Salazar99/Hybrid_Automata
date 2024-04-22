@@ -1,0 +1,219 @@
+{
+    "system": {
+        "automata": [
+            {
+                "name": "watertank",
+                "node": [
+                    {
+                        "description": "default description",
+                        "flag": "start",
+                        "instructions": "d' = -a*3*d+0.1*z; z' = a*3*d-0.1*z+r*0.1;",
+                        "name": "Flowing",
+                        "transitions": [
+                            {
+                                "condition": "(z >= 2.2)",
+                                "to": "Overflow"
+                            },
+                            {
+                                "condition": "(z <= 0) & (d <= 0)",
+                                "to": "Depleted"
+                            }
+                        ],
+                        "x": -226.44559144801804,
+                        "y": -182.40277160204892
+                    },
+                    {
+                        "description": "default description",
+                        "flag": "none",
+                        "instructions": "z = 2.2; d' = -a*3*d+0.1*z;",
+                        "name": "Overflow",
+                        "transitions": [
+                            {
+                                "condition": "(a*3*d + r*0.1 <= 0.1*z)",
+                                "to": "Flowing"
+                            }
+                        ],
+                        "x": -361.0371449913325,
+                        "y": -40.4815070238418
+                    },
+                    {
+                        "description": "default description",
+                        "flag": "none",
+                        "instructions": "z = 0; d = 0;",
+                        "name": "Depleted",
+                        "transitions": [
+                            {
+                                "condition": "(r > 0)",
+                                "to": "Flowing"
+                            }
+                        ],
+                        "x": -22.134334407974393,
+                        "y": -38.847225492915626
+                    }
+                ],
+                "variables": [
+                    {
+                        "name": "a",
+                        "value": "0"
+                    },
+                    {
+                        "name": "clock",
+                        "value": "0"
+                    },
+                    {
+                        "name": "d",
+                        "value": "1"
+                    },
+                    {
+                        "name": "r",
+                        "value": "0"
+                    },
+                    {
+                        "name": "w",
+                        "value": "0.5"
+                    },
+                    {
+                        "name": "z",
+                        "value": "2"
+                    }
+                ]
+            },
+            {
+                "name": "weather",
+                "node": [
+                    {
+                        "description": "default description",
+                        "flag": "none",
+                        "instructions": "r = 1; w = 2.2;clock' = 1;",
+                        "name": "Stormy",
+                        "transitions": [
+                            {
+                                "condition": "(clock >= 20 )",
+                                "to": "decreasing_rain"
+                            }
+                        ],
+                        "x": -331.2550515710892,
+                        "y": -352.1606605032312
+                    },
+                    {
+                        "description": "default description",
+                        "flag": "none",
+                        "instructions": "w' = 0.1*(w + w*w); r =w - 0.2 -1;clock = 0; ",
+                        "name": "Increasing_rain",
+                        "transitions": [
+                            {
+                                "condition": "(w >= 2.2)",
+                                "to": "Stormy"
+                            }
+                        ],
+                        "x": -689.2344495664069,
+                        "y": -346.3075350221576
+                    },
+                    {
+                        "description": "default description",
+                        "flag": "start",
+                        "instructions": "w' = -0.1*(w + w*w); r = w - 0.2 - 1;clock = 0;",
+                        "name": "decreasing_rain",
+                        "transitions": [
+                            {
+                                "condition": "(w <= 0.2)",
+                                "to": "Sunny"
+                            }
+                        ],
+                        "x": -330.99067743702176,
+                        "y": -561.4900508013716
+                    },
+                    {
+                        "description": "default description",
+                        "flag": "none",
+                        "instructions": "r = -1; w = 0.2;clock' = 1;",
+                        "name": "Sunny",
+                        "transitions": [
+                            {
+                                "condition": "(clock >= 5)",
+                                "to": "Increasing_rain"
+                            }
+                        ],
+                        "x": -678.7044480269716,
+                        "y": -562.2844264748746
+                    }
+                ],
+                "variables": []
+            },
+            {
+                "name": "Controller",
+                "node": [
+                    {
+                        "description": "default description",
+                        "flag": "start",
+                        "instructions": "a = 0;",
+                        "name": "Closed",
+                        "transitions": [
+                            {
+                                "condition": "(z <= 1.3)",
+                                "to": "Opening "
+                            }
+                        ],
+                        "x": 375.0,
+                        "y": -628.0
+                    },
+                    {
+                        "description": "default description",
+                        "flag": "none",
+                        "instructions": "a = 1;",
+                        "name": "Open",
+                        "transitions": [
+                            {
+                                "condition": "(z >= 1.9)",
+                                "to": "Closing "
+                            }
+                        ],
+                        "x": -77.0,
+                        "y": -357.0
+                    },
+                    {
+                        "description": "default description",
+                        "flag": "none",
+                        "instructions": "a' = 1/1.5;",
+                        "name": "Opening ",
+                        "transitions": [
+                            {
+                                "condition": "(a >= 1)",
+                                "to": "Open"
+                            },
+                            {
+                                "condition": "(z >= 1.9)",
+                                "to": "Closing "
+                            }
+                        ],
+                        "x": -77.0,
+                        "y": -627.0
+                    },
+                    {
+                        "description": "default description",
+                        "flag": "none",
+                        "instructions": "a' = -1/1.5;",
+                        "name": "Closing ",
+                        "transitions": [
+                            {
+                                "condition": "(a <= 0)",
+                                "to": "Closed"
+                            },
+                            {
+                                "condition": "(z <= 1.3)",
+                                "to": "Opening "
+                            }
+                        ],
+                        "x": 374.0,
+                        "y": -358.0
+                    }
+                ],
+                "variables": []
+            }
+        ],
+        "global": {
+            "delta": "0.2500",
+            "finaltime": "50"
+        }
+    }
+}

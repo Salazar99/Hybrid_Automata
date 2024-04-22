@@ -24,9 +24,6 @@ add_executable(main src/main.cpp src/Automata.cpp src/Transition.cpp src/Node.cp
     include/style.h
     include/switch.h
     src/switch.cpp
-
-
-
 )
 
 # Set compiler options based on the operating system
@@ -43,4 +40,4 @@ target_link_libraries(main PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
 # Set compiler definitions
 # Uncomment the line below if needed
-# target_compile_definitions(main PRIVATE $<$<BOOL:${DEBUG_MODE}>:DEBUG_MODE>)
+target_compile_definitions(main PRIVATE $<$<BOOL:${DEBUG_MODE}>:DEBUG_MODE>)

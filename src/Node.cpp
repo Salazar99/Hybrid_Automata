@@ -232,10 +232,12 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
         if (aux[1].find("+") == string::npos && aux[1].find("-") == string::npos && aux[1].find("*") == string::npos && aux[1].find("/") == string::npos)
         {
             setlocale(LC_ALL, "C");
-            value = new double;
-            *value = stod(aux[1]);
-            tempVariables[aux[0]] = *(value);
-            delete (value);
+            //value = new double;
+            //*value = stod(aux[1]);
+            //tempVariables[aux[0]] = *(value);
+            //delete (value);
+
+            tempVariables[aux[0]] = stod(aux[1]);
         }
         else
         {
@@ -244,10 +246,12 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
             {
                 aux[1] = replace_var(aux[1], pair.first, to_string(*(pair.second)));
             }
-            value = new double;
-            *value = te_interp(aux[1].c_str(), 0); // solve the instruction
-            tempVariables[aux[0]] = *(value);
-            delete (value);
+            //value = new double;
+            //*value = te_interp(aux[1].c_str(), 0); // solve the instruction
+            //tempVariables[aux[0]] = *(value);
+            //delete (value);
+
+            tempVariables[aux[0]] = te_interp(aux[1].c_str(), 0); // solve the instruction
         }
     }
     firstVisit = false;

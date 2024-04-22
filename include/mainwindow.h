@@ -10,6 +10,8 @@
 #include <QGraphicsView>
 #include <QTimer>
 #include <QGraphicsItem>
+#include <QTextEdit>
+#include <QTextBrowser>
 #include <QLineEdit>
 #include <QMap>
 #include <QMouseEvent> // Include the necessary header for QMouseEvent
@@ -80,6 +82,10 @@ private:
     bool *stop;
     bool *pause;
     QString inputFile = "void";
+    //Trace file used for mining
+    QString TraceFile = "void";
+    //Configuration file used for mining
+    QString CfgFile = "void";
     sem_t semaforo;
     std::vector<Automata> v;
     int _count;
@@ -112,6 +118,10 @@ private slots:
     void on_stepButton_clicked();
     void on_inputFileButton_clicked();
     void on_discardInput_clicked();
+    void on_TraceImport_clicked();
+    void on_ConfigImport_clicked();
+    void on_StartMining_clicked();
+    void on_SaveConfig_clicked();
 };
 
 #endif // MAINWINDOW_H
