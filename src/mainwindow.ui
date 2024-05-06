@@ -1057,16 +1057,22 @@ border-radius: 2px;margin: 4px 2px;border: 1px solid black;</string>
          <rect>
           <x>20</x>
           <y>120</y>
-          <width>661</width>
-          <height>351</height>
+          <width>1121</width>
+          <height>211</height>
          </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Monospace</family>
+          <bold>false</bold>
+         </font>
         </property>
        </widget>
        <widget class="QPushButton" name="SaveConfig">
         <property name="geometry">
          <rect>
-          <x>30</x>
-          <y>490</y>
+          <x>860</x>
+          <y>50</y>
           <width>91</width>
           <height>35</height>
          </rect>
@@ -1099,18 +1105,24 @@ border-radius: 2px;margin: 4px 2px;border: 1px solid black;</string>
        <widget class="QTextBrowser" name="ShowAss">
         <property name="geometry">
          <rect>
-          <x>690</x>
-          <y>120</y>
-          <width>821</width>
-          <height>571</height>
+          <x>20</x>
+          <y>350</y>
+          <width>1121</width>
+          <height>491</height>
          </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Monospace</family>
+          <bold>false</bold>
+         </font>
         </property>
        </widget>
        <widget class="QPushButton" name="StartMining">
         <property name="geometry">
          <rect>
-          <x>290</x>
-          <y>500</y>
+          <x>960</x>
+          <y>50</y>
           <width>174</width>
           <height>35</height>
          </rect>

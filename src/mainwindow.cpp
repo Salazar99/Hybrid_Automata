@@ -1846,7 +1846,11 @@ void MainWindow::on_TraceImport_clicked(){
     //Use CfgFile and TraceFile to mine assertions using SLAM. 
     //popen() ecc...
     //Thanks to ANSI colors we need to do some work 
+    /*
     string cmdline = "./slam --conf " + CfgFile.toStdString() + " --csv " + TraceFile.toStdString() + " | sed -e \'s/\x1b\[[0-9;]*[mGKHF]//g\'"; 
+    */  
+    string cmdline = "./slam --conf " + CfgFile.toStdString() + " --csv " + TraceFile.toStdString() + " | ansi2txt"; 
+
     FILE* stream = popen(cmdline.c_str(), "r");
     
     //ANSI purification
