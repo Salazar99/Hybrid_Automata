@@ -166,7 +166,7 @@ void MainWindow::handleRefresh()
             else
             {
                 combinedColor = blendColors(automataColors[QString::fromStdString(v[i].getName())], shadowColor, trasparenze[ct % trasparenze.size()]);
-                tempMap[v[i].getCurrentNodeName() + "~" + v[i].getName()]->setBrush(QBrush(combinedColor));
+                //tempMap[v[i].getCurrentNodeName() + "~" + v[i].getName()]->setBrush(QBrush(combinedColor));
             }
         }
         string temp;
@@ -1002,6 +1002,7 @@ void MainWindow::showDesignerInput(int mode)
 /// @param path The path to the JSON file where the system data will be exported.
 void MainWindow::runIt(int mode, string path)
 {
+    time_t sim_start,sim_end;
     json systemData;
     json globalData;
     json automataArray;
@@ -1014,6 +1015,7 @@ void MainWindow::runIt(int mode, string path)
     *stop = false;
     *pause = false;
 
+    time(&sim_start);
     setlocale(LC_ALL, "C");
 
     QMap<std::string, QGraphicsEllipseItem *> mappetta;
@@ -1358,6 +1360,19 @@ void MainWindow::runIt(int mode, string path)
     ui->stepButton->setEnabled(true);
     ui->runForButton->setEnabled(true);
     ui->moreSteps->setEnabled(true);
+    time(&sim_end);
+    float time_taken = float(sim_end - sim_start); 
+    std::ofstream timeFile("sim_time_res");
+    if (timeFile.is_open())
+    {
+        timeFile << "Time taken by program is : " << std::fixed << time_taken << std::setprecision(5);
+        timeFile << " sec" << std::endl;
+        timeFile.close();
+    }
+    else
+    {
+        qDebug() << "Error: Unable to open time file\n";
+    }
 }
 
 /// @brief Slot function called when the "JSON" button is clicked.

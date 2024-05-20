@@ -2,210 +2,146 @@
     "system": {
         "automata": [
             {
-                "name": "watertank",
+                "name": "automaa",
                 "node": [
                     {
                         "description": "default description",
                         "flag": "start",
-                        "instructions": "d' = -a*3*d+0.1*z; z' = a*3*d-0.1*z+r*0.1;",
-                        "name": "Flowing",
+                        "instructions": "varaautomaa = varaautomaa + 1; varbautomaa = varbautomaa + 1; varcautomaa = varcautomaa + 1;",
+                        "name": "State1_automaa",
                         "transitions": [
                             {
-                                "condition": "(z >= 2.2)",
-                                "to": "Overflow"
+                                "condition": "(varaautomaa % 3 == 1)",
+                                "to": "State2_automaa"
                             },
                             {
-                                "condition": "(z <= 0) & (d <= 0)",
-                                "to": "Depleted"
+                                "condition": "(varaautomaa % 3 == 2)",
+                                "to": "State3_automaa"
                             }
                         ],
-                        "x": -186.44559144801804,
-                        "y": -142.40277160204892
+                        "x": 78.0,
+                        "y": 79.0
                     },
                     {
                         "description": "default description",
                         "flag": "none",
-                        "instructions": "z = 2.2; d' = -a*3*d+0.1*z;",
-                        "name": "Overflow",
+                        "instructions": "varaautomaa = varaautomaa + 1; varbautomaa = varbautomaa + 1; varcautomaa = varcautomaa + 1;",
+                        "name": "State2_automaa",
                         "transitions": [
                             {
-                                "condition": "(a*3*d + r*0.1 <= 0.1*z)",
-                                "to": "Flowing"
+                                "condition": "(varaautomaa % 3 == 0)",
+                                "to": "State1_automaa"
+                            },
+                            {
+                                "condition": "(varaautomaa % 3 == 2)",
+                                "to": "State3_automaa"
                             }
                         ],
-                        "x": -321.0371449913325,
-                        "y": -0.4815070238418002
+                        "x": -117.0,
+                        "y": 317.0
                     },
                     {
                         "description": "default description",
                         "flag": "none",
-                        "instructions": "z = 0; d = 0;",
-                        "name": "Depleted",
+                        "instructions": "varaautomaa = varaautomaa + 1; varbautomaa = varbautomaa + 1; varcautomaa = varcautomaa + 1;",
+                        "name": "State3_automaa",
                         "transitions": [
                             {
-                                "condition": "(r > 0)",
-                                "to": "Flowing"
+                                "condition": "(varaautomaa % 3 == 0)",
+                                "to": "State1_automaa"
+                            },
+                            {
+                                "condition": "(varaautomaa % 3 == 1)",
+                                "to": "State2_automaa"
                             }
                         ],
-                        "x": 17.865665592025607,
-                        "y": 1.1527745070843736
+                        "x": 335.0,
+                        "y": 274.0
                     }
                 ],
                 "variables": [
                     {
-                        "name": "a",
+                        "name": "varaautomaa",
                         "value": "0"
                     },
                     {
-                        "name": "clock",
+                        "name": "varaautomab",
                         "value": "0"
                     },
                     {
-                        "name": "d",
-                        "value": "1"
-                    },
-                    {
-                        "name": "r",
+                        "name": "varbautomaa",
                         "value": "0"
                     },
                     {
-                        "name": "w",
-                        "value": "0.5"
+                        "name": "varbautomab",
+                        "value": "0"
                     },
                     {
-                        "name": "z",
-                        "value": "2"
+                        "name": "varcautomaa",
+                        "value": "0"
+                    },
+                    {
+                        "name": "varcautomab",
+                        "value": "0"
                     }
                 ]
             },
             {
-                "name": "weather",
-                "node": [
-                    {
-                        "description": "default description",
-                        "flag": "none",
-                        "instructions": "r = 1; w = 2.2;clock' = 1;",
-                        "name": "Stormy",
-                        "transitions": [
-                            {
-                                "condition": "(clock >= 20 )",
-                                "to": "decreasing_rain"
-                            }
-                        ],
-                        "x": -291.2550515710892,
-                        "y": -312.1606605032312
-                    },
-                    {
-                        "description": "default description",
-                        "flag": "none",
-                        "instructions": "w' = 0.1*(w + w*w); r =w - 0.2 -1;clock = 0; ",
-                        "name": "Increasing_rain",
-                        "transitions": [
-                            {
-                                "condition": "(w >= 2.2)",
-                                "to": "Stormy"
-                            }
-                        ],
-                        "x": -649.2344495664069,
-                        "y": -306.3075350221576
-                    },
-                    {
-                        "description": "default description",
-                        "flag": "start",
-                        "instructions": "w' = -0.1*(w + w*w); r = w - 0.2 - 1;clock = 0;",
-                        "name": "decreasing_rain",
-                        "transitions": [
-                            {
-                                "condition": "(w <= 0.2)",
-                                "to": "Sunny"
-                            }
-                        ],
-                        "x": -290.99067743702176,
-                        "y": -521.4900508013716
-                    },
-                    {
-                        "description": "default description",
-                        "flag": "none",
-                        "instructions": "r = -1; w = 0.2;clock' = 1;",
-                        "name": "Sunny",
-                        "transitions": [
-                            {
-                                "condition": "(clock >= 5)",
-                                "to": "Increasing_rain"
-                            }
-                        ],
-                        "x": -638.7044480269716,
-                        "y": -522.2844264748746
-                    }
-                ],
-                "variables": []
-            },
-            {
-                "name": "Controller",
+                "name": "automab",
                 "node": [
                     {
                         "description": "default description",
                         "flag": "start",
-                        "instructions": "a = 0;",
-                        "name": "Closed",
+                        "instructions": "varaautomab = varaautomab + 1; varbautomab = varbautomab + 1; varcautomab = varcautomab + 1;",
+                        "name": "State1_automab",
                         "transitions": [
                             {
-                                "condition": "(z <= 1.3)",
-                                "to": "Opening "
-                            }
-                        ],
-                        "x": 415.0,
-                        "y": -588.0
-                    },
-                    {
-                        "description": "default description",
-                        "flag": "none",
-                        "instructions": "a = 1;",
-                        "name": "Open",
-                        "transitions": [
-                            {
-                                "condition": "(z >= 1.9)",
-                                "to": "Closing "
-                            }
-                        ],
-                        "x": -37.0,
-                        "y": -317.0
-                    },
-                    {
-                        "description": "default description",
-                        "flag": "none",
-                        "instructions": "a' = 1/1.5;",
-                        "name": "Opening ",
-                        "transitions": [
-                            {
-                                "condition": "(a >= 1)",
-                                "to": "Open"
+                                "condition": "(varaautomab % 3 == 1)",
+                                "to": "State2_automab"
                             },
                             {
-                                "condition": "(z >= 1.9)",
-                                "to": "Closing "
+                                "condition": "(varaautomab % 3 == 2)",
+                                "to": "State3_automab"
                             }
                         ],
-                        "x": -37.0,
-                        "y": -587.0
+                        "x": 604.0,
+                        "y": -98.0
                     },
                     {
                         "description": "default description",
                         "flag": "none",
-                        "instructions": "a' = -1/1.5;",
-                        "name": "Closing ",
+                        "instructions": "varaautomab = varaautomab + 1; varbautomab = varbautomab + 1; varcautomab = varcautomab + 1;",
+                        "name": "State2_automab",
                         "transitions": [
                             {
-                                "condition": "(a <= 0)",
-                                "to": "Closed"
+                                "condition": "(varaautomab % 3 == 0)",
+                                "to": "State1_automab"
                             },
                             {
-                                "condition": "(z <= 1.3)",
-                                "to": "Opening "
+                                "condition": "(varaautomab % 3 == 2)",
+                                "to": "State3_automab"
                             }
                         ],
-                        "x": 414.0,
-                        "y": -318.0
+                        "x": 750.0,
+                        "y": 154.0
+                    },
+                    {
+                        "description": "default description",
+                        "flag": "none",
+                        "instructions": "varaautomab = varaautomab + 1; varbautomab = varbautomab + 1; varcautomab = varcautomab + 1;",
+                        "name": "State3_automab",
+                        "transitions": [
+                            {
+                                "condition": "(varaautomab % 3 == 0)",
+                                "to": "State1_automab"
+                            },
+                            {
+                                "condition": "(varaautomab % 3 == 1)",
+                                "to": "State2_automab"
+                            }
+                        ],
+                        "x": 498.0,
+                        "y": 117.0
                     }
                 ],
                 "variables": []
