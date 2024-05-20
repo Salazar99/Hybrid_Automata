@@ -18,6 +18,7 @@
 #include <thread>
 #include "switch.h"
 #include <algorithm>
+#include <chrono>
 
 using json = nlohmann::json;
 
@@ -1002,7 +1003,6 @@ void MainWindow::showDesignerInput(int mode)
 /// @param path The path to the JSON file where the system data will be exported.
 void MainWindow::runIt(int mode, string path)
 {
-    time_t sim_start,sim_end;
     json systemData;
     json globalData;
     json automataArray;
@@ -1015,7 +1015,12 @@ void MainWindow::runIt(int mode, string path)
     *stop = false;
     *pause = false;
 
-    time(&sim_start);
+    //use chono to measure time
+    std::chrono::time_point<std::chrono::system_clock> sim_start, sim_end;
+    std::chrono::duration<double> elapsed_seconds;
+    sim_start = std::chrono::system_clock::now();
+    
+    
     setlocale(LC_ALL, "C");
 
     QMap<std::string, QGraphicsEllipseItem *> mappetta;
@@ -1360,13 +1365,14 @@ void MainWindow::runIt(int mode, string path)
     ui->stepButton->setEnabled(true);
     ui->runForButton->setEnabled(true);
     ui->moreSteps->setEnabled(true);
-    time(&sim_end);
-    float time_taken = float(sim_end - sim_start); 
+    sim_end = std::chrono::system_clock::now();
+    auto elapsed =
+    std::chrono::duration_cast<std::chrono::milliseconds>(sim_end - sim_start);
     std::ofstream timeFile("sim_time_res");
     if (timeFile.is_open())
     {
-        timeFile << "Time taken by program is : " << std::fixed << time_taken << std::setprecision(5);
-        timeFile << " sec" << std::endl;
+        timeFile << "Time taken by program is : " << std::fixed << elapsed.count();
+        timeFile << " milliseconds" << std::endl;
         timeFile.close();
     }
     else

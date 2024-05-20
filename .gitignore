@@ -10,3 +10,5 @@ build
 export.csv
 buildbackup/
 CMakeLists.txt.user
+ctags
+Session.vim
