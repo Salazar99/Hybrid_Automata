@@ -1,4 +1,4 @@
-# CHAOS
+# CHAOS (Concurrent Hybrid Automata Output Simulator)
 
 ## Project Overview:
 
