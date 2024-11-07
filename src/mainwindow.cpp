@@ -814,6 +814,7 @@ void MainWindow::on_tabWidget_currentChanged(int index)
     QList<QString> functions;
     functions << "log"
               << "exp"
+              << "pow"
               << "sqrt"
               << "cos"
               << "sin"

@@ -1,0 +1,30 @@
+{
+    "system": {
+        "automata": [
+            {
+                "name": "aaaaaaa",
+                "node": [
+                    {
+                        "description": "default description",
+                        "flag": "start",
+                        "instructions": "x'=1;",
+                        "name": "default name",
+                        "transitions": null,
+                        "x": -339.0,
+                        "y": -4.0
+                    }
+                ],
+                "variables": [
+                    {
+                        "name": "x",
+                        "value": "0"
+                    }
+                ]
+            }
+        ],
+        "global": {
+            "delta": "0.1000",
+            "finaltime": "1"
+        }
+    }
+}

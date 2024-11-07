@@ -1,0 +1,176 @@
+{
+    "system": {
+        "automata": [
+            {
+                "name": "gearbox",
+                "node": [
+                    {
+                        "description": "default description",
+                        "flag": "none",
+                        "instructions": "gear=4;omega_trans = omega_motor;",
+                        "name": "gear4",
+                        "transitions": [
+                            {
+                                "condition": "(omega_trans < 35)",
+                                "to": "gear3"
+                            }
+                        ],
+                        "x": -181.0,
+                        "y": -420.0
+                    },
+                    {
+                        "description": "default description",
+                        "flag": "none",
+                        "instructions": "gear=3;omega_trans = omega_motor/1.5;",
+                        "name": "gear3",
+                        "transitions": [
+                            {
+                                "condition": "(omega_trans > 35)",
+                                "to": "gear4"
+                            },
+                            {
+                                "condition": "(omega_trans < 25)",
+                                "to": "gear2"
+                            }
+                        ],
+                        "x": -414.0,
+                        "y": -326.0
+                    },
+                    {
+                        "description": "default description",
+                        "flag": "none",
+                        "instructions": "gear=2;omega_trans = omega_motor/2;",
+                        "name": "gear2",
+                        "transitions": [
+                            {
+                                "condition": "(omega_trans > 25)",
+                                "to": "gear3"
+                            },
+                            {
+                                "condition": "(omega_trans < 15)",
+                                "to": "gear1"
+                            }
+                        ],
+                        "x": -669.0,
+                        "y": -442.0
+                    },
+                    {
+                        "description": "default description",
+                        "flag": "start",
+                        "instructions": "gear = 1; omega_trans = omega_motor/4;",
+                        "name": "gear1",
+                        "transitions": [
+                            {
+                                "condition": "(omega_trans > 15)",
+                                "to": "gear2"
+                            }
+                        ],
+                        "x": -899.0,
+                        "y": -309.0
+                    }
+                ],
+                "variables": [
+                    {
+                        "name": "clk_acc",
+                        "value": "0"
+                    },
+                    {
+                        "name": "clk_brake",
+                        "value": "0"
+                    },
+                    {
+                        "name": "clk_off",
+                        "value": "0"
+                    },
+                    {
+                        "name": "gear",
+                        "value": "1"
+                    },
+                    {
+                        "name": "i",
+                        "value": "0"
+                    },
+                    {
+                        "name": "omega_motor",
+                        "value": "0"
+                    },
+                    {
+                        "name": "omega_trans",
+                        "value": "0"
+                    },
+                    {
+                        "name": "u",
+                        "value": "0"
+                    }
+                ]
+            },
+            {
+                "name": "motor",
+                "node": [
+                    {
+                        "description": "default description",
+                        "flag": "start",
+                        "instructions": "omega_motor'=(1/0.05)*(0.3*i - 0.01*omega_motor); i'=(1/0.2)*(u - 1*i - 0.3*omega_motor);",
+                        "name": "MOTOR",
+                        "transitions": [],
+                        "x": -848.0,
+                        "y": -137.0
+                    }
+                ],
+                "variables": []
+            },
+            {
+                "name": "timer",
+                "node": [
+                    {
+                        "description": "default description",
+                        "flag": "none",
+                        "instructions": "clk_off= 0; clk_acc = 0; clk_brake' = 1; u = -24;",
+                        "name": "BRAKE TIME",
+                        "transitions": [
+                            {
+                                "condition": "(clk_brake > 5)",
+                                "to": "OFF time"
+                            }
+                        ],
+                        "x": -227.0,
+                        "y": -5.0
+                    },
+                    {
+                        "description": "default description",
+                        "flag": "start",
+                        "instructions": "clk_off' = 1; clk_acc = 0; clk_brake = 0; u = 0;",
+                        "name": "OFF time",
+                        "transitions": [
+                            {
+                                "condition": "(clk_off > 5)",
+                                "to": "ACCELERATE TIME"
+                            }
+                        ],
+                        "x": -363.0,
+                        "y": -120.0
+                    },
+                    {
+                        "description": "default description",
+                        "flag": "none",
+                        "instructions": "clk_off= 0; clk_acc' = 1; clk_brake = 0; u = 24;",
+                        "name": "ACCELERATE TIME",
+                        "transitions": [
+                            {
+                                "condition": "(clk_acc > 5)",
+                                "to": "BRAKE TIME"
+                            }
+                        ],
+                        "x": -113.0,
+                        "y": -123.0
+                    }
+                ],
+                "variables": []
+            }
+        ],
+        "global": {
+            "delta": "0.1000",
+            "finaltime": "50"
+        }
+    }
+}

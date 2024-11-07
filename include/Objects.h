@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <string>
 #include <iostream>
+#include "../third_parties/exprtk/exprtk.hpp"
 using namespace std;
 
 /// @brief class that represents a Transition between two nodes
@@ -41,6 +42,22 @@ struct TransitionEqual
         Transition t2Copy = t2;
         return t1Copy.getCondition() == t2Copy.getCondition();
     }
+};
+
+/// @brief Class to parse and evaluate expressions with ExprTk. Used  to solve the ODE equations
+class ExpressionEvaluator {
+private:
+    exprtk::symbol_table<double> symbol_table;
+    exprtk::expression<double> expr;
+    exprtk::parser<double> parser;
+    bool valid = true;
+public:
+    // Constructor to compile the expression
+    ExpressionEvaluator(const std::string &expression, std::unordered_map<std::string, double> &variables);
+    // Method to add or update a variable in the expression
+    void set_variable(const std::string &name, double &value);
+    // Evaluate the expression
+    double evaluate();
 };
 
 /// @brief class that represents a single Node

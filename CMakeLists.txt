@@ -13,6 +13,10 @@ set(CMAKE_CXX_STANDARD 20)
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 #find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
+set(BOOST_ROOT "/home/magister/boost_1_86_0")
+set(BOOST_INCLUDEDIR "/home/magister/boost_1_86_0/include")
+set(BOOST_LIBRARYDIR "/home/magister/boost_1_86_0/lib")
+find_package(Boost REQUIRED )
 
 # Add the executable, specifying the source file(s).
 add_executable(main src/main.cpp src/Automata.cpp src/Transition.cpp src/Node.cpp src/ScrapingJson.cpp src/tinyexpr.c src/System.cpp src/tools.cpp
@@ -36,7 +40,7 @@ endif()
 # Set include directories
 target_include_directories(main PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
-target_link_libraries(main PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(main PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Boost::headers)
 
 # Set compiler definitions
 # Uncomment the line below if needed

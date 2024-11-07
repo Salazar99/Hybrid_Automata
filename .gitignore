@@ -12,3 +12,4 @@ buildbackup/
 CMakeLists.txt.user
 ctags
 Session.vim
+./third_parties

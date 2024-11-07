@@ -6,12 +6,82 @@
 #include <string>
 #include <algorithm>
 #include "../include/tinyexpr.h"
+#include <unordered_map>
+#include <boost/numeric/odeint.hpp>
+#include "../third_parties/exprtk/exprtk.hpp"
+
+using namespace boost::numeric::odeint;
+
+typedef std::vector<double> state_type;
+
 
 #ifdef DEBUG_MODE
 #define DEBUG_COMMENT(comment) std::cout << "[DEBUG] " << comment << std::endl;
 #else
 #define DEBUG_COMMENT(comment)
 #endif
+
+ExpressionEvaluator::ExpressionEvaluator(const std::string &expression, std::unordered_map<std::string, double> &variables)
+{
+  for(auto &var : variables)
+    {
+        set_variable(var.first, var.second);
+    }
+  expr.register_symbol_table(symbol_table);
+        if (!parser.compile(expression, expr)) {
+            std::cerr << "Error: Failed to parse expression: " << expression << std::endl;
+            std::cerr << "Details: " << parser.error() << std::endl;
+            valid = false;
+        }
+}
+
+void ExpressionEvaluator::set_variable(const std::string &name, double &value)
+{
+ if (!symbol_table.add_variable(name, value)) {
+            std::cerr << "Error: Failed to add variable: " << name << std::endl;
+            valid = false;
+        }
+}
+
+double ExpressionEvaluator::evaluate()
+{
+ if (!valid) {
+            std::cerr << "Error: Invalid expression." << std::endl;
+            return NAN;
+        }
+        return expr.value();}
+
+// ODE system function using the ExpressionEvaluator
+void system(const std::vector<double> &x, std::vector<double> &dxdt, double t, ExpressionEvaluator &evaluator, std::unordered_map<std::string, double> &variables) {
+    // Update the time and state variables
+    //variables["t"] = t;
+    //variables["x"] = x[0];  // Assuming x[0] is the main variable for the ODE
+
+    // Evaluate the expression to calculate dx/dt
+    dxdt[0] = evaluator.evaluate();
+}
+
+// Function to solve the ODE with arbitrary expressions and variables
+std::vector<double> solve_ode(const std::string &equation, double x0, double t0, double t1, double dt, std::unordered_map<std::string, double> &variables) {
+    // Initialize the evaluator with the provided equation
+    ExpressionEvaluator evaluator(equation,variables);
+
+    // Set up initial conditions for the ODE solver
+    std::vector<double> x(1, x0);  // Initial state
+
+    // Integrate using the Runge-Kutta-Dopri5 method
+    runge_kutta_dopri5<std::vector<double>> stepper;
+    integrate_const(stepper,
+                    [&](const std::vector<double> &x, std::vector<double> &dxdt, double t) {
+                        system(x, dxdt, t, evaluator, variables);
+                    },
+                    x, t0, t1, dt);
+
+    // Display the final result
+    std::cout << "Final result: x(" << t1 << ") = " << x[0] << std::endl;
+    return x;
+}
+
 
 /// @brief empty constructor
 Node::Node()
@@ -143,31 +213,38 @@ void Node::setFileValues(unordered_map<string, double> newValues)
 /// @return The solution of the ODE at the specified time.
 double Node::ode_solver(string eq, double cauchy, int t0, double h, double t_final, unordered_map<string, double *> &sharedVariables)
 {
-    long num_steps = static_cast<long>(t_final / h) + 1;
     vector<string> aux = split_string(eq, '=');
 
+    //equation part is store in copia
     string copia = aux[1];
 
     vector<string> var = split_string(eq, '\'');
 
-    // if the string has variables, then we replace their values
+    //get the equation string from the complete instruntion string
+    std::string equation = aux[1];  // Complex example equation
+
+    // Set up variables as a map with arbitrary names and avaiable values if possible 
+    std::unordered_map<std::string, double> variables;
+
+    // if the string has variables, then we insert them in the map with their values
+    //FIXME
+    //Now we are adding all the shared variables to the map, maybe we should add only the ones that are used in the equation but this needs a good parser
     for (pair<string, double *> pair : sharedVariables)
     {
-        if (pair.first != var[0])
-            copia = replace_var(copia, pair.first, to_string(*(pair.second)));
+            variables[pair.first] = *(pair.second);
     }
-
-    aux[1] = copia;
-    double new_value;
     double new_time;
 
-    aux[1] = replace_var(aux[1], var[0], to_string(map_ode_solver_values[var[0]][t0 - 1]));
-    aux[1] = replace_var(aux[1], "t", to_string(ode_solver_times[t0 - 1]));
-    double k1 = te_interp(aux[1].c_str(), 0);
-    new_value = map_ode_solver_values[var[0]][t0 - 1] + h * k1;
+    //aux[1] = replace_var(aux[1], var[0], to_string(map_ode_solver_values[var[0]][t0 - 1]));
+    //aux[1] = replace_var(aux[1], "t", to_string(ode_solver_times[t0 - 1]));
+    //double k1 = te_interp(aux[1].c_str(), 0);
+    //new_value = map_ode_solver_values[var[0]][t0 - 1] + h * k1;
+    
     new_time = ode_solver_times[t0 - 1] + h;
-    map_ode_solver_values[var[0]].push_back(new_value);
     ode_solver_times.push_back(new_time);
+
+    //Now we need to update the map_ode_solver_values with the new values because this code is terrible and not modular at all
+    map_ode_solver_values[var[0]].push_back(solve_ode(equation, map_ode_solver_values[var[0]][t0 - 1], new_time-h, new_time, h, variables)[0]);
 
     return map_ode_solver_values[var[0]][t0];
 }
