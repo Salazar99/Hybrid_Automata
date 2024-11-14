@@ -7,11 +7,11 @@
                     {
                         "description": "default description",
                         "flag": "none",
-                        "instructions": "gear=4;omega_trans = omega_motor/1.8;",
+                        "instructions": "gear=4;omega_trans = omega_motor/2;",
                         "name": "gear4",
                         "transitions": [
                             {
-                                "condition": "(omega_trans < 26)",
+                                "condition": "(omega_trans < 28)",
                                 "to": "gear3"
                             },
                             {
@@ -19,21 +19,21 @@
                                 "to": "gear5"
                             }
                         ],
-                        "x": -4.0,
-                        "y": -336.0
+                        "x": -97.0,
+                        "y": -299.0
                     },
                     {
                         "description": "default description",
                         "flag": "none",
-                        "instructions": "gear=3;omega_trans = omega_motor/2.7;",
+                        "instructions": "gear=3;omega_trans = omega_motor/2.5;",
                         "name": "gear3",
                         "transitions": [
                             {
-                                "condition": "(omega_trans > 26)",
+                                "condition": "(omega_trans > 28)",
                                 "to": "gear4"
                             },
                             {
-                                "condition": "(omega_trans < 21)",
+                                "condition": "(omega_trans < 20)",
                                 "to": "gear2"
                             }
                         ],
@@ -43,15 +43,15 @@
                     {
                         "description": "default description",
                         "flag": "none",
-                        "instructions": "gear=2;omega_trans = omega_motor/3.3;",
+                        "instructions": "gear=2;omega_trans = omega_motor/3.5;",
                         "name": "gear2",
                         "transitions": [
                             {
-                                "condition": "(omega_trans > 21)",
+                                "condition": "(omega_trans > 20)",
                                 "to": "gear3"
                             },
                             {
-                                "condition": "(omega_trans < 18)",
+                                "condition": "(omega_trans < 15)",
                                 "to": "gear1"
                             }
                         ],
@@ -65,7 +65,7 @@
                         "name": "gear1",
                         "transitions": [
                             {
-                                "condition": "(omega_trans > 18)",
+                                "condition": "(omega_trans > 15)",
                                 "to": "gear2"
                             }
                         ],
@@ -83,25 +83,21 @@
                                 "to": "gear4"
                             }
                         ],
-                        "x": 122.0,
-                        "y": -89.0
+                        "x": 13.0,
+                        "y": -184.0
                     }
                 ],
                 "variables": [
+                    {
+                        "name": "clk_acc",
+                        "value": "0"
+                    },
                     {
                         "name": "clk_brake",
                         "value": "0"
                     },
                     {
                         "name": "clk_off",
-                        "value": "0"
-                    },
-                    {
-                        "name": "debug",
-                        "value": "0"
-                    },
-                    {
-                        "name": "error",
                         "value": "0"
                     },
                     {
@@ -151,30 +147,44 @@
                     {
                         "description": "default description",
                         "flag": "none",
-                        "instructions": "clk_off= 0; clk_brake' = 1;omega_target = 70;",
-                        "name": "TARGET 70",
+                        "instructions": "clk_off= 0; clk_acc = 0; clk_brake' = 1;omega_target = 70;",
+                        "name": "BRAKE TIME",
                         "transitions": [
                             {
                                 "condition": "(clk_brake > 15)",
-                                "to": "TARGET 25"
+                                "to": "OFF time"
                             }
                         ],
-                        "x": 347.0,
-                        "y": -102.0
+                        "x": 261.0,
+                        "y": -152.0
                     },
                     {
                         "description": "default description",
                         "flag": "start",
-                        "instructions": "clk_off' = 1; clk_brake = 0; omega_target = 10;",
-                        "name": "TARGET 25",
+                        "instructions": "clk_off' = 1; clk_acc = 0; clk_brake = 0; omega_target = 25;",
+                        "name": "OFF time",
                         "transitions": [
                             {
-                                "condition": "(clk_off > 50)",
-                                "to": "TARGET 70"
+                                "condition": "(clk_off > 40)",
+                                "to": "ACCELERATE TIME"
                             }
                         ],
-                        "x": 332.0,
-                        "y": -293.0
+                        "x": 125.0,
+                        "y": -267.0
+                    },
+                    {
+                        "description": "default description",
+                        "flag": "none",
+                        "instructions": "clk_off= 0; clk_acc' = 1; clk_brake = 0;omega_target = 40;",
+                        "name": "ACCELERATE TIME",
+                        "transitions": [
+                            {
+                                "condition": "(clk_acc > 25)",
+                                "to": "BRAKE TIME"
+                            }
+                        ],
+                        "x": 375.0,
+                        "y": -269.0
                     }
                 ],
                 "variables": []
@@ -185,48 +195,66 @@
                     {
                         "description": "default description",
                         "flag": "start",
-                        "instructions": "u'=0.5*error; error = omega_target - omega_trans; debug = 1;",
-                        "name": "Acceleration",
+                        "instructions": "u = 0;",
+                        "name": "NO_acceleration",
                         "transitions": [
                             {
-                                "condition": "(error < 1 & error > -1)",
-                                "to": "Steady_state"
+                                "condition": "(omega_trans < omega_target)",
+                                "to": "Accelerating"
+                            }
+                        ],
+                        "x": -178.0,
+                        "y": 11.0
+                    },
+                    {
+                        "description": "default description",
+                        "flag": "none",
+                        "instructions": "u'=-1;",
+                        "name": "decelerating",
+                        "transitions": [
+                            {
+                                "condition": "(u <= 0)",
+                                "to": "NO_acceleration"
                             },
                             {
-                                "condition": "(u >= 24) & (error >= 0)",
-                                "to": "Full acceleration"
+                                "condition": "(omega_trans < omega_target)",
+                                "to": "Accelerating"
                             }
                         ],
-                        "x": -143.0,
-                        "y": 70.0
+                        "x": -222.0,
+                        "y": 278.0
                     },
                     {
                         "description": "default description",
                         "flag": "none",
-                        "instructions": "error= omega_target - omega_trans; u'= 0; debug = 3;",
-                        "name": "Steady_state",
+                        "instructions": "u = 24;",
+                        "name": "Full_acceleration",
                         "transitions": [
                             {
-                                "condition": "(error > 1 | error < -1)",
-                                "to": "Acceleration"
+                                "condition": "(false)",
+                                "to": "decelerating"
                             }
                         ],
-                        "x": 243.0,
-                        "y": 70.0
+                        "x": 314.0,
+                        "y": 292.0
                     },
                     {
                         "description": "default description",
                         "flag": "none",
-                        "instructions": "u = 24;error = omega_target -omega_trans; debug =2;",
-                        "name": "Full acceleration",
+                        "instructions": "u'= 1;",
+                        "name": "Accelerating",
                         "transitions": [
                             {
-                                "condition": "(error <= -1)",
-                                "to": "Acceleration"
+                                "condition": "(u >= 24)",
+                                "to": "Full_acceleration"
+                            },
+                            {
+                                "condition": "(omega_trans >= omega_target)",
+                                "to": "decelerating"
                             }
                         ],
-                        "x": 58.0,
-                        "y": 276.0
+                        "x": 311.0,
+                        "y": 10.0
                     }
                 ],
                 "variables": []

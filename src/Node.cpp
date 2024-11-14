@@ -306,6 +306,7 @@ void Node::executeNodeInstructions(unordered_map<string, double *> &sharedVariab
         }
 
         // check if the instruction is a simple assignment
+        //FIXME what about the case in which I have "variable = variable2"? I should check if the assignment is to a constant or to a variable otherwise it breaks everything
         if (aux[1].find("+") == string::npos && aux[1].find("-") == string::npos && aux[1].find("*") == string::npos && aux[1].find("/") == string::npos)
         {
             setlocale(LC_ALL, "C");
